@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Onlab</string>
+
+    <string name="bluetooth_disconnected">未连接</string>
+    <string name="bluetooth_connected">已连接</string>
+    <string name="main">主界面</string>
+    <string name="action_open">打开</string>
+    <string name="action_save">保存</string>
+    <string name="action_print">打印</string>
+    <string name="action_set_wavelength">设置波长</string>
+    <string name="wavelength">波长</string>
+    <string name="abs">吸光度</string>
+    <string name="trans">透过率</string>
+    <string name="action_settings">设置</string>
+    <string name="photometric_measurement">光度测量</string>
+    <string name="quantitative_analysis">定量分析</string>
+    <string name="wavelength_scan">波长扫描</string>
+    <string name="time_scan">时间扫描</string>
+    <string name="multi_wavelength">多波长测试</string>
+    <string name="ok_string">确定</string>
+    <string name="cancel_string">取消</string>
+    <string name="start_test">开始测试</string>
+    <string name="rezero">校正空白</string>
+    <string name="set_wavelength">设置波长</string>
+    <string name="retry_to_exit">请再按下返回键来推出！</string>
+    <string name="index">序号</string>
+    <string name="wavelength_with_unit">波长(nm)</string>
+    <string name="abs_with_unit">吸光度(Abs)</string>
+    <string name="trans_with_unit">透过率(%T)</string>
+    <string name="energy">能量</string>
+    <string name="action_delete">删除</string>
+    <string name="action_selectall">全选</string>
+    <string name="ble_not_support">手机不支持BLE功能</string>
+
+    <string-array name="titles">
+        <item>光度测量</item>
+        <item>定量分析</item>
+        <item>波长扫描</item>
+        <item>时间扫描</item>
+        <item>多波长测试</item>
+    </string-array>
+</resources>
