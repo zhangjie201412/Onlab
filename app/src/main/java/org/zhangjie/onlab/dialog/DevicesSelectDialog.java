@@ -1,0 +1,83 @@
+package org.zhangjie.onlab.dialog;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.Toast;
+
+import org.zhangjie.onlab.R;
+import org.zhangjie.onlab.ble.BtleManager;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by H151136 on 5/24/2016.
+ */
+public class DevicesSelectDialog extends DialogFragment {
+
+    private ListView mDeviceListView;
+    private SimpleAdapter mAdapter;
+    private List<HashMap<String, String>> mData;
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_device_list, null);
+
+        mData = new ArrayList<HashMap<String, String>>();
+
+        mDeviceListView = (ListView) view.findViewById(R.id.dialog_lv_devices);
+        mAdapter = new SimpleAdapter(getActivity(), mData, R.layout.item_select_device,
+                new String[]{"name"}, new int[]{R.id.item_device});
+        mDeviceListView.setAdapter(mAdapter);
+        mDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String address = mData.get(position).get("addr");
+                BtleManager.getInstance().connect(address);
+                Toast.makeText(getActivity(), getActivity().getString(R.string.attempt_connecting_device)
+                        , Toast.LENGTH_SHORT).show();
+                dismiss();
+            }
+        });
+        clear();
+
+        builder.setView(view).setNegativeButton(getString(R.string.cancel_string), null)
+                .setTitle(getString(R.string.select_devices)).setIcon(R.mipmap.ic_launcher);
+
+        return builder.create();
+    }
+
+    private void clear() {
+        mData.clear();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public void addDevice(String name, String addr) {
+        for (int i = 0; i < mData.size(); i++) {
+            if (mData.get(i).get("addr").equals(addr))
+                return;
+        }
+
+        HashMap<String, String> item = new HashMap<String, String>();
+        item.put("name", "" + name + "(" + addr + ")");
+        item.put("addr", addr);
+
+        mData.add(item);
+        mAdapter.notifyDataSetChanged();
+    }
+}

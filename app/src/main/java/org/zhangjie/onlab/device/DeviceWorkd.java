@@ -7,9 +7,10 @@ import org.zhangjie.onlab.device.work.BaseWork;
 /**
  * Created by H151136 on 5/27/2016.
  */
-public class PhotometricMeasureWork extends BaseWork {
+public class DeviceWorkd extends BaseWork {
 
-    private static final String TAG = "Onlab.PhotometricMea";
+    private static final String TAG = "Onlab.Device";
+
     @Override
     public void setup() throws InterruptedException {
         super.setup();

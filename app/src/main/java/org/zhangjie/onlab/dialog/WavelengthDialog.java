@@ -21,7 +21,6 @@ import org.zhangjie.onlab.R;
 public class WavelengthDialog extends DialogFragment {
 
     private EditText mWavelengthEditText;
-    private int wavelength;
     private WavelengthInputListern mListener;
 
     public interface WavelengthInputListern {

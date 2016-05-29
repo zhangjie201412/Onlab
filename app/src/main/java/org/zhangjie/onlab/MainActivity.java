@@ -1,5 +1,6 @@
 package org.zhangjie.onlab;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.fragment.FragmentCallbackListener;
 import org.zhangjie.onlab.fragment.HelloChartFragment;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private Toolbar mTopToolbar;
 
     private WavelengthDialog mWavelengthDialog;
+    private DevicesSelectDialog mDeviceSelectDialog;
     private DeviceManager mDeviceManager;
 
     private Toast mToast;
@@ -63,6 +66,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 case DeviceManager.UI_MSG_DEVICE_DISCONNECTED:
                     mIsBluetoothConnected = false;
                     setBluetoothConnected(mIsBluetoothConnected);
+                    break;
+
+                case DeviceManager.UI_MSG_DEVICE_SCAN:
+                    Bundle bundle = msg.getData();
+                    String name = bundle.getString("name");
+                    String addr = bundle.getString("addr");
+                    Log.d(TAG, "###name = " + name);
+                    mDeviceSelectDialog.addDevice(name, addr);
                     break;
             }
         }
@@ -92,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mIsBluetoothConnected = false;
         mWavelengthDialog = new WavelengthDialog();
         mWavelengthDialog.setListener(this);
+
+        mDeviceSelectDialog = new DevicesSelectDialog();
 
         mDeviceManager = DeviceManager.getInstance();
         mDeviceManager.init(this, mUiHandler);
@@ -212,7 +225,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "on Navigation Click!");
-                mDeviceManager.scan();
+                if(!mIsBluetoothConnected) {
+                    mDeviceManager.scan();
+                    mDeviceSelectDialog.show(getFragmentManager(), getString(R.string.select_devices));
+                }
+
 //                if (mIsBluetoothConnected) {
 //                    mIsBluetoothConnected = false;
 //                } else {
@@ -237,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         } else {
             Log.w(TAG, "Main fragment is add!!!");
         }
+
     }
 
     private void addContentFragment(Fragment fragment) {

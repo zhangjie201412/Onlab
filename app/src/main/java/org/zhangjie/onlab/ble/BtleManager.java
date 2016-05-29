@@ -80,13 +80,14 @@ public class BtleManager {
             final String deviceName = device.getName();
             final String deviceAddr = device.getAddress();
 
-            Log.d(TAG, "name = " + deviceName);
-            Log.d(TAG, "addr = " + deviceAddr);
-            if(deviceName.startsWith(BLE_HEAD)) {
-                //connect to the device
-                mBluetoothLeService.connect(deviceAddr);
-                scan(false);
-            }
+//            Log.d(TAG, "name = " + deviceName);
+//            Log.d(TAG, "addr = " + deviceAddr);
+            mBtleListener.onDeviceScan(deviceName, deviceAddr);
+//            if(deviceName.startsWith(BLE_HEAD)) {
+//                //connect to the device
+//                mBluetoothLeService.connect(deviceAddr);
+//                scan(false);
+//            }
         }
     };
 
@@ -96,21 +97,21 @@ public class BtleManager {
 //            Log.i(TAG, String.valueOf(callbackType));
 //            Log.i(TAG, result.toString());
             BluetoothDevice btDevice = result.getDevice();
-            Log.d(TAG, "name = " + btDevice.getName());
-            Log.d(TAG, "addr = " + btDevice.getAddress());
+//            Log.d(TAG, "name = " + btDevice.getName());
+//            Log.d(TAG, "addr = " + btDevice.getAddress());
+            mBtleListener.onDeviceScan(btDevice.getName(), btDevice.getAddress());
+
 //            connectToDevice(btDevice);
-            if(btDevice.getName() != null && (btDevice.getName().startsWith(BLE_HEAD))) {
-                //connect to the device
-                mBluetoothLeService.connect(btDevice.getAddress());
-                scan(false);
-            }
+//            if(btDevice.getName() != null && (btDevice.getName().startsWith(BLE_HEAD))) {
+//                //connect to the device
+//                mBluetoothLeService.connect(btDevice.getAddress());
+//                scan(false);
+//            }
         }
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
-            for (ScanResult sr : results) {
-//                Log.i(TAG, sr.toString());
-            }
+
         }
 
         @Override
@@ -127,17 +128,13 @@ public class BtleManager {
                 mIsBtleConnected = true;
                 mBtleListener.onDeviceConnected();
                 Log.d(TAG, "device connected");
-//                mHandler.obtainMessage(DEVICE_CONNECT_STATE,
-//                        DEVICE_CONNECT_STATE_CONNECTED, -1).sendToTarget();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED
                     .equals(action)) {
                 mIsBtleConnected = false;
                 mBtleListener.onDeviceDisconnected();
-
+                scan(false);
                 Log.d(TAG, "device disconnected");
 
-//                mHandler.obtainMessage(DEVICE_CONNECT_STATE,
-//                        DEVICE_CONNECT_STATE_DISCONNECTED, -1).sendToTarget();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED
                     .equals(action)) {
             } else if (BluetoothLeService.ACTION_DEVICE_FIND.equals(action)) {
@@ -146,6 +143,7 @@ public class BtleManager {
                 // process data
                 byte data[] = intent
                         .getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
+                mBtleListener.onDataAvailable(data);
 //                if (handleData(data)) {
 //                    processData();
 //                    resetData();
@@ -184,6 +182,14 @@ public class BtleManager {
                 Log.d(TAG, "stop scan");
             }
         }
+    }
+
+    public void connect(String addr) {
+        mBluetoothLeService.connect(addr);
+    }
+
+    public void send(String data) {
+        mBluetoothLeService.send(data);
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {

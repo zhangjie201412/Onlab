@@ -41,7 +41,6 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_photometric_measure_start:
-                DeviceManager.getInstance().doPhotometricMeasureWork();
                 break;
             default:
                 break;
