@@ -1,6 +1,7 @@
 package org.zhangjie.onlab.device;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -55,8 +56,6 @@ public class DeviceManager implements BtleListener {
     public static String[] CMD_LIST;
     //----cmd list
 
-    private List<HashMap<Integer, Cmd>> mCmdList;
-
     private Context mContext;
     private Handler mUiHandler = null;
     private WorkTask mWorkThread;
@@ -75,8 +74,6 @@ public class DeviceManager implements BtleListener {
         CMD_LIST[DEVICE_CMD_LIST_SET_WAVELENGTH - DEVICE_CMD_LIST_START] = "swl";
         CMD_LIST[DEVICE_CMD_LIST_SET_A - DEVICE_CMD_LIST_START] = "sa";
         CMD_LIST[DEVICE_CMD_LIST_SET_QUIT - DEVICE_CMD_LIST_START] = "quit";
-
-        mCmdList = new ArrayList<HashMap<Integer, Cmd>>();
     }
 
     @Override
@@ -104,8 +101,14 @@ public class DeviceManager implements BtleListener {
 
     @Override
     public void onDataAvailable(byte[] data) {
-        for(int i = 0; i < data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             Log.d(TAG, String.format("[%d] = %02x\n", i, data[i]));
+        }
+        if((mEntryFlag & WORK_ENTRY_FLAG_INITIALIZE) != 0) {
+            //initialzation ertry
+        }
+        if((mEntryFlag & WORK_ENTRY_FLAG_UPDATE_STATUS) != 0) {
+            //update status entry
         }
     }
 
@@ -127,30 +130,77 @@ public class DeviceManager implements BtleListener {
         BtleManager.getInstance().scan(true);
     }
 
-    private int[] sendCmd(int cmd) {
-        BtleManager.getInstance().send(CMD_LIST[cmd - DEVICE_CMD_LIST_START] + "\r");
-
-        return null;
+    private void clearCmd(List<HashMap<String, Cmd>> cmdList) {
+        cmdList.clear();
     }
 
-    private void clearCmd() {
-        mCmdList.clear();
-    }
-
-    private void addCmd(int cmd, int param) {
+    private void addCmd(List<HashMap<String, Cmd>> cmdList, int cmd, int param) {
         Cmd c = new Cmd(cmd, param);
-        HashMap<Integer, Cmd> item = new HashMap<>();
-        item.put(mCmdList.size(), c);
-        mCmdList.add(item);
+        HashMap<String, Cmd> item = new HashMap<>();
+        item.put("cmd", c);
+        cmdList.add(item);
     }
 
-    private int[] sendCmd(int cmd, int param) {
-        BtleManager.getInstance().send(CMD_LIST[cmd - DEVICE_CMD_LIST_START] + " " + param + "\r");
+    public int[] sendCmd(Cmd cmd) {
+        if (cmd.param < 0) {
+//            BtleManager.getInstance().send(CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + "\r");
+            Log.d(TAG, "fake send -> " + CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START]);
+        } else {
+//            BtleManager.getInstance().send(CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + " " + cmd.param + "\r");
+            Log.d(TAG, "fake send -> " + CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + " " + cmd.param);
+        }
 
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "fake send -> " + "done");
         return null;
     }
 
-    public void doWork() {
-        mWorkThread = new WorkTask(mWork);
+    private void doWork(List<HashMap<String, Cmd>> cmdList) {
+        mWork.setCmdList(cmdList);
+        mWorkThread = new WorkTask();
+        mWorkThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, mWork);
+    }
+
+    /*Bit switch if the work entry need to process
+    * */
+    private final int WORK_ENTRY_FLAG_INITIALIZE = 1 << 0;
+    private final int WORK_ENTRY_FLAG_UPDATE_STATUS = 1 << 1;
+
+    private int mEntryFlag = 0x00000000;
+
+    /*1. Connect
+      2. get dark
+      3. get wavelength
+      4. get A
+    * */
+    public void initializeWork() {
+        //clear entry flag
+        mEntryFlag &= 0x00000000;
+        //set init flag
+        mEntryFlag |= WORK_ENTRY_FLAG_INITIALIZE;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_CONNECT, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_DARK, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_A, -1);
+        doWork(cmdList);
+    }
+
+    /*send ge and update bottom status bar
+     */
+    public void updateStatus() {
+        //clear entry flag
+        mEntryFlag &= 0x00000000;
+        //set update status flag
+        mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 10);
+        doWork(cmdList);
     }
 }

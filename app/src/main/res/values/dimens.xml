@@ -8,5 +8,6 @@
     <dimen name="dialog_margin_right">10dp</dimen>
     <dimen name="button_margin_left_right">20dp</dimen>
     <dimen name="button_margin_top_bottom">10dp</dimen>
+    <dimen name="button_margin">10dp</dimen>
     <dimen name="title_top_bottom">5dp</dimen>
 </resources>
