@@ -14,6 +14,9 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 import org.zhangjie.onlab.R;
 
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
 /**
@@ -30,6 +33,8 @@ public class TimeScanFragment extends Fragment implements  View.OnClickListener 
     private Button mStopButton;
     private Button mRezeroButton;
     private LineChartView mChartView;
+
+    private LineChartData mChartData;
 
     @Nullable
     @Override
@@ -57,6 +62,27 @@ public class TimeScanFragment extends Fragment implements  View.OnClickListener 
         mStartButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
         mRezeroButton.setOnClickListener(this);
+        initChart();
+    }
+
+    private void initChart() {
+        final Viewport viewport = new Viewport(mChartView.getMaximumViewport());
+        viewport.bottom = 0;
+        viewport.top = 3;
+        viewport.left = 0;
+        viewport.right = 180;
+        mChartView.setMaximumViewport(viewport);
+        mChartView.setCurrentViewport(viewport);
+
+        mChartData = new LineChartData();
+        Axis axisX = new Axis();
+        Axis axisY = new Axis();
+        axisX.setName("time");
+        axisY.setName("abs");
+        mChartData.setAxisXBottom(axisX);
+        mChartData.setAxisYLeft(axisY);
+        mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
+        mChartView.setLineChartData(mChartData);
     }
 
     @Override
