@@ -230,11 +230,15 @@ public class DeviceManager implements BtleListener {
             }
         }
 
-        try {
-            //wait '>'
-            this.wait();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if(!isFake) {
+            try {
+                //wait '>'
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.d(TAG, "Wait notify~");
         }
 
         if (isFake) {
