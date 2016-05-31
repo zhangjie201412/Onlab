@@ -14,8 +14,14 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 import org.zhangjie.onlab.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.ValueShape;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
@@ -66,18 +72,45 @@ public class TimeScanFragment extends Fragment implements  View.OnClickListener 
     }
 
     private void initChart() {
+        //fake data
+        List<PointValue> values = new ArrayList<PointValue>();
+        for(int i = 0; i < 100; i++) {
+            values.add(new PointValue(i, i * 2));
+        }
+
+        List<Line> lines = new ArrayList<Line>();
+
+        Line line = new Line(values);
+        line.setColor(getResources().getColor(R.color.commo_text_color));
+
+        line.setShape(ValueShape.CIRCLE);
+        line.setCubic(true);
+
+
+        lines.add(line);
+//        line.setFilled(true);
+        line.setHasLabels(true);
+        line.setHasLabelsOnlyForSelected(true);
+        line.setHasLines(true);
+        line.setHasPoints(true);
+        line.setPointRadius(3);
+        line.setStrokeWidth(2);
+
         final Viewport viewport = new Viewport(mChartView.getMaximumViewport());
         viewport.bottom = 0;
-        viewport.top = 3;
+        viewport.top = 50;
         viewport.left = 0;
         viewport.right = 180;
         mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
 
-        mChartData = new LineChartData();
+        mChartData = new LineChartData(lines);
+
         Axis axisX = new Axis();
         Axis axisY = new Axis();
         axisX.setName("time");
+        axisX.setHasTiltedLabels(true);
+
         axisY.setName("abs");
         mChartData.setAxisXBottom(axisX);
         mChartData.setAxisYLeft(axisY);

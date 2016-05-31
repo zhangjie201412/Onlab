@@ -91,34 +91,6 @@ public class BtleManager {
         }
     };
 
-    private ScanCallback mScanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-//            Log.i(TAG, String.valueOf(callbackType));
-//            Log.i(TAG, result.toString());
-            BluetoothDevice btDevice = result.getDevice();
-//            Log.d(TAG, "name = " + btDevice.getName());
-//            Log.d(TAG, "addr = " + btDevice.getAddress());
-            mBtleListener.onDeviceScan(btDevice.getName(), btDevice.getAddress());
-
-//            connectToDevice(btDevice);
-//            if(btDevice.getName() != null && (btDevice.getName().startsWith(BLE_HEAD))) {
-//                //connect to the device
-//                mBluetoothLeService.connect(btDevice.getAddress());
-//                scan(false);
-//            }
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            Log.e(TAG, "Error Code: " + errorCode);
-        }
-    };
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -152,35 +124,73 @@ public class BtleManager {
         }
     };
 
-    public void scan(final boolean enable) {
+    public void scan(boolean enable) {
+        if (Build.VERSION.SDK_INT < 21) {
+            scan_old(enable);
+        } else {
+            scan_new(enable);
+        }
+    }
+
+    @TargetApi(23)
+    private void scan_new(final boolean enable) {
+        final ScanCallback mScanCallback = new ScanCallback() {
+
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+
+                BluetoothDevice btDevice = result.getDevice();
+                mBtleListener.onDeviceScan(btDevice.getName(), btDevice.getAddress());
+
+            }
+
+            @Override
+            public void onBatchScanResults(List<ScanResult> results) {
+
+            }
+
+            @Override
+            public void onScanFailed(int errorCode) {
+                Log.e(TAG, "Error Code: " + errorCode);
+            }
+        };
         if (enable) {
             mBtleHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (!mIsBtleConnected) {
-                        if (Build.VERSION.SDK_INT < 21) {
-                            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                        } else {
-                            mLEScanner.stopScan(mScanCallback);
-                        }
+                        mLEScanner.stopScan(mScanCallback);
                     } else {
                         Log.d(TAG, "already connected");
                     }
                 }
             }, SCAN_PERIOD);
-            if (Build.VERSION.SDK_INT < 21) {
-                mBluetoothAdapter.startLeScan(mLeScanCallback);
-            } else {
-                mLEScanner.startScan(mScanCallback);
-            }
+
+            mLEScanner.startScan(mScanCallback);
         } else {
-            if (Build.VERSION.SDK_INT < 21) {
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                Log.d(TAG, "stop scan");
-            } else {
-                mLEScanner.stopScan(mScanCallback);
-                Log.d(TAG, "stop scan");
-            }
+
+            mLEScanner.stopScan(mScanCallback);
+            Log.d(TAG, "stop scan");
+        }
+    }
+
+    private void scan_old(final boolean enable) {
+        if (enable) {
+            mBtleHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!mIsBtleConnected) {
+                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    } else {
+                        Log.d(TAG, "already connected");
+                    }
+                }
+            }, SCAN_PERIOD);
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+        } else {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            Log.d(TAG, "stop scan");
         }
     }
 

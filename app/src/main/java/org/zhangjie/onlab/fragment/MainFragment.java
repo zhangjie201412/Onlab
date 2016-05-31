@@ -1,5 +1,6 @@
 package org.zhangjie.onlab.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -33,6 +34,12 @@ public class MainFragment extends Fragment {
     public void onAttach(Context context) {
         mListener = (FragmentCallbackListener) context;
         super.onAttach(context);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        mListener = (FragmentCallbackListener) activity;
+        super.onAttach(activity);
     }
 
     @Nullable

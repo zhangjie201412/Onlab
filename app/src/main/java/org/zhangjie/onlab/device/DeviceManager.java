@@ -12,6 +12,7 @@ import org.zhangjie.onlab.ble.BtleListener;
 import org.zhangjie.onlab.ble.BtleManager;
 import org.zhangjie.onlab.device.work.WorkTask;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 public class DeviceManager implements BtleListener {
 
+    private boolean isFake = false;
     private static final String TAG = "Onlab.DeviceManager";
     private static DeviceManager instance = null;
 
@@ -60,6 +62,11 @@ public class DeviceManager implements BtleListener {
     private Handler mUiHandler = null;
     private WorkTask mWorkThread;
     private DeviceWorkd mWork;
+    private final int BUF_SIZE = 128;
+    private byte[] buffer;
+    private int position;
+    private int last_flag_pos;
+    private int flag_pos;
 
     private void initCmdList() {
         CMD_LIST = new String[DEVICE_CMD_LIST_END - DEVICE_CMD_LIST_START];
@@ -100,16 +107,79 @@ public class DeviceManager implements BtleListener {
     }
 
     @Override
-    public void onDataAvailable(byte[] data) {
-        for (int i = 0; i < data.length; i++) {
-            Log.d(TAG, String.format("[%d] = %02x\n", i, data[i]));
+    public synchronized void onDataAvailable(byte[] data) {
+//        for (int i = 0; i < data.length; i++) {
+//            Log.d(TAG, String.format("[%d] = %02x, %c\n", i, data[i], data[i]));
+//        }
+        String[] recvMsg;
+        if (handlerBuffer(data)) {
+            this.notify();
+            recvMsg = process();
+            for (int i = 0; i < recvMsg.length; i++) {
+                Log.d(TAG, String.format("[%d] = %s\n", i, recvMsg[i]));
+            }
+        } else {
+            return;
         }
-        if((mEntryFlag & WORK_ENTRY_FLAG_INITIALIZE) != 0) {
+
+
+        if ((mEntryFlag & WORK_ENTRY_FLAG_INITIALIZE) != 0) {
             //initialzation ertry
+            Log.d(TAG, "INITIALZE ENTRY");
         }
-        if((mEntryFlag & WORK_ENTRY_FLAG_UPDATE_STATUS) != 0) {
+        if ((mEntryFlag & WORK_ENTRY_FLAG_UPDATE_STATUS) != 0) {
             //update status entry
+            Log.d(TAG, "UPDATE STATUS ENTRY");
         }
+    }
+
+    private boolean handlerBuffer(byte[] data) {
+        boolean retVal = false;
+        for (int i = 0; i < data.length; i++) {
+            buffer[position++] = data[i];
+            if (position == BUF_SIZE) {
+                position = 0;
+            }
+            //get '>'
+            if (data[i] == 0x3e) {
+                flag_pos = position - 1;
+                //process data
+                retVal = true;
+            }
+        }
+
+        return retVal;
+    }
+
+    private synchronized String[] process() {
+        int validBufLength;
+
+        Log.d(TAG, "process: last_flag_pos = " + last_flag_pos + ", flag_pos = " + flag_pos);
+
+        if (flag_pos > last_flag_pos) {
+            validBufLength = flag_pos - last_flag_pos;
+        } else {
+            validBufLength = BUF_SIZE - last_flag_pos + flag_pos;
+        }
+        byte[] validBuf = new byte[validBufLength];
+        if (flag_pos > last_flag_pos) {
+            for (int i = last_flag_pos; i < flag_pos; i++) {
+                validBuf[i - last_flag_pos] = buffer[i];
+            }
+        } else {
+            for (int i = last_flag_pos; i < BUF_SIZE; i++) {
+                validBuf[i - last_flag_pos] = buffer[i];
+            }
+            for (int i = 0; i < flag_pos; i++) {
+                validBuf[BUF_SIZE - last_flag_pos + i] = buffer[i];
+            }
+        }
+        flag_pos += 1;
+        last_flag_pos = flag_pos;
+        String validString = new String(validBuf);
+        Log.d(TAG, "VALID BUF = " + validString);
+
+        return validString.split("\n");
     }
 
     public void init(Context context, Handler handler) {
@@ -119,6 +189,10 @@ public class DeviceManager implements BtleListener {
         mUiHandler = handler;
         mWork = new DeviceWorkd();
         initCmdList();
+        buffer = new byte[BUF_SIZE];
+        position = 0;
+        last_flag_pos = 0;
+        flag_pos = 0;
     }
 
     public void release() {
@@ -141,21 +215,35 @@ public class DeviceManager implements BtleListener {
         cmdList.add(item);
     }
 
-    public int[] sendCmd(Cmd cmd) {
+    public synchronized int[] sendCmd(Cmd cmd) {
         if (cmd.param < 0) {
-//            BtleManager.getInstance().send(CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + "\r");
-            Log.d(TAG, "fake send -> " + CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START]);
+            if (!isFake) {
+                BtleManager.getInstance().send(CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + "\r");
+            } else {
+                Log.d(TAG, "fake send -> " + CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START]);
+            }
         } else {
-//            BtleManager.getInstance().send(CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + " " + cmd.param + "\r");
-            Log.d(TAG, "fake send -> " + CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + " " + cmd.param);
+            if (!isFake) {
+                BtleManager.getInstance().send(CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + " " + cmd.param + "\r");
+            } else {
+                Log.d(TAG, "fake send -> " + CMD_LIST[cmd.cmd - DEVICE_CMD_LIST_START] + " " + cmd.param);
+            }
         }
 
         try {
-            Thread.sleep(100);
+            //wait '>'
+            this.wait();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "fake send -> " + "done");
+
+        if (isFake) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return null;
     }
 
