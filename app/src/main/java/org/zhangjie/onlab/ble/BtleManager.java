@@ -249,8 +249,10 @@ public class BtleManager {
 
     public void release() {
         Log.d(TAG, "release");
-        mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        mBluetoothLeService.disconnect();
+        if (mBluetoothAdapter != null)
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        if (mBluetoothLeService != null)
+            mBluetoothLeService.disconnect();
         mContext.unbindService(mBtleServiceConnection);
     }
 

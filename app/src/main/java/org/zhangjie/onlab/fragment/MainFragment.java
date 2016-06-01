@@ -24,11 +24,11 @@ public class MainFragment extends Fragment {
     private FragmentCallbackListener mListener;
     private NineGridView mGridView;
 
-    public static final int ITEM_PHOTOMETRIC_MEASURE = 0;
-    public static final int ITEM_QUANTITATIVE_ANALYSIS = 1;
-    public static final int ITEM_WAVELENGTH_SCAN = 2;
-    public static final int ITEM_TIME_SCAN = 3;
-    public static final int ITEM_MULTI_WAVELENGTH = 4;
+    public static final int ITEM_PHOTOMETRIC_MEASURE = 100;
+    public static final int ITEM_QUANTITATIVE_ANALYSIS = 101;
+    public static final int ITEM_WAVELENGTH_SCAN = 102;
+    public static final int ITEM_TIME_SCAN = 103;
+    public static final int ITEM_MULTI_WAVELENGTH = 104;
 
     @Override
     public void onAttach(Context context) {

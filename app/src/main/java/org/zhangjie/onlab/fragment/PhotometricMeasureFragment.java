@@ -11,9 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.squareup.otto.Produce;
+
+import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
-import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.otto.SetWavelengthEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 
 import java.util.ArrayList;
@@ -39,6 +42,18 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
         return view;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        BusProvider.getInstance().unregister(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        BusProvider.getInstance().register(this);
+    }
+
     void initUi(View view) {
         mData = new ArrayList<HashMap<String, String>>();
         if(Build.VERSION.SDK_INT >= 23) {
@@ -58,7 +73,9 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
         mListView.setAdapter(mAdapter);
 
         Button start = (Button)view.findViewById(R.id.bt_photometric_measure_start);
+        Button setting = (Button)view.findViewById(R.id.bt_photometric_measure_setting);
         start.setOnClickListener(this);
+        setting.setOnClickListener(this);
     }
 
     @Override
@@ -109,6 +126,10 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
                             System.currentTimeMillis());
                     addItem(record);
                 }
+                break;
+            case R.id.bt_photometric_measure_setting:
+                Log.d(TAG, "photometric_measure_setting");
+                BusProvider.getInstance().post(new SetWavelengthEvent());
                 break;
             default:
                 break;

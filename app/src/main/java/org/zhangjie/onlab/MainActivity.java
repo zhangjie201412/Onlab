@@ -23,6 +23,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import org.w3c.dom.Text;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
@@ -33,6 +35,8 @@ import org.zhangjie.onlab.fragment.MainFragment;
 import org.zhangjie.onlab.fragment.PhotometricMeasureFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
+import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.SetWavelengthEvent;
 
 public class MainActivity extends AppCompatActivity implements WavelengthDialog.WavelengthInputListern,
         FragmentCallbackListener {
@@ -96,12 +100,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         initToolbar();
         initView();
 
-        if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             toastShow(getString(R.string.ble_not_support));
             finish();
         }
         final BluetoothManager bluetoothManager =
-                (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         mIsBluetoothConnected = false;
@@ -119,9 +123,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     protected void onResume() {
         super.onResume();
-
-
-        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+        BusProvider.getInstance().register(this);
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(enableBtIntent);
         }
@@ -130,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     protected void onPause() {
         super.onPause();
+        BusProvider.getInstance().unregister(this);
     }
 
     @Override
@@ -183,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     @Override
     public void onMainClick(int id) {
-        switch (id) {
+        switch (id + 100) {
             case MainFragment.ITEM_PHOTOMETRIC_MEASURE:
                 addContentFragment(mPhotometricFragment);
                 break;
@@ -236,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "on Navigation Click!");
-                if(!mIsBluetoothConnected) {
+                if (!mIsBluetoothConnected) {
                     mDeviceManager.scan();
                     mDeviceSelectDialog.show(getFragmentManager(), getString(R.string.select_devices));
                 }
@@ -262,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         mHelloChart = new HelloChartFragment();
 
-        if(getFragmentManager().getBackStackEntryCount() == 0) {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
             addContentFragment(mMain);
         } else {
             Log.w(TAG, "Main fragment is add!!!");
@@ -274,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         FragmentManager fm = getFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
 
-        Log.d(TAG, "fragment count = " +fm.getBackStackEntryCount());
+        Log.d(TAG, "fragment count = " + fm.getBackStackEntryCount());
         Log.d(TAG, "addContentFragment");
 
         if (fragment != mMain) {
@@ -333,5 +337,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mToast.setText(msg);
             mToast.show();
         }
+    }
+
+    @Subscribe
+    public void onSetWavelengthEvent(SetWavelengthEvent event) {
+        mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
     }
 }

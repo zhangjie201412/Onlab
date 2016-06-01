@@ -141,7 +141,12 @@ public class DeviceManager implements BtleListener {
             }
             //get '>'
             if (data[i] == 0x3e) {
-                flag_pos = position - 1;
+                if(position != 0) {
+                    flag_pos = position - 1;
+                } else {
+                    flag_pos = BUF_SIZE - 1;
+                }
+                Log.d(TAG, "handlerBuffer: flag_pos = " + flag_pos);
                 //process data
                 retVal = true;
             }
@@ -279,6 +284,10 @@ public class DeviceManager implements BtleListener {
         addCmd(cmdList, DEVICE_CMD_LIST_GET_DARK, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_A, -1);
+        for(int i = 900; i > 800; i --) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, 3);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, i);
+        }
         doWork(cmdList);
     }
 

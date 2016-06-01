@@ -68,6 +68,8 @@ public class DevicesSelectDialog extends DialogFragment {
     }
 
     public void addDevice(String name, String addr) {
+        if(mData == null)
+            return;
         for (int i = 0; i < mData.size(); i++) {
             if (mData.get(i).get("addr").equals(addr))
                 return;
