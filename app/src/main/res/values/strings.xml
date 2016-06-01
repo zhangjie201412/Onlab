@@ -37,6 +37,9 @@
     <string name="interval">间隔</string>
     <string name="mode">模式</string>
     <string name="ratio">斜率</string>
+    <string name="time_with_unit">时间(s)</string>
+    <string name="process">曲线处理</string>
+    <string name="smooth">曲线平滑</string>
 
     <string-array name="titles">
         <item>光度测量</item>

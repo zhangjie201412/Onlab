@@ -28,7 +28,7 @@ import lecho.lib.hellocharts.view.LineChartView;
 /**
  * Created by H151136 on 5/24/2016.
  */
-public class TimeScanFragment extends Fragment implements  View.OnClickListener {
+public class TimeScanFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "Onlab.TimeScanFragment";
     private TextView mWavelengthTextView;
@@ -57,14 +57,14 @@ public class TimeScanFragment extends Fragment implements  View.OnClickListener 
     }
 
     private void initUi(View view) {
-        mWavelengthTextView = (TextView)view.findViewById(R.id.tv_wavelength);
-        mRatioTextView = (TextView)view.findViewById(R.id.tv_ratio);
-        mIntervalTextView = (TextView)view.findViewById(R.id.tv_time_scan_interval);
-        mTestModeTextView = (TextView)view.findViewById(R.id.tv_time_scan_test_mode);
-        mStartButton = (Button)view.findViewById(R.id.bt_time_scan_start);
-        mStopButton = (Button)view.findViewById(R.id.bt_time_scan_stop);
-        mRezeroButton = (Button)view.findViewById(R.id.bt_time_scan_rezero);
-        mChartView = (LineChartView)view.findViewById(R.id.hello_time_scan);
+        mWavelengthTextView = (TextView) view.findViewById(R.id.tv_wavelength);
+        mRatioTextView = (TextView) view.findViewById(R.id.tv_ratio);
+        mIntervalTextView = (TextView) view.findViewById(R.id.tv_time_scan_interval);
+        mTestModeTextView = (TextView) view.findViewById(R.id.tv_time_scan_test_mode);
+        mStartButton = (Button) view.findViewById(R.id.bt_time_scan_start);
+        mStopButton = (Button) view.findViewById(R.id.bt_time_scan_stop);
+        mRezeroButton = (Button) view.findViewById(R.id.bt_time_scan_rezero);
+        mChartView = (LineChartView) view.findViewById(R.id.hello_time_scan);
         mStartButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
         mRezeroButton.setOnClickListener(this);
@@ -72,50 +72,35 @@ public class TimeScanFragment extends Fragment implements  View.OnClickListener 
     }
 
     private void initChart() {
-        //fake data
-        List<PointValue> values = new ArrayList<PointValue>();
-        for(int i = 0; i < 100; i++) {
-            values.add(new PointValue(i, i * 2));
-        }
+        mChartData = new LineChartData();
+        mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
+        mChartView.setLineChartData(mChartData);
+        //set default value
+        updateXYTitle(getString(R.string.time_with_unit), getString(R.string.abs_with_unit),
+                0, 180.0f, 3.0f, -3.0f);
+    }
 
-        List<Line> lines = new ArrayList<Line>();
+    void updateXYTitle(String xTitle, String yTitle, float left, float right, float top, float bottom) {
+        final Viewport viewport = new Viewport(mChartView.getCurrentViewport());
+        viewport.left = left;
+        viewport.top = top;
+        viewport.right = right;
+        viewport.bottom = bottom;
 
-        Line line = new Line(values);
-        line.setColor(getResources().getColor(R.color.commo_text_color));
-
-        line.setShape(ValueShape.CIRCLE);
-        line.setCubic(true);
-
-
-        lines.add(line);
-//        line.setFilled(true);
-        line.setHasLabels(true);
-        line.setHasLabelsOnlyForSelected(true);
-        line.setHasLines(true);
-        line.setHasPoints(true);
-        line.setPointRadius(3);
-        line.setStrokeWidth(2);
-
-        final Viewport viewport = new Viewport(mChartView.getMaximumViewport());
-        viewport.bottom = 0;
-        viewport.top = 50;
-        viewport.left = 0;
-        viewport.right = 180;
         mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
-
-        mChartData = new LineChartData(lines);
+        mChartView.setViewportCalculationEnabled(false);
 
         Axis axisX = new Axis();
         Axis axisY = new Axis();
-        axisX.setName("time");
-        axisX.setHasTiltedLabels(true);
-
-        axisY.setName("abs");
+        axisX.setName(xTitle);
+        axisX.setHasSeparationLine(true);
+//        axisX.setHasLines(true);
+        axisY.setName(yTitle);
+        axisY.setHasSeparationLine(true);
+//        axisY.setHasLines(true);
         mChartData.setAxisXBottom(axisX);
         mChartData.setAxisYLeft(axisY);
-        mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
-        mChartView.setLineChartData(mChartData);
     }
 
     @Override

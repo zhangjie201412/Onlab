@@ -13,17 +13,19 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_time_scan_interval"
+        <CheckBox
+            android:id="@+id/check_smooth"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text="@string/smooth"
+            android:checked="false"
             android:gravity="center"
-            android:text="@string/interval"
-            android:textColor="@color/color_content_text" />
+            android:textColor="@color/color_content_text"
+            android:layout_height="wrap_content"
+             />
 
         <TextView
-            android:id="@+id/tv_time_scan_test_mode"
+            android:id="@+id/tv_wavelength_scan_test_mode"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -32,7 +34,7 @@
             android:textColor="@color/color_content_text" />
 
         <Button
-            android:id="@+id/bt_time_scan_start"
+            android:id="@+id/bt_wavelength_scan_start"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/button_margin"
@@ -42,10 +44,9 @@
             android:textColor="@color/color_button" />
 
         <Button
-            android:id="@+id/bt_time_scan_stop"
+            android:id="@+id/bt_wavelength_scan_stop"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"
@@ -53,14 +54,23 @@
             android:textColor="@color/color_button" />
 
         <Button
-            android:id="@+id/bt_time_scan_rezero"
+            android:id="@+id/bt_wavelength_scan_rezero"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"
             android:text="@string/rezero"
+            android:textColor="@color/color_button" />
+
+        <Button
+            android:id="@+id/bt_wavelength_scan_process"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:text="@string/process"
             android:textColor="@color/color_button" />
     </LinearLayout>
 
@@ -82,37 +92,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <LinearLayout
-                android:id="@+id/layout_chart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_wavelength"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/wavelength"
-                    android:textColor="@color/color_title_text" />
-
-                <TextView
-                    android:id="@+id/tv_ratio"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/ratio"
-                    android:textColor="@color/color_title_text" />
-            </LinearLayout>
-
             <lecho.lib.hellocharts.view.LineChartView
                 android:layout_marginTop="@dimen/margin_2_dp"
-                android:id="@+id/hello_time_scan"
+                android:id="@+id/hello_wavelength_scan"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/layout_chart" />
+                 />
         </RelativeLayout>
 
         <View
@@ -137,6 +122,14 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/index"
+                    android:textColor="@color/color_title_text" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/energy"
                     android:textColor="@color/color_title_text" />
 
                 <TextView
@@ -170,7 +163,7 @@
                 android:background="@color/color_divide_line" />
 
             <ListView
-                android:id="@+id/lv_time_scan"
+                android:id="@+id/lv_wavelength_scan"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"></ListView>
         </LinearLayout>

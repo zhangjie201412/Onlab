@@ -32,6 +32,7 @@ import org.zhangjie.onlab.fragment.HelloChartFragment;
 import org.zhangjie.onlab.fragment.MainFragment;
 import org.zhangjie.onlab.fragment.PhotometricMeasureFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
+import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 
 public class MainActivity extends AppCompatActivity implements WavelengthDialog.WavelengthInputListern,
         FragmentCallbackListener {
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private MainFragment mMain;
     private PhotometricMeasureFragment mPhotometricFragment;
     private TimeScanFragment mTimeScanFragment;
+    private WavelengthScanFragment mWavelengthScanFragment;
     private HelloChartFragment mHelloChart;
     private TextView mTitleTextView;
 
@@ -188,6 +190,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             case MainFragment.ITEM_TIME_SCAN:
                 addContentFragment(mTimeScanFragment);
                 break;
+            case MainFragment.ITEM_WAVELENGTH_SCAN:
+                addContentFragment(mWavelengthScanFragment);
+                break;
             default:
                 break;
         }
@@ -253,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mMain = new MainFragment();
         mPhotometricFragment = new PhotometricMeasureFragment();
         mTimeScanFragment = new TimeScanFragment();
+        mWavelengthScanFragment = new WavelengthScanFragment();
 
         mHelloChart = new HelloChartFragment();
 

@@ -103,7 +103,6 @@ public class DeviceManager implements BtleListener {
     @Override
     public void onDeviceDisconnected() {
         mUiHandler.obtainMessage(UI_MSG_DEVICE_DISCONNECTED).sendToTarget();
-//        Toast.makeText(mContext, "Disconnected", Toast.LENGTH_SHORT).show();
     }
 
     @Override
