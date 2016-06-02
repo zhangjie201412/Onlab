@@ -38,6 +38,7 @@ public class DeviceManager implements BtleListener {
     public static final int UI_MSG_DEVICE_CONNECTED = 0;
     public static final int UI_MSG_DEVICE_DISCONNECTED = 1;
     public static final int UI_MSG_DEVICE_SCAN = 2;
+    public static final int UI_MSG_DEVICE_DATA = 3;
 
     //++++cmd list
     public static final int DEVICE_CMD_LIST_START = 0x1001;
@@ -56,6 +57,13 @@ public class DeviceManager implements BtleListener {
     public static String[] CMD_LIST;
     //----cmd list
 
+    public static final String TAG_CONNECT = "connect";
+    public static final String TAG_GET_STATUS = "getstatus";
+    public static final String TAG_GET_WAVELENGTH = "getwl";
+    public static final String TAG_GET_DARK = "getdark";
+    public static final String TAG_GET_A ="ga";
+    public static final String TAG_GET_ENERGY = "ge";
+
     private Context mContext;
     private Handler mUiHandler = null;
     private WorkTask mWorkThread;
@@ -65,6 +73,8 @@ public class DeviceManager implements BtleListener {
     private int position;
     private int last_flag_pos;
     private int flag_pos;
+    private boolean mIsConnected = false;
+    private UpdateThread mUpdateThread;
 
     private void initCmdList() {
         CMD_LIST = new String[DEVICE_CMD_LIST_END - DEVICE_CMD_LIST_START];
@@ -85,6 +95,8 @@ public class DeviceManager implements BtleListener {
     public void onDeviceConnected() {
         mUiHandler.obtainMessage(UI_MSG_DEVICE_CONNECTED).sendToTarget();
 //        Toast.makeText(mContext, "Connected", Toast.LENGTH_SHORT).show();
+        mIsConnected = true;
+        initializeWork();
     }
 
     @Override
@@ -101,16 +113,17 @@ public class DeviceManager implements BtleListener {
     @Override
     public void onDeviceDisconnected() {
         mUiHandler.obtainMessage(UI_MSG_DEVICE_DISCONNECTED).sendToTarget();
+        mIsConnected = false;
     }
 
     @Override
-    public synchronized void onDataAvailable(byte[] data) {
+    public void onDataAvailable(byte[] data) {
 //        for (int i = 0; i < data.length; i++) {
 //            Log.d(TAG, String.format("[%d] = %02x, %c\n", i, data[i], data[i]));
 //        }
         String[] recvMsg;
         if (handlerBuffer(data)) {
-            this.notify();
+
             recvMsg = process();
             for (int i = 0; i < recvMsg.length; i++) {
                 Log.d(TAG, String.format("[%d] = %s\n", i, recvMsg[i]));
@@ -119,18 +132,16 @@ public class DeviceManager implements BtleListener {
             return;
         }
 
-
-        if ((mEntryFlag & WORK_ENTRY_FLAG_INITIALIZE) != 0) {
-            //initialzation ertry
-            Log.d(TAG, "INITIALZE ENTRY");
-        }
-        if ((mEntryFlag & WORK_ENTRY_FLAG_UPDATE_STATUS) != 0) {
-            //update status entry
-            Log.d(TAG, "UPDATE STATUS ENTRY");
-        }
+        Message msg = mUiHandler.obtainMessage();
+        Bundle bundle = new Bundle();
+        bundle.putStringArray("MSG", recvMsg);
+        msg.setData(bundle);
+        msg.what = UI_MSG_DEVICE_DATA;
+        msg.arg1 = mEntryFlag;
+        mUiHandler.sendMessage(msg);
     }
 
-    private boolean handlerBuffer(byte[] data) {
+    private synchronized boolean handlerBuffer(byte[] data) {
         boolean retVal = false;
         for (int i = 0; i < data.length; i++) {
             buffer[position++] = data[i];
@@ -146,6 +157,7 @@ public class DeviceManager implements BtleListener {
                 }
                 //process data
                 retVal = true;
+                this.notify();
             }
         }
 
@@ -197,11 +209,22 @@ public class DeviceManager implements BtleListener {
         position = 0;
         last_flag_pos = 0;
         flag_pos = 0;
+        mIsConnected = false;
+        mUpdateThread = new UpdateThread();
+//
     }
 
-    public void release() {
+    public void start() {
+        if(!mUpdateThread.isAlive()) {
+            mUpdateThread.start();
+        }
+    }
+
+    public synchronized void release() {
         BtleManager.getInstance().unregister();
         BtleManager.getInstance().release();
+        mIsConnected = false;
+        this.notifyAll();
     }
 
     public void scan() {
@@ -263,8 +286,8 @@ public class DeviceManager implements BtleListener {
 
     /*Bit switch if the work entry need to process
     * */
-    private final int WORK_ENTRY_FLAG_INITIALIZE = 1 << 0;
-    private final int WORK_ENTRY_FLAG_UPDATE_STATUS = 1 << 1;
+    public static final int WORK_ENTRY_FLAG_INITIALIZE = 1 << 0;
+    public static final int WORK_ENTRY_FLAG_UPDATE_STATUS = 1 << 1;
 
     private int mEntryFlag = 0x00000000;
 
@@ -284,10 +307,6 @@ public class DeviceManager implements BtleListener {
         addCmd(cmdList, DEVICE_CMD_LIST_GET_DARK, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_A, -1);
-        for(int i = 900; i > 800; i --) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, 3);
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, i);
-        }
         doWork(cmdList);
     }
 
@@ -302,5 +321,55 @@ public class DeviceManager implements BtleListener {
         clearCmd(cmdList);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 10);
         doWork(cmdList);
+    }
+
+    public void clearFlag(int mask) {
+        mEntryFlag &= ~mask;
+    }
+
+    public void setLoopThreadPause() {
+        mUpdateThread.pause();
+    }
+
+    public void setLoopThreadRestart() {
+        mUpdateThread.restart();
+    }
+
+    class UpdateThread extends Thread {
+        private boolean exit = false;
+        private boolean pause = false;
+
+        public void exit() {
+            exit = true;
+        }
+
+        public UpdateThread() {
+            exit = false;
+        }
+
+        public void pause() {
+            pause = true;
+        }
+
+        public void restart() {
+            pause = false;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            while(!exit) {
+                try {
+                    Thread.sleep(2000);
+                    if(mIsConnected && !pause) {
+                        Log.d(TAG, "update!");
+                        updateStatus();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Log.d(TAG, "Exit loop thread");
+        }
     }
 }

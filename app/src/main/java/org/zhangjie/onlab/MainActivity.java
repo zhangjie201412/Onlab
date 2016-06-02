@@ -50,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private QuantitativeAnalysisFragment mQuantitativeAnalysisFragment;
     private HelloChartFragment mHelloChart;
     private TextView mTitleTextView;
+    private TextView mBottomWavelength;
+    private TextView mBottomAbs;
+    private TextView mBottomTrans;
 
     private final String TAG = "Onlab.MainActivity";
     private boolean mIsBluetoothConnected = false;
@@ -66,6 +69,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private int permissionCheck;
     private BluetoothAdapter mBluetoothAdapter;
+    //++++UV DATA
+    private int[] mDark;
+    private int mA;
+    private int mI0 = 20000;
+    //----
 
     private Handler mUiHandler = new Handler() {
         @Override
@@ -88,9 +96,82 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     Log.d(TAG, "###name = " + name);
                     mDeviceSelectDialog.addDevice(name, addr);
                     break;
+                case DeviceManager.UI_MSG_DEVICE_DATA:
+                    Bundle data = msg.getData();
+                    int entryFlag = msg.arg1;
+                    String[] recvMsg = data.getStringArray("MSG");
+                    process(entryFlag, recvMsg);
+                    break;
             }
         }
     };
+
+    private void process(int flag, String[] msg) {
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_INITIALIZE) != 0) {
+            //initialzation ertry
+            Log.d(TAG, "INITIALZE ENTRY");
+            work_entry_initialize(msg);
+            mDeviceManager.start();
+        }
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_UPDATE_STATUS) != 0) {
+            mDeviceManager.clearFlag(DeviceManager.WORK_ENTRY_FLAG_INITIALIZE);
+            //update status entry
+            Log.d(TAG, "UPDATE STATUS ENTRY");
+            work_entry_updatestatus(msg);
+            mDeviceManager.clearFlag(DeviceManager.WORK_ENTRY_FLAG_UPDATE_STATUS);
+        }
+    }
+
+    private void work_entry_initialize(String[] msg) {
+        String tag = msg[0];
+
+        Log.d(TAG, "tag = " + tag);
+
+        if(tag.startsWith(DeviceManager.TAG_CONNECT)) {
+            //connect
+            if(msg[1].startsWith("ok.")) {
+                Log.d(TAG, "connect successfully!");
+            }
+        } else if(tag.startsWith(DeviceManager.TAG_GET_WAVELENGTH)) {
+            //get wavelength
+            Log.d(TAG, "get wavelength = " + msg[1]);
+        } else if(tag.startsWith(DeviceManager.TAG_GET_DARK)) {
+            //get dark
+            for(int i = 0; i < 8; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+","").replaceAll("\r", "").replaceAll("\n", "").trim();
+                mDark[i] = Integer.parseInt(msg[i + 1]);
+            }
+        } else if(tag.startsWith(DeviceManager.TAG_GET_A)) {
+            //get a
+            msg[1] = msg[1].replaceAll("\\D+","").replaceAll("\r", "").replaceAll("\n", "").trim();
+            mA = Integer.parseInt(msg[1]);
+        }
+    }
+
+    private void work_entry_updatestatus(String[] msgs) {
+
+        String [] msg = msgs.clone();
+
+        int[] energies = new int[10];
+        int I1 = 0;
+        float trans = 0;
+        float abs = 0;
+
+        for(int i = 0; i < 10; i++) {
+            msg[i + 1] = msg[i + 1].replaceAll("\\D+","").replaceAll("\r", "").replaceAll("\n", "").trim();
+            energies[i] = Integer.parseInt(msg[i + 1], 10);
+            I1 += energies[i];
+        }
+        I1 /= 10;
+
+        Log.d(TAG, "mA = " + mA);
+        if(mA > 0) {
+            trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
+            abs = (float) -Math.log10(trans);
+            updateAbs(abs);
+            updateTrans(trans);
+        }
+    }
 
     @Override
     public void onWavelengthInputComplete(String wavelength) {
@@ -101,6 +182,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String sss = "40727";
+        int s = Integer.parseInt(sss);
+        Log.d(TAG, "s = " + s);
+
+
         Log.d(TAG, "onCreate");
         initToolbar();
         initView();
@@ -123,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mDeviceManager.init(this, mUiHandler);
 
         checkLocationPermission();
+        mDark = new int[8];
     }
 
     @Override
@@ -227,7 +315,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         switch (id) {
             case R.id.action_open:
                 toastShow("open");
-                mDeviceManager.initializeWork();
                 break;
             case R.id.action_save:
                 toastShow("save");
@@ -286,6 +373,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void initView() {
+        mBottomWavelength = (TextView)findViewById(R.id.tv_bottom_wavelength);
+        mBottomAbs = (TextView)findViewById(R.id.tv_bottom_abs);
+        mBottomTrans = (TextView)findViewById(R.id.tv_bottom_trans);
         mTitleTextView = (TextView) findViewById(R.id.tb_title);
         mSelectall = (ImageView) findViewById(R.id.iv_selectall);
         mDelete = (ImageView) findViewById(R.id.iv_delete);
@@ -372,6 +462,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mToast.show();
         }
     }
+
+    private void updateAbs(float abs) {
+        String absString = getString(R.string.abs) + ": " + String.format("%.2f", abs);
+        mBottomAbs.setText(absString);
+    }
+
+    private void updateTrans(float trans) {
+        String transString = getString(R.string.trans) + ": " + String.format("%.2f", trans);
+        mBottomTrans.setText(transString);    }
 
     @Subscribe
     public void onSetWavelengthEvent(SetWavelengthEvent event) {

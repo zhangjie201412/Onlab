@@ -23,6 +23,7 @@ public class DeviceWork extends BaseWork {
     public void setup() throws InterruptedException {
         super.setup();
         Log.d(TAG, "setup");
+        DeviceManager.getInstance().setLoopThreadPause();
     }
 
     @Override
@@ -39,5 +40,6 @@ public class DeviceWork extends BaseWork {
     public void cleanup() throws InterruptedException {
         super.cleanup();
         Log.d(TAG, "cleanup");
+        DeviceManager.getInstance().setLoopThreadRestart();
     }
 }
