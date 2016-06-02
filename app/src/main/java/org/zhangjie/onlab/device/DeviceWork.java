@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by H151136 on 5/27/2016.
  */
-public class DeviceWorkd extends BaseWork {
+public class DeviceWork extends BaseWork {
 
     private static final String TAG = "Onlab.Device";
     private List<HashMap<String, Cmd>> mCmdList;

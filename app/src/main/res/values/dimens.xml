@@ -8,6 +8,7 @@
     <dimen name="dialog_margin_right">10dp</dimen>
     <dimen name="button_margin_left_right">20dp</dimen>
     <dimen name="button_margin_top_bottom">10dp</dimen>
+    <dimen name="list_margin_top_bottom">3dp</dimen>
     <dimen name="button_margin">10dp</dimen>
     <dimen name="title_top_bottom">5dp</dimen>
     <dimen name="margin_1_dp">1dp</dimen>
@@ -15,4 +16,5 @@
     <dimen name="margin_3_dp">3dp</dimen>
     <dimen name="margin_4_dp">4dp</dimen>
     <dimen name="margin_5_dp">5dp</dimen>
+    <dimen name="list_text_size">16sp</dimen>
 </resources>

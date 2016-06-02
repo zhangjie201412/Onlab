@@ -80,7 +80,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
         if(mSelectMode) {
             holder.cb.setVisibility(View.VISIBLE);
         } else {
-            holder.cb.setVisibility(View.GONE);
+            holder.cb.setVisibility(View.INVISIBLE);
         }
 
         //fill the textView

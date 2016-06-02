@@ -50,7 +50,6 @@ public class BtleManager {
     private BluetoothLeService mBluetoothLeService;
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mIsBtleConnected = false;
-    private String mBtleAddress = null;
     private Handler mBtleHandler;
     private static final long SCAN_PERIOD = 10000;
     private final String BLE_HEAD = "onLab";
@@ -80,14 +79,7 @@ public class BtleManager {
             final String deviceName = device.getName();
             final String deviceAddr = device.getAddress();
 
-//            Log.d(TAG, "name = " + deviceName);
-//            Log.d(TAG, "addr = " + deviceAddr);
             mBtleListener.onDeviceScan(deviceName, deviceAddr);
-//            if(deviceName.startsWith(BLE_HEAD)) {
-//                //connect to the device
-//                mBluetoothLeService.connect(deviceAddr);
-//                scan(false);
-//            }
         }
     };
 
@@ -116,10 +108,6 @@ public class BtleManager {
                 byte data[] = intent
                         .getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
                 mBtleListener.onDataAvailable(data);
-//                if (handleData(data)) {
-//                    processData();
-//                    resetData();
-//                }
             }
         }
     };
@@ -249,8 +237,8 @@ public class BtleManager {
 
     public void release() {
         Log.d(TAG, "release");
-        if (mBluetoothAdapter != null)
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        //stop scan firstly
+        scan(false);
         if (mBluetoothLeService != null)
             mBluetoothLeService.disconnect();
         mContext.unbindService(mBtleServiceConnection);

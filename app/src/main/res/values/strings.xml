@@ -23,7 +23,7 @@
     <string name="stop_test">停止测试</string>
     <string name="rezero">校正空白</string>
     <string name="set_wavelength">设置波长</string>
-    <string name="retry_to_exit">请再按下返回键来推出！</string>
+    <string name="retry_to_exit">请再按下返回键来退出！</string>
     <string name="index">序号</string>
     <string name="wavelength_with_unit">波长(nm)</string>
     <string name="abs_with_unit">吸光度(Abs)</string>
@@ -40,6 +40,11 @@
     <string name="time_with_unit">时间(s)</string>
     <string name="process">曲线处理</string>
     <string name="smooth">曲线平滑</string>
+    <string name="name">名称</string>
+    <string name="conc">浓度</string>
+    <string name="sample_fitting">样品标定</string>
+    <string name="method_fitting_one">一阶拟合</string>
+    <string name="unit_ug_ml">ug/ml</string>
 
     <string-array name="titles">
         <item>光度测量</item>

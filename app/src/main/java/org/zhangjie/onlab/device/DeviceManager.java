@@ -6,13 +6,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.zhangjie.onlab.ble.BtleListener;
 import org.zhangjie.onlab.ble.BtleManager;
 import org.zhangjie.onlab.device.work.WorkTask;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +59,7 @@ public class DeviceManager implements BtleListener {
     private Context mContext;
     private Handler mUiHandler = null;
     private WorkTask mWorkThread;
-    private DeviceWorkd mWork;
+    private DeviceWork mWork;
     private final int BUF_SIZE = 128;
     private byte[] buffer;
     private int position;
@@ -146,7 +144,6 @@ public class DeviceManager implements BtleListener {
                 } else {
                     flag_pos = BUF_SIZE - 1;
                 }
-                Log.d(TAG, "handlerBuffer: flag_pos = " + flag_pos);
                 //process data
                 retVal = true;
             }
@@ -179,6 +176,9 @@ public class DeviceManager implements BtleListener {
             }
         }
         flag_pos += 1;
+        if(flag_pos == BUF_SIZE) {
+            flag_pos = 0;
+        }
         last_flag_pos = flag_pos;
         String validString = new String(validBuf);
         Log.d(TAG, "VALID BUF = " + validString);
@@ -191,7 +191,7 @@ public class DeviceManager implements BtleListener {
         BtleManager.getInstance().register(this);
         mContext = context;
         mUiHandler = handler;
-        mWork = new DeviceWorkd();
+        mWork = new DeviceWork();
         initCmdList();
         buffer = new byte[BUF_SIZE];
         position = 0;

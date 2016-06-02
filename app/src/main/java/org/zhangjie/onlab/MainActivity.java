@@ -1,6 +1,5 @@
 package org.zhangjie.onlab;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -20,12 +19,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
-import org.w3c.dom.Text;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
@@ -33,25 +32,31 @@ import org.zhangjie.onlab.fragment.FragmentCallbackListener;
 import org.zhangjie.onlab.fragment.HelloChartFragment;
 import org.zhangjie.onlab.fragment.MainFragment;
 import org.zhangjie.onlab.fragment.PhotometricMeasureFragment;
+import org.zhangjie.onlab.fragment.QuantitativeAnalysisFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
 
 public class MainActivity extends AppCompatActivity implements WavelengthDialog.WavelengthInputListern,
-        FragmentCallbackListener {
+        FragmentCallbackListener, View.OnClickListener {
 
     private static boolean isExit = false;
     private MainFragment mMain;
     private PhotometricMeasureFragment mPhotometricFragment;
     private TimeScanFragment mTimeScanFragment;
     private WavelengthScanFragment mWavelengthScanFragment;
+    private QuantitativeAnalysisFragment mQuantitativeAnalysisFragment;
     private HelloChartFragment mHelloChart;
     private TextView mTitleTextView;
 
     private final String TAG = "Onlab.MainActivity";
     private boolean mIsBluetoothConnected = false;
     private Toolbar mTopToolbar;
+    private ImageView mSelectall;
+    private ImageView mDelete;
+    private boolean mOperateMode = false;
 
     private WavelengthDialog mWavelengthDialog;
     private DevicesSelectDialog mDeviceSelectDialog;
@@ -69,11 +74,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             switch (msg.what) {
                 case DeviceManager.UI_MSG_DEVICE_CONNECTED:
                     mIsBluetoothConnected = true;
-                    setBluetoothConnected(mIsBluetoothConnected);
+                    setBluetoothConnected(true);
                     break;
                 case DeviceManager.UI_MSG_DEVICE_DISCONNECTED:
                     mIsBluetoothConnected = false;
-                    setBluetoothConnected(mIsBluetoothConnected);
+                    setBluetoothConnected(false);
                     break;
 
                 case DeviceManager.UI_MSG_DEVICE_SCAN:
@@ -151,9 +156,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onBackPressed() {
 
-        int backStackCount = getFragmentManager().getBackStackEntryCount();
-        Log.d(TAG, "back stack count = " + backStackCount);
+        if (mOperateMode) {
+            BusProvider.getInstance().post(new SetOperateModeEvent(false));
+            setOperateMode(false);
+            return;
+        }
 
+        int backStackCount = getFragmentManager().getBackStackEntryCount();
+//        Log.d(TAG, "back stack count = " + backStackCount);
         // the main fragment is always on the bottom stack
         if (backStackCount > 1) {
             setTitle(getString(R.string.main));
@@ -177,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    public boolean getOperateMode() {
+        return mOperateMode;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -196,6 +210,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 break;
             case MainFragment.ITEM_WAVELENGTH_SCAN:
                 addContentFragment(mWavelengthScanFragment);
+                break;
+            case MainFragment.ITEM_QUANTITATIVE_ANALYSIS:
+                addContentFragment(mQuantitativeAnalysisFragment);
                 break;
             default:
                 break;
@@ -255,14 +272,34 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         });
     }
 
+    private void setOperateMode(boolean enable) {
+        if (enable) {
+            mTopToolbar.setBackgroundColor(getResources().getColor(R.color.colorOperate));
+            mSelectall.setVisibility(View.VISIBLE);
+            mDelete.setVisibility(View.VISIBLE);
+        } else {
+            mTopToolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+            mSelectall.setVisibility(View.GONE);
+            mDelete.setVisibility(View.GONE);
+        }
+        mOperateMode = enable;
+    }
+
     private void initView() {
         mTitleTextView = (TextView) findViewById(R.id.tb_title);
+        mSelectall = (ImageView) findViewById(R.id.iv_selectall);
+        mDelete = (ImageView) findViewById(R.id.iv_delete);
+        mSelectall.setVisibility(View.GONE);
+        mDelete.setVisibility(View.GONE);
+        mSelectall.setOnClickListener(this);
+        mDelete.setOnClickListener(this);
 
         mToast = Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT);
         mMain = new MainFragment();
         mPhotometricFragment = new PhotometricMeasureFragment();
         mTimeScanFragment = new TimeScanFragment();
         mWavelengthScanFragment = new WavelengthScanFragment();
+        mQuantitativeAnalysisFragment = new QuantitativeAnalysisFragment();
 
         mHelloChart = new HelloChartFragment();
 
@@ -320,9 +357,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
                     //Show an explanation to user *asynchronouselly* -- don't block
                     //this thread waiting for the user's response! After user sees the explanation, try again to request the permission
-
-//                    Snackbar.make(view, "Location access is required to show Bluetooth devices nearby.",
-//                            Snackbar.LENGTH_LONG).setAction("Action", null).show();
                     toastShow("Location access is required to show Bluetooth devices nearby.");
                 } else {
                     //No explanation needed, we can request the permission
@@ -342,5 +376,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Subscribe
     public void onSetWavelengthEvent(SetWavelengthEvent event) {
         mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
+    }
+
+    @Subscribe
+    public void onSetOperateModeEvent(SetOperateModeEvent event) {
+        setOperateMode(event.isOperateMode);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.iv_selectall) {
+            toastShow("select all");
+        } else if (v.getId() == R.id.iv_delete) {
+            toastShow("delete");
+        }
     }
 }

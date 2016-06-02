@@ -6,19 +6,37 @@
 
     tools:context="org.zhangjie.onlab.MainActivity">
 
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/tb_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize">
 
-        <TextView
-            android:id="@+id/tb_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/main"
-            android:textColor="@color/colorTitle" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/tb_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/main"
+                android:textColor="@color/colorTitle" />
+            <ImageView
+                android:id="@+id/iv_selectall"
+                android:layout_width="wrap_content"
+                android:src="@mipmap/ic_menu_selectall"
+                android:layout_alignParentRight="true"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/iv_delete"
+                android:layout_width="wrap_content"
+                android:src="@mipmap/ic_content_discard"
+                android:layout_toLeftOf="@id/iv_selectall"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>
 
@@ -62,9 +80,9 @@
 
     <FrameLayout
         android:id="@+id/layout_content"
-        android:layout_above="@id/tb_status"
-        android:layout_below="@id/tb_top"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></FrameLayout>
+        android:layout_height="match_parent"
+        android:layout_above="@id/tb_status"
+        android:layout_below="@id/tb_top"></FrameLayout>
 
 </RelativeLayout>

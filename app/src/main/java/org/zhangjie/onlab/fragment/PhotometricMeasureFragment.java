@@ -8,14 +8,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
-import com.squareup.otto.Produce;
+import com.squareup.otto.Subscribe;
 
+import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
+import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 
@@ -72,6 +75,29 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
         mListView = (ListView)view.findViewById(R.id.lv_photometric_measure);
         mListView.setAdapter(mAdapter);
 
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                mAdapter.setSelectMode(true);
+                mAdapter.notifyDataSetChanged();
+                BusProvider.getInstance().post(new SetOperateModeEvent(true));
+                return true;
+            }
+        });
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                boolean mode = ((MainActivity)getActivity()).getOperateMode();
+                if(mode) {
+                    MultiSelectionAdapter.ViewHolder holder = (MultiSelectionAdapter.ViewHolder) view.getTag();
+                    holder.cb.toggle();
+                    mAdapter.getIsSelected().put(position, holder.cb.isChecked());
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
         Button start = (Button)view.findViewById(R.id.bt_photometric_measure_start);
         Button setting = (Button)view.findViewById(R.id.bt_photometric_measure_setting);
         start.setOnClickListener(this);
@@ -109,6 +135,15 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
             item.put("id", "" + (i + 1));
         }
         mAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe
+    public void onSetOperateModeEvent(SetOperateModeEvent event) {
+        if(!event.isOperateMode) {
+            //back to normal mode
+            mAdapter.setSelectMode(false);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
