@@ -45,6 +45,8 @@
     <string name="sample_fitting">样品标定</string>
     <string name="method_fitting_one">一阶拟合</string>
     <string name="unit_ug_ml">ug/ml</string>
+    <string name="notice_string">提示</string>
+    <string name="sure_to_delete">确定要删除选择项?</string>
 
     <string-array name="titles">
         <item>光度测量</item>

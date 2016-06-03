@@ -36,6 +36,7 @@ import org.zhangjie.onlab.fragment.QuantitativeAnalysisFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
 
@@ -486,8 +487,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     public void onClick(View v) {
         if (v.getId() == R.id.iv_selectall) {
             toastShow("select all");
+            BusProvider.getInstance().post(new SetOperateEvent(SetOperateEvent.OP_MODE_SELECTALL));
         } else if (v.getId() == R.id.iv_delete) {
             toastShow("delete");
+            BusProvider.getInstance().post(new SetOperateEvent(SetOperateEvent.OP_MODE_DELETE));
         }
     }
 }

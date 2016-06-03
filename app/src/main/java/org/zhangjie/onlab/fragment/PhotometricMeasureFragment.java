@@ -1,6 +1,8 @@
 package org.zhangjie.onlab.fragment;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,6 +20,7 @@ import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
+import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
@@ -78,6 +81,10 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
+                for (int i = 0; i < sel.size(); i++) {
+                    sel.put(i, false);
+                }
                 mAdapter.setSelectMode(true);
                 mAdapter.notifyDataSetChanged();
                 BusProvider.getInstance().post(new SetOperateModeEvent(true));
@@ -144,6 +151,71 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
             mAdapter.setSelectMode(false);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Subscribe
+    public void onSetOperateEvent(SetOperateEvent event) {
+
+        if(event.mode == SetOperateEvent.OP_MODE_SELECTALL) {
+            HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
+            for (int i = 0; i < sel.size(); i++) {
+                sel.put(i, true);
+            }
+            mAdapter.notifyDataSetInvalidated();
+        } else if (event.mode == SetOperateEvent.OP_MODE_DELETE){
+            showDeleteAlertDialog();
+        }
+    }
+
+    void showDeleteAlertDialog() {
+        new AlertDialog.Builder(getActivity())
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(getString(R.string.notice_string))
+                .setMessage(getString(R.string.sure_to_delete))
+                .setPositiveButton(R.string.ok_string,
+                        new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                // TODO Auto-generated method stub
+                                HashMap<Integer, Boolean> sel = mAdapter
+                                        .getIsSelected();
+                                int delCount = 0;
+                                HashMap<Integer, Integer> delHashMap = new HashMap<Integer, Integer>();
+                                for (int i = 0; i < sel.size(); i++) {
+                                    if (sel.get(i)) {
+                                        delHashMap.put(delCount, i);
+                                        Log.d(TAG, "count = "
+                                                + delCount + ", id = " + i);
+                                        delCount = delCount + 1;
+                                    }
+                                }
+                                Log.d(TAG, "count = " + delCount);
+                                for (int i = 0; i < delCount; i++) {
+                                    removeItem(delHashMap.get(i));
+                                    sel = mAdapter.getIsSelected();
+                                    for (int j = delHashMap.get(i); j < sel
+                                            .size() - 1; j++) {
+                                        sel.put(j, sel.get(j + 1));
+                                    }
+                                    sel.remove(sel.size() - 1);
+                                    for (int j = 0; j < delHashMap.size(); j++) {
+                                        delHashMap.put(j, delHashMap.get(j) - 1);
+                                    }
+                                    mAdapter.setIsSelected(sel);
+                                }
+
+                            }
+                        })
+                .setNegativeButton(getString(R.string.cancel_string),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {// 响应事件
+                                // TODO Auto-generated method stub
+                            }
+                        }).show();
     }
 
     @Override
