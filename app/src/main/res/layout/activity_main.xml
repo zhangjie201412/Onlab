@@ -31,11 +31,13 @@
                 android:layout_width="wrap_content"
                 android:layout_alignParentRight="true"
                 android:orientation="horizontal"
+                android:clickable="true"
                 android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/iv_selectall"
                     android:layout_width="wrap_content"
                     android:src="@mipmap/ic_menu_selectall"
+                    android:focusable="false"
                     android:layout_alignParentRight="true"
                     android:layout_height="wrap_content" />
                 <TextView
@@ -49,6 +51,7 @@
             <LinearLayout
                 android:id="@+id/layout_delete"
                 android:layout_width="wrap_content"
+                android:clickable="true"
                 android:layout_toLeftOf="@id/layout_selectall"
                 android:layout_marginRight="@dimen/button_margin_left_right"
                 android:orientation="horizontal"
@@ -57,6 +60,7 @@
                     android:id="@+id/iv_delete"
                     android:layout_width="wrap_content"
                     android:src="@mipmap/ic_content_discard"
+                    android:focusable="false"
                     android:layout_alignParentRight="true"
                     android:layout_height="wrap_content" />
                 <TextView

@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private final String TAG = "Onlab.MainActivity";
     private boolean mIsBluetoothConnected = false;
     private Toolbar mTopToolbar;
-    private ImageView mSelectall;
-    private ImageView mDelete;
+    private LinearLayout mSelectall;
+    private LinearLayout mDelete;
     private boolean mOperateMode = false;
 
     private WavelengthDialog mWavelengthDialog;
@@ -378,8 +379,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mBottomAbs = (TextView)findViewById(R.id.tv_bottom_abs);
         mBottomTrans = (TextView)findViewById(R.id.tv_bottom_trans);
         mTitleTextView = (TextView) findViewById(R.id.tb_title);
-        mSelectall = (ImageView) findViewById(R.id.iv_selectall);
-        mDelete = (ImageView) findViewById(R.id.iv_delete);
+        mSelectall = (LinearLayout) findViewById(R.id.layout_selectall);
+        mDelete = (LinearLayout) findViewById(R.id.layout_delete);
         mSelectall.setVisibility(View.GONE);
         mDelete.setVisibility(View.GONE);
         mSelectall.setOnClickListener(this);
@@ -485,11 +486,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.iv_selectall) {
-            toastShow("select all");
+        if (v.getId() == R.id.layout_selectall) {
             BusProvider.getInstance().post(new SetOperateEvent(SetOperateEvent.OP_MODE_SELECTALL));
-        } else if (v.getId() == R.id.iv_delete) {
-            toastShow("delete");
+        } else if (v.getId() == R.id.layout_delete) {
             BusProvider.getInstance().post(new SetOperateEvent(SetOperateEvent.OP_MODE_DELETE));
         }
     }

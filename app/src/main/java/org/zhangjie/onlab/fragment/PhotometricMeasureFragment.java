@@ -163,7 +163,17 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
             }
             mAdapter.notifyDataSetInvalidated();
         } else if (event.mode == SetOperateEvent.OP_MODE_DELETE){
-            showDeleteAlertDialog();
+            int selectCount = 0;
+            HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
+            for (int i = 0; i < sel.size(); i++) {
+                if(sel.get(i)) {
+                    selectCount ++;
+                }
+            }
+
+            if(selectCount > 0) {
+                showDeleteAlertDialog();
+            }
         }
     }
 
