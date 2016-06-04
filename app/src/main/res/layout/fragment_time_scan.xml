@@ -108,7 +108,7 @@
             </LinearLayout>
 
             <lecho.lib.hellocharts.view.LineChartView
-                android:layout_marginTop="@dimen/margin_2_dp"
+                android:layout_margin="@dimen/margin_2_dp"
                 android:id="@+id/hello_time_scan"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

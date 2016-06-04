@@ -3,6 +3,7 @@ package org.zhangjie.onlab;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -40,6 +41,8 @@ import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
+import org.zhangjie.onlab.otto.UpdateFragmentEvent;
+import org.zhangjie.onlab.otto.WaitProgressEvent;
 
 public class MainActivity extends AppCompatActivity implements WavelengthDialog.WavelengthInputListern,
         FragmentCallbackListener, View.OnClickListener {
@@ -71,10 +74,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private int permissionCheck;
     private BluetoothAdapter mBluetoothAdapter;
+    private ProgressDialog mWatiDialog;
     //++++UV DATA
     private int[] mDark;
-    private int mA;
+    private int mA = 2;
     private int mI0 = 20000;
+    private float mWavelength = 0;
     //----
 
     private Handler mUiHandler = new Handler() {
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     Bundle data = msg.getData();
                     int entryFlag = msg.arg1;
                     String[] recvMsg = data.getStringArray("MSG");
+                    Log.d(TAG, "recv tag = " + recvMsg[0]);
                     process(entryFlag, recvMsg);
                     break;
             }
@@ -109,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     };
 
     private void process(int flag, String[] msg) {
+
+        Log.d(TAG, String.format("flag = %d\n", flag));
+
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_INITIALIZE) != 0) {
             //initialzation ertry
             Log.d(TAG, "INITIALZE ENTRY");
@@ -120,7 +129,26 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             //update status entry
             Log.d(TAG, "UPDATE STATUS ENTRY");
             work_entry_updatestatus(msg);
-            mDeviceManager.clearFlag(DeviceManager.WORK_ENTRY_FLAG_UPDATE_STATUS);
+        }
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_SET_WAVELENGTH) != 0) {
+            //set wavelength entry
+            Log.d(TAG, "SET WAVELENGTH ENTRY");
+            work_entry_set_wavelength(msg);
+        }
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_REZERO) != 0) {
+            //rezero entry
+            Log.d(TAG, "REZERO ENTRY");
+            work_entry_rezero(msg);
+        }
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_PHOTOMETRIC_MEASURE) != 0) {
+            //photometric measure entry
+            Log.d(TAG, "PHOTOMETRIC MEASURE ENTRY");
+            work_entry_photometric_measure(msg);
+        }
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_TIME_SCAN) != 0) {
+            //time scan entry
+            Log.d(TAG, "TIME SCAN ENTRY");
+            work_entry_time_scan(msg);
         }
     }
 
@@ -133,6 +161,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             //connect
             if(msg[1].startsWith("ok.")) {
                 Log.d(TAG, "connect successfully!");
+                dismissDialog();
+                toastShow(getString(R.string.connect_done));
             }
         } else if(tag.startsWith(DeviceManager.TAG_GET_WAVELENGTH)) {
             //get wavelength
@@ -151,44 +181,133 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void work_entry_updatestatus(String[] msgs) {
-
         String [] msg = msgs.clone();
+        String tag = msg[0];
 
-        int[] energies = new int[10];
-        int I1 = 0;
-        float trans = 0;
-        float abs = 0;
+        if(tag.startsWith("ge 10")) {
+            int[] energies = new int[10];
+            int I1 = 0;
+            float trans = 0;
+            float abs = 0;
 
-        for(int i = 0; i < 10; i++) {
-            msg[i + 1] = msg[i + 1].replaceAll("\\D+","").replaceAll("\r", "").replaceAll("\n", "").trim();
-            energies[i] = Integer.parseInt(msg[i + 1], 10);
-            I1 += energies[i];
+            for (int i = 0; i < 10; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energies[i] = Integer.parseInt(msg[i + 1], 10);
+                I1 += energies[i];
+            }
+            I1 /= 10;
+
+            if (mA > 0) {
+                trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
+                abs = (float) -Math.log10(trans);
+                updateAbs(abs);
+                updateTrans(trans);
+            }
+        } else if(tag.startsWith("getwl")) {
+            msg[1] = msg[1].replaceAll(" ","").replaceAll("\r", "").replaceAll("\n", "").trim();
+            float wavelength = Float.parseFloat(msg[1]);
+            updateWavelength(wavelength);
         }
-        I1 /= 10;
+    }
 
-        Log.d(TAG, "mA = " + mA);
-        if(mA > 0) {
-            trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
-            abs = (float) -Math.log10(trans);
-            updateAbs(abs);
-            updateTrans(trans);
+    private void work_entry_photometric_measure(String[] msgs) {
+        String [] msg = msgs.clone();
+        String tag = msg[0];
+
+        if(tag.startsWith("ge 16")) {
+            int[] energies = new int[16];
+            int I1 = 0;
+            float trans = 0;
+            float abs = 0;
+
+            for (int i = 0; i < 16; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energies[i] = Integer.parseInt(msg[i + 1], 10);
+                I1 += energies[i];
+            }
+            I1 /= 16;
+            Log.d(TAG, "energy = " + I1);
+
+            if (mA > 0) {
+                trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
+                abs = (float) -Math.log10(trans);
+                Log.d(TAG, "trans = " + trans);
+                Log.d(TAG, "abs = " + abs);
+                UpdateFragmentEvent event = new UpdateFragmentEvent();
+                event.setType(UpdateFragmentEvent.UPDATE_FRAGMENT_EVENT_TYPE_PHOTOMETRIC_MEASURE);
+                event.setEnergy(I1);
+                event.setTrans(trans);
+                event.setAbs(abs);
+                event.setWavelength(mWavelength);
+                BusProvider.getInstance().post(event);
+                mDeviceManager.setLoopThreadRestart();
+            }
+        }
+    }
+
+    private void work_entry_time_scan(String[] msgs) {
+        String [] msg = msgs.clone();
+        String tag = msg[0];
+
+        if(tag.startsWith("ge 16")) {
+            int[] energies = new int[16];
+            int I1 = 0;
+            float trans = 0;
+            float abs = 0;
+
+            for (int i = 0; i < 16; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energies[i] = Integer.parseInt(msg[i + 1], 10);
+                I1 += energies[i];
+            }
+            I1 /= 16;
+            Log.d(TAG, "energy = " + I1);
+
+            if (mA > 0) {
+                trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
+                abs = (float) -Math.log10(trans);
+                Log.d(TAG, "trans = " + trans);
+                Log.d(TAG, "abs = " + abs);
+                UpdateFragmentEvent event = new UpdateFragmentEvent();
+                event.setType(UpdateFragmentEvent.UPDATE_FRAGMENT_EVENT_TYPE_TIME_SCAN);
+                event.setEnergy(I1);
+                event.setTrans(trans);
+                event.setAbs(abs);
+
+                BusProvider.getInstance().post(event);
+            }
+        }
+    }
+
+    private void work_entry_set_wavelength(String[] msgs) {
+        if(msgs[0].startsWith("swl")) {
+//            toastShow("swl done");
+            dismissDialog();
+            mDeviceManager.setLoopThreadRestart();
+        }
+    }
+
+    private void work_entry_rezero(String[] msgs) {
+        if(msgs[0].startsWith("rezero")) {
+            msgs[1] = msgs[1].replaceAll(" ","").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[2] = msgs[2].replaceAll(" ","").replaceAll("\r", "").replaceAll("\n", "").trim();
+            mI0 = Integer.parseInt(msgs[1]);
+            mA = Integer.parseInt(msgs[2]);
         }
     }
 
     @Override
     public void onWavelengthInputComplete(String wavelength) {
-        toastShow("get wavelength = " + wavelength);
+        if(wavelength.length() > 0) {
+            mDeviceManager.setWavelengthWork(Integer.parseInt(wavelength));
+            loadSetWavelengthDialog();
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        String sss = "40727";
-        int s = Integer.parseInt(sss);
-        Log.d(TAG, "s = " + s);
-
 
         Log.d(TAG, "onCreate");
         initToolbar();
@@ -207,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mWavelengthDialog.setListener(this);
 
         mDeviceSelectDialog = new DevicesSelectDialog();
+        mDeviceSelectDialog.setDialog(mWatiDialog);
 
         mDeviceManager = DeviceManager.getInstance();
         mDeviceManager.init(this, mUiHandler);
@@ -395,6 +515,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         mHelloChart = new HelloChartFragment();
 
+        mWatiDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
+        mWatiDialog.setCancelable(false);
+
         if (getFragmentManager().getBackStackEntryCount() == 0) {
             addContentFragment(mMain);
         } else {
@@ -472,7 +595,48 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     private void updateTrans(float trans) {
         String transString = getString(R.string.trans) + ": " + String.format("%.2f", trans);
-        mBottomTrans.setText(transString);    }
+        mBottomTrans.setText(transString);
+    }
+
+    private void updateWavelength(float wavelength) {
+        mWavelength = wavelength;
+        String wavelengthString = getString(R.string.wavelength) + ": " + String.format("%.2f", wavelength);
+        mBottomWavelength.setText(wavelengthString);
+    }
+
+    private void loadSetWavelengthDialog() {
+        if(!mWatiDialog.isShowing()) {
+            mWatiDialog.setMessage(getString(R.string.set_wavelength_message));
+            mWatiDialog.show();
+        }
+    }
+
+    private void loadDataprocessDialog() {
+        if(!mWatiDialog.isShowing()) {
+            mWatiDialog.setMessage(getString(R.string.data_processing_message));
+            mWatiDialog.show();
+        }
+    }
+
+    private void dismissDialog() {
+        if(mWatiDialog.isShowing()) {
+            mWatiDialog.dismiss();
+        }
+    }
+
+    @Subscribe
+    public void onWaitProgressEvent(WaitProgressEvent event) {
+        if(event.start) {
+            loadDataprocessDialog();
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    dismissDialog();
+                }
+            }, 300);
+        }
+    }
 
     @Subscribe
     public void onSetWavelengthEvent(SetWavelengthEvent event) {

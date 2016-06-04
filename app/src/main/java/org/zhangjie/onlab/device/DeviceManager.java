@@ -61,14 +61,13 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_GET_STATUS = "getstatus";
     public static final String TAG_GET_WAVELENGTH = "getwl";
     public static final String TAG_GET_DARK = "getdark";
-    public static final String TAG_GET_A ="ga";
+    public static final String TAG_GET_A = "ga";
     public static final String TAG_GET_ENERGY = "ge";
 
     private Context mContext;
     private Handler mUiHandler = null;
     private WorkTask mWorkThread;
-    private DeviceWork mWork;
-    private final int BUF_SIZE = 128;
+    private final int BUF_SIZE = 1024;
     private byte[] buffer;
     private int position;
     private int last_flag_pos;
@@ -96,7 +95,17 @@ public class DeviceManager implements BtleListener {
         mUiHandler.obtainMessage(UI_MSG_DEVICE_CONNECTED).sendToTarget();
 //        Toast.makeText(mContext, "Connected", Toast.LENGTH_SHORT).show();
         mIsConnected = true;
-        initializeWork();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                    initializeWork();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -137,8 +146,10 @@ public class DeviceManager implements BtleListener {
         bundle.putStringArray("MSG", recvMsg);
         msg.setData(bundle);
         msg.what = UI_MSG_DEVICE_DATA;
+        Log.d(TAG, "PASS FLAG = " + mEntryFlag);
         msg.arg1 = mEntryFlag;
         mUiHandler.sendMessage(msg);
+        Log.d(TAG, "TASK DONE!");
     }
 
     private synchronized boolean handlerBuffer(byte[] data) {
@@ -150,7 +161,7 @@ public class DeviceManager implements BtleListener {
             }
             //get '>'
             if (data[i] == 0x3e) {
-                if(position != 0) {
+                if (position != 0) {
                     flag_pos = position - 1;
                 } else {
                     flag_pos = BUF_SIZE - 1;
@@ -188,7 +199,7 @@ public class DeviceManager implements BtleListener {
             }
         }
         flag_pos += 1;
-        if(flag_pos == BUF_SIZE) {
+        if (flag_pos == BUF_SIZE) {
             flag_pos = 0;
         }
         last_flag_pos = flag_pos;
@@ -203,7 +214,6 @@ public class DeviceManager implements BtleListener {
         BtleManager.getInstance().register(this);
         mContext = context;
         mUiHandler = handler;
-        mWork = new DeviceWork();
         initCmdList();
         buffer = new byte[BUF_SIZE];
         position = 0;
@@ -211,11 +221,10 @@ public class DeviceManager implements BtleListener {
         flag_pos = 0;
         mIsConnected = false;
         mUpdateThread = new UpdateThread();
-//
     }
 
     public void start() {
-        if(!mUpdateThread.isAlive()) {
+        if (!mUpdateThread.isAlive()) {
             mUpdateThread.start();
         }
     }
@@ -257,10 +266,13 @@ public class DeviceManager implements BtleListener {
             }
         }
 
-        if(!isFake) {
+        if (!isFake) {
             try {
                 //wait '>'
+                Log.d(TAG, "wait");
                 this.wait();
+                Log.d(TAG, "wait done");
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -279,15 +291,20 @@ public class DeviceManager implements BtleListener {
     }
 
     private void doWork(List<HashMap<String, Cmd>> cmdList) {
-        mWork.setCmdList(cmdList);
+        DeviceWork work = new DeviceWork();
+        work.setCmdList(cmdList);
         mWorkThread = new WorkTask();
-        mWorkThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, mWork);
+        mWorkThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, work);
     }
 
     /*Bit switch if the work entry need to process
     * */
     public static final int WORK_ENTRY_FLAG_INITIALIZE = 1 << 0;
     public static final int WORK_ENTRY_FLAG_UPDATE_STATUS = 1 << 1;
+    public static final int WORK_ENTRY_FLAG_SET_WAVELENGTH = 1 << 2;
+    public static final int WORK_ENTRY_FLAG_REZERO = 1 << 3;
+    public static final int WORK_ENTRY_FLAG_PHOTOMETRIC_MEASURE = 1 << 4;
+    public static final int WORK_ENTRY_FLAG_TIME_SCAN = 1 << 5;
 
     private int mEntryFlag = 0x00000000;
 
@@ -296,11 +313,13 @@ public class DeviceManager implements BtleListener {
       3. get wavelength
       4. get A
     * */
-    public void initializeWork() {
+    public synchronized void initializeWork() {
+        Log.d(TAG, "do initializeWork");
         //clear entry flag
         mEntryFlag &= 0x00000000;
         //set init flag
         mEntryFlag |= WORK_ENTRY_FLAG_INITIALIZE;
+        Log.d(TAG, "INIT WORK FLAG = " + mEntryFlag);
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
         addCmd(cmdList, DEVICE_CMD_LIST_CONNECT, -1);
@@ -310,21 +329,75 @@ public class DeviceManager implements BtleListener {
         doWork(cmdList);
     }
 
-    /*send ge and update bottom status bar
-     */
-    public void updateStatus() {
-        //clear entry flag
-        mEntryFlag &= 0x00000000;
-        //set update status flag
-        mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
+    //send rezero \r
+    public synchronized void rezeroWork() {
+        mEntryFlag = 0x00000000;
+        //set rezero flag
+        mEntryFlag |= WORK_ENTRY_FLAG_REZERO;
+        Log.d(TAG, "REZERO WORK FLAG = " + mEntryFlag);
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
-        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 10);
+        addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
         doWork(cmdList);
     }
 
-    public void clearFlag(int mask) {
+    public synchronized void setWavelengthWork(int wavelength) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        //set update status flag
+        mEntryFlag |= WORK_ENTRY_FLAG_SET_WAVELENGTH;
+        Log.d(TAG, "SETWL WORK FLAG = " + mEntryFlag);
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wavelength);
+        doWork(cmdList);
+    }
+
+    public synchronized void photometricMeasureWork() {
+        setLoopThreadPause();
+        //clear entry flag
+        mEntryFlag = 0x00000000;
+        //set update status flag
+        mEntryFlag |= WORK_ENTRY_FLAG_PHOTOMETRIC_MEASURE;
+        Log.d(TAG, "PM WORK FLAG = " + mEntryFlag);
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 16);
+        doWork(cmdList);
+    }
+
+    public synchronized void timeScanWork() {
+        setLoopThreadPause();
+        //clear entry flag
+        mEntryFlag = 0x00000000;
+        //set update status flag
+        mEntryFlag |= WORK_ENTRY_FLAG_TIME_SCAN;
+        Log.d(TAG, "TS WORK FLAG = " + mEntryFlag);
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 16);
+        doWork(cmdList);
+    }
+
+    /*send ge and update bottom status bar
+     */
+    private synchronized void updateStatus() {
+        //clear entry flag
+//        mEntryFlag &= 0x00000000;
+        //set update status flag
+        mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
+        Log.d(TAG, "UPDATE WORK FLAG = " + mEntryFlag);
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 10);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
+        doWork(cmdList);
+    }
+
+    public synchronized void clearFlag(int mask) {
+        Log.d(TAG, "flag = " + mEntryFlag + ", mask = " + mask);
         mEntryFlag &= ~mask;
+        Log.d(TAG, "flag = " + mEntryFlag + ", mask = " + mask);
     }
 
     public void setLoopThreadPause() {
@@ -358,10 +431,10 @@ public class DeviceManager implements BtleListener {
         @Override
         public void run() {
             super.run();
-            while(!exit) {
+            while (!exit) {
                 try {
-                    Thread.sleep(2000);
-                    if(mIsConnected && !pause) {
+                    Thread.sleep(1000);
+                    if (mIsConnected && !pause) {
                         Log.d(TAG, "update!");
                         updateStatus();
                     }

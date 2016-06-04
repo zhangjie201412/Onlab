@@ -47,6 +47,10 @@
     <string name="unit_ug_ml">ug/ml</string>
     <string name="notice_string">提示</string>
     <string name="sure_to_delete">确定要删除选择项?</string>
+    <string name="set_wavelength_message">等待设置波长完成...</string>
+    <string name="data_processing_message">数据处理中...</string>
+    <string name="connect_done">成功连接昂拉设备!</string>
+    <string name="notice_rezero">请先校正空白!</string>
 
     <string-array name="titles">
         <item>光度测量</item>

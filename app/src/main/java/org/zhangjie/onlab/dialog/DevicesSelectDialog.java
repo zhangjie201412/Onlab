@@ -3,6 +3,7 @@ package org.zhangjie.onlab.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class DevicesSelectDialog extends DialogFragment {
     private ListView mDeviceListView;
     private SimpleAdapter mAdapter;
     private List<HashMap<String, String>> mData;
+    private ProgressDialog mDialog = null;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -49,8 +51,12 @@ public class DevicesSelectDialog extends DialogFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String address = mData.get(position).get("addr");
                 BtleManager.getInstance().connect(address);
-                Toast.makeText(getActivity(), getActivity().getString(R.string.attempt_connecting_device)
-                        , Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), getActivity().getString(R.string.attempt_connecting_device)
+//                        , Toast.LENGTH_SHORT).show();
+                if(mDialog != null && (!mDialog.isShowing())) {
+                    mDialog.setMessage(getString(R.string.attempt_connecting_device));
+                    mDialog.show();
+                }
                 dismiss();
             }
         });
@@ -60,6 +66,10 @@ public class DevicesSelectDialog extends DialogFragment {
                 .setTitle(getString(R.string.select_devices)).setIcon(R.mipmap.ic_launcher);
 
         return builder.create();
+    }
+
+    public void setDialog(ProgressDialog dialog) {
+        mDialog = dialog;
     }
 
     private void clear() {

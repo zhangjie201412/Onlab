@@ -13,16 +13,20 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
 import org.zhangjie.onlab.MainActivity;
+import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
+import org.zhangjie.onlab.otto.UpdateFragmentEvent;
+import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 
 import java.util.ArrayList;
@@ -34,17 +38,19 @@ import java.util.List;
  */
 public class PhotometricMeasureFragment extends Fragment implements  View.OnClickListener {
 
-    private boolean isFake = true;
+    private boolean isFake = false;
     private static final String TAG = "Onlab.PhotometricMea";
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
     private List<HashMap<String, String>> mData;
+    private boolean mIsRezeroed = false;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_photometric_measure, container, false);
         initUi(view);
+        mIsRezeroed = false;
         return view;
     }
 
@@ -106,8 +112,10 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
         });
 
         Button start = (Button)view.findViewById(R.id.bt_photometric_measure_start);
+        Button rezero = (Button)view.findViewById(R.id.bt_photometric_measure_rezero);
         Button setting = (Button)view.findViewById(R.id.bt_photometric_measure_setting);
         start.setOnClickListener(this);
+        rezero.setOnClickListener(this);
         setting.setOnClickListener(this);
     }
 
@@ -121,10 +129,11 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
         HashMap<String, String> item = new HashMap<String, String>();
         int no = mData.size() + 1;
         record.setIndex(no);
+
         item.put("id", "" + no);
         item.put("wavelength", "" + record.getWavelength());
         item.put("abs", String.format("%.3f", record.getAbs()));
-        item.put("trans", "" + record.getTrans());
+        item.put("trans", String.format("%.3f", record.getTrans()));
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData.add(item);
@@ -174,6 +183,22 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
             if(selectCount > 0) {
                 showDeleteAlertDialog();
             }
+        }
+    }
+
+    @Subscribe
+    public void onUpdateFragmentEvent(UpdateFragmentEvent event) {
+        Log.d(TAG, "pm onUpdate type = " + event.getType());
+        if(event.getType() == UpdateFragmentEvent.UPDATE_FRAGMENT_EVENT_TYPE_PHOTOMETRIC_MEASURE) {
+            int energy = event.getEnergy();
+            float wavelength = event.getWavelength();
+            float abs = event.getAbs();
+            float trans = event.getTrans();
+            PhotoMeasureRecord record = new PhotoMeasureRecord(-1,
+                    wavelength, abs, trans, energy,
+                    System.currentTimeMillis());
+            addItem(record);
+            BusProvider.getInstance().post(new WaitProgressEvent(false));
         }
     }
 
@@ -242,7 +267,19 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
                             wavelength, abs, trans, energy,
                             System.currentTimeMillis());
                     addItem(record);
+                } else {
+                    if(!mIsRezeroed) {
+                        Toast.makeText(getActivity(), getString(R.string.notice_rezero),
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    DeviceManager.getInstance().photometricMeasureWork();
+                    BusProvider.getInstance().post(new WaitProgressEvent(true));
                 }
+                break;
+            case R.id.bt_photometric_measure_rezero:
+                DeviceManager.getInstance().rezeroWork();
+                mIsRezeroed = true;
                 break;
             case R.id.bt_photometric_measure_setting:
                 Log.d(TAG, "photometric_measure_setting");
