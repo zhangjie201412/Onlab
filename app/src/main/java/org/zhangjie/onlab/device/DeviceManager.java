@@ -64,6 +64,12 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_GET_A = "ga";
     public static final String TAG_GET_ENERGY = "ge";
 
+    public static final float BASELINE_END = 1000;//1100;
+    public static final float BASELINE_START = 800;//190;
+    public static int ENERGY_FIT_UP = 40000;
+    public static int ENERGY_FIT_DOWN = 20000;
+    public static final int GAIN_MAX = 8;
+
     private Context mContext;
     private Handler mUiHandler = null;
     private WorkTask mWorkThread;
@@ -305,6 +311,7 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_REZERO = 1 << 3;
     public static final int WORK_ENTRY_FLAG_PHOTOMETRIC_MEASURE = 1 << 4;
     public static final int WORK_ENTRY_FLAG_TIME_SCAN = 1 << 5;
+    public static final int WORK_ENTRY_FLAG_BASELINE = 1 << 6;
 
     private int mEntryFlag = 0x00000000;
 
@@ -376,6 +383,33 @@ public class DeviceManager implements BtleListener {
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 16);
+        doWork(cmdList);
+    }
+
+    public synchronized void baselineWork(int wavelength, int a) {
+
+        if(wavelength < BASELINE_START && wavelength > 0) {
+            Log.d(TAG, "BASELINE DONE!");
+            return;
+        }
+
+        boolean needWavelength = (wavelength > 0) ? true : false;
+        boolean needGain = (a > 0) ? true : false;
+        //stop main loop
+        setLoopThreadPause();
+        //clear entry flag
+        mEntryFlag = 0x00000000;
+        //set baseline flag
+        mEntryFlag |= WORK_ENTRY_FLAG_BASELINE;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        if(needWavelength) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wavelength);
+        }
+        if(needGain) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, a);
+        }
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         doWork(cmdList);
     }
 

@@ -36,4 +36,9 @@
         android:orderInCategory="130"
         android:title="@string/action_set_wavelength"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_baseline"
+        android:orderInCategory="140"
+        android:title="@string/action_baseline"
+        app:showAsAction="never" />
 </menu>

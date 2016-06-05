@@ -8,6 +8,7 @@
     <string name="action_save">保存</string>
     <string name="action_print">打印</string>
     <string name="action_set_wavelength">设置波长</string>
+    <string name="action_baseline">建立基线</string>
     <string name="wavelength">波长</string>
     <string name="abs">吸光度</string>
     <string name="trans">透过率</string>
