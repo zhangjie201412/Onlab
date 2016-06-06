@@ -113,7 +113,7 @@ public class BtleManager {
     };
 
     public void scan(boolean enable) {
-        if (Build.VERSION.SDK_INT < 21) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             scan_old(enable);
         } else {
             scan_new(enable);
@@ -212,7 +212,7 @@ public class BtleManager {
                 .getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
             mScanSettings = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).setReportDelay(3000)
