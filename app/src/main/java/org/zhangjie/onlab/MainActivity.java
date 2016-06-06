@@ -291,13 +291,17 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     if 20000 <= energy <= 40000, wavelength--, loop.
     * */
     //+++
+    private static int DIRECTION_UNKNOW = 0;
+    private static int DIRECTION_INCREASE = 1;
+    private static int DIRECTION_DECREASE = 2;
     private float mBaselineWavelength;
     private int mBaselineGain;
-
+    private int mDirection;
     //---
     private void baselineInit() {
         mBaselineWavelength = DeviceManager.BASELINE_END;
         mBaselineGain = 8;
+        mDirection = DIRECTION_UNKNOW;
     }
 
     private void work_entry_baseline(String[] msgs) {
@@ -316,11 +320,20 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 //> 40000
                 if (mBaselineGain > 1) {
                     mBaselineGain--;
-                    mDeviceManager.baselineWork(-1, mBaselineGain);
-
+                    if(mDirection == DIRECTION_INCREASE) {
+                        //update
+                        Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
+                        mDirection = DIRECTION_UNKNOW;
+                        mBaselineWavelength = mBaselineWavelength - 1;
+                        mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
+                    } else {
+                        mDirection = DIRECTION_DECREASE;
+                        mDeviceManager.baselineWork(-1, mBaselineGain);
+                    }
                 } else {
                     //gain == 1
-                    Log.d(TAG, "Update gain = 1, energy = " + energy);
+                    Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = 1, energy = " + energy);
+                    mDirection = DIRECTION_UNKNOW;
                     mBaselineWavelength = mBaselineWavelength - 1;
                     mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
                 }
@@ -329,17 +342,28 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 //< 20000
                 if(mBaselineGain < 8) {
                     mBaselineGain++;
-                    mDeviceManager.baselineWork(-1, mBaselineGain);
+                    if(mDirection == DIRECTION_DECREASE) {
+                        //update
+                        Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
+                        mDirection = DIRECTION_UNKNOW;
+                        mBaselineWavelength = mBaselineWavelength - 1;
+                        mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
+                    } else {
+                        mDirection = DIRECTION_INCREASE;
+                        mDeviceManager.baselineWork(-1, mBaselineGain);
+                    }
                 } else {
                     //gain == 8
-                    Log.d(TAG, "Update gain = 1, energy = " + energy);
+                    Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = 1, energy = " + energy);
+                    mDirection = DIRECTION_UNKNOW;
                     mBaselineWavelength = mBaselineWavelength - 1;
                     mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
                 }
             }
             if (energy >= DeviceManager.ENERGY_FIT_DOWN && (energy <= DeviceManager.ENERGY_FIT_UP)) {
                 //20000 <= energy <= 40000
-                Log.d(TAG, "Update gain = 1, energy = " + energy);
+                Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
+                mDirection = DIRECTION_UNKNOW;
                 mBaselineWavelength = mBaselineWavelength - 1;
                 mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
             }
