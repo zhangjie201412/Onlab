@@ -52,6 +52,21 @@
     <string name="data_processing_message">数据处理中...</string>
     <string name="connect_done">成功连接昂拉设备!</string>
     <string name="notice_rezero">请先校正空白!</string>
+    <string name="do_fitting">拟合</string>
+    <string name="title_timescan_setting_work_wavelength">设定工作波长</string>
+    <string name="title_timescan_work_wavelength">工作波长</string>
+    <string name="summary_timescan_work_wavelength">请输入波长</string>
+    <string name="title_timescan_setting_x">时间设定(X轴)</string>
+    <string name="title_timescan_start">开始时间</string>
+    <string name="summary_timescan_start">输入开始时间</string>
+    <string name="title_timescan_end">结束时间</string>
+    <string name="summary_timescan_end">输入结束时间</string>
+
+    <string name="key_timescan_setting_start">key_setting_timescan_start</string>
+    <string name="key_timescan_setting_end">key_setting_timescan_end</string>
+    <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
+
+
 
     <string-array name="titles">
         <item>光度测量</item>

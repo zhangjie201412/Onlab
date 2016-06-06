@@ -139,9 +139,7 @@
                 android:layout_above="@id/layout_setting"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"></ListView>
-
         </RelativeLayout>
-
     </LinearLayout>
 
     <View
@@ -153,6 +151,105 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:orientation="vertical"></LinearLayout>
+        android:orientation="vertical">
+        <lecho.lib.hellocharts.view.LineChartView
+            android:layout_margin="@dimen/margin_2_dp"
+            android:layout_weight="1"
+            android:id="@+id/hello_qa"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            />
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="0dp">
+            <LinearLayout
+                android:id="@+id/layout_list_title2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/index"
+                    android:textColor="@color/color_title_text" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:text="@string/name"
+                    android:textColor="@color/color_title_text" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:text="@string/abs"
+                    android:textColor="@color/color_title_text" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:text="@string/conc"
+                    android:textColor="@color/color_title_text" />
+            </LinearLayout>
+            <View
+                android:id="@+id/divide_line2"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:id="@+id/layout_qa_operate"
+                    android:orientation="horizontal"
+                    android:layout_alignParentBottom="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <Button
+                        android:id="@+id/bt_qa_do_fitting"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/button_margin"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_button"
+                        android:text="@string/do_fitting"
+                        android:textColor="@color/color_button" />
+                    <Button
+                        android:id="@+id/bt_qa_sample_selectall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/button_margin"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_button"
+                        android:text="@string/action_selectall"
+                        android:textColor="@color/color_button" />
+                    <Button
+                        android:id="@+id/bt_qa_sample_delete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/button_margin"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_button"
+                        android:text="@string/action_delete"
+                        android:textColor="@color/color_button" />
+                </LinearLayout>
+                <ListView
+                    android:layout_above="@id/layout_qa_operate"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"></ListView>
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

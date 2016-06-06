@@ -25,6 +25,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".setting.TimescanSettingActivity"
+            android:screenOrientation="landscape"/>
         <service
             android:name="org.zhangjie.onlab.ble.BluetoothLeService"
             android:enabled="true" />
