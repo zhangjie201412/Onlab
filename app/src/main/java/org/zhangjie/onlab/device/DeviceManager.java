@@ -64,8 +64,10 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_GET_A = "ga";
     public static final String TAG_GET_ENERGY = "ge";
 
-    public static final float BASELINE_END = 1000;//1100;
-    public static final float BASELINE_START = 800;//190;
+    public static final float BASELINE_END = 900;//1100;
+    public static final float BASELINE_START = 650;//190;
+    public static int[] mBaseline;
+    public static int[] mI0;
     public static int ENERGY_FIT_UP = 40000;
     public static int ENERGY_FIT_DOWN = 20000;
     public static final int GAIN_MAX = 8;
@@ -227,6 +229,26 @@ public class DeviceManager implements BtleListener {
         flag_pos = 0;
         mIsConnected = false;
         mUpdateThread = new UpdateThread();
+        mBaseline = new int[(int)(BASELINE_END - BASELINE_START + 1)];
+        mI0 = new int[(int)(BASELINE_END - BASELINE_START + 1)];
+    }
+
+    public int getGainFromBaseline(int wavelength) {
+//        Log.d(TAG, "get " + wavelength);
+        return mBaseline[wavelength - (int)BASELINE_START];
+    }
+
+    public void setGain(int wavelength, int gain) {
+//        Log.d(TAG, "set " + (wavelength - (int)BASELINE_START) + " = " + gain);
+        mBaseline[wavelength - (int)BASELINE_START] = gain;
+    }
+
+    public int getDarkFromWavelength(int wavelength) {
+        return mI0[wavelength - (int)BASELINE_START];
+    }
+
+    public void setDark(int wavelength, int dark) {
+        mI0[wavelength - (int)BASELINE_START] = dark;
     }
 
     public void start() {
@@ -312,6 +334,7 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_PHOTOMETRIC_MEASURE = 1 << 4;
     public static final int WORK_ENTRY_FLAG_TIME_SCAN = 1 << 5;
     public static final int WORK_ENTRY_FLAG_BASELINE = 1 << 6;
+    public static final int WORK_ENTRY_FLAG_DOREZERO = 1 << 7;
 
     private int mEntryFlag = 0x00000000;
 
@@ -388,7 +411,7 @@ public class DeviceManager implements BtleListener {
 
     public synchronized void baselineWork(int wavelength, int a) {
 
-        if(wavelength < BASELINE_START && wavelength > 0) {
+        if (wavelength < BASELINE_START && wavelength > 0) {
             Log.d(TAG, "BASELINE DONE!");
             return;
         }
@@ -403,12 +426,36 @@ public class DeviceManager implements BtleListener {
         mEntryFlag |= WORK_ENTRY_FLAG_BASELINE;
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
-        if(needWavelength) {
+        if (needWavelength) {
             addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wavelength);
+            //fill gain array
+//            if(wavelength < BASELINE_END) {
+//                setGain(wavelength + 1, a);
+//            }
         }
-        if(needGain) {
+        if (needGain) {
             addCmd(cmdList, DEVICE_CMD_LIST_SET_A, a);
         }
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        doWork(cmdList);
+    }
+
+    public synchronized void dorezeroWork(int wavelength, int a) {
+        if (wavelength < 700 && wavelength > 0) {
+            Log.d(TAG, "DOREZERO DONE!");
+            return;
+        }
+
+        //stop main loop
+        setLoopThreadPause();
+        //clear entry flag
+        mEntryFlag = 0x00000000;
+        //set baseline flag
+        mEntryFlag |= WORK_ENTRY_FLAG_DOREZERO;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wavelength);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_A, a);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         doWork(cmdList);
     }

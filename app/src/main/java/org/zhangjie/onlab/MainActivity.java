@@ -156,6 +156,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             Log.d(TAG, "BASELINE ENTRY");
             work_entry_baseline(msg);
         }
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_DOREZERO) != 0) {
+            //dorezero entry
+            Log.d(TAG, "DOREZERO ENTRY");
+            work_entry_dorezero(msg);
+        }
     }
 
     private void work_entry_initialize(String[] msg) {
@@ -320,54 +325,93 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             if (energy > DeviceManager.ENERGY_FIT_UP) {
                 //> 40000
                 if (mBaselineGain > 1) {
-                    mBaselineGain--;
                     if(mDirection == DIRECTION_INCREASE) {
                         //update
                         Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
+                        //save gain
+                        mDeviceManager.setGain((int)mBaselineWavelength, mBaselineGain);
                         mDirection = DIRECTION_UNKNOW;
                         mBaselineWavelength = mBaselineWavelength - 1;
-                        mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
+                        mDeviceManager.baselineWork((int)mBaselineWavelength, -1);
                     } else {
+                        mBaselineGain--;
                         mDirection = DIRECTION_DECREASE;
                         mDeviceManager.baselineWork(-1, mBaselineGain);
                     }
                 } else {
                     //gain == 1
                     Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = 1, energy = " + energy);
+                    mDeviceManager.setGain((int)mBaselineWavelength, mBaselineGain);
                     mDirection = DIRECTION_UNKNOW;
                     mBaselineWavelength = mBaselineWavelength - 1;
-                    mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
+                    mDeviceManager.baselineWork((int)mBaselineWavelength, -1);
                 }
             }
             if (energy < DeviceManager.ENERGY_FIT_DOWN) {
                 //< 20000
                 if(mBaselineGain < 8) {
-                    mBaselineGain++;
                     if(mDirection == DIRECTION_DECREASE) {
                         //update
                         Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
+                        mDeviceManager.setGain((int)mBaselineWavelength, mBaselineGain);
                         mDirection = DIRECTION_UNKNOW;
                         mBaselineWavelength = mBaselineWavelength - 1;
-                        mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
+                        mDeviceManager.baselineWork((int)mBaselineWavelength, -1);
                     } else {
+                        mBaselineGain++;
                         mDirection = DIRECTION_INCREASE;
                         mDeviceManager.baselineWork(-1, mBaselineGain);
                     }
                 } else {
                     //gain == 8
                     Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = 1, energy = " + energy);
+                    mDeviceManager.setGain((int)mBaselineWavelength, mBaselineGain);
                     mDirection = DIRECTION_UNKNOW;
                     mBaselineWavelength = mBaselineWavelength - 1;
-                    mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
+                    mDeviceManager.baselineWork((int)mBaselineWavelength, -1);
                 }
             }
             if (energy >= DeviceManager.ENERGY_FIT_DOWN && (energy <= DeviceManager.ENERGY_FIT_UP)) {
                 //20000 <= energy <= 40000
                 Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
+                mDeviceManager.setGain((int)mBaselineWavelength, mBaselineGain);
                 mDirection = DIRECTION_UNKNOW;
                 mBaselineWavelength = mBaselineWavelength - 1;
-                mDeviceManager.baselineWork((int)mBaselineWavelength, mBaselineGain);
+                mDeviceManager.baselineWork((int)mBaselineWavelength, -1);
             }
+        }
+    }
+
+    //+++
+    private float mDorezeroWavelength;
+    private int mDorezeroGain;
+    private int mInterval = 1;
+    //---
+    private void dozeroInit() {
+        mDorezeroWavelength = 800;
+        mDorezeroGain = mDeviceManager.getGainFromBaseline((int)mDorezeroWavelength);
+    }
+    private void work_entry_dorezero(String[] msgs) {
+        String tag = msgs[0];
+        int energy;
+
+        if(tag.startsWith("setwl")) {
+
+        } else if(tag.startsWith("sa")) {
+
+        } else if(tag.startsWith("ge 1")) {
+            //get energy
+            msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            energy = Integer.parseInt(msgs[1]);
+            mDorezeroGain = mDeviceManager.getGainFromBaseline((int)mDorezeroWavelength);
+            Log.d(TAG, "Update get gain = " + mDorezeroGain);
+            int I0 = energy;
+            float trans = (energy - mDark[mDorezeroGain - 1]) / (I0 - mDark[mDorezeroGain - 1]);
+            Log.d(TAG, "Update wavelength = " + mDorezeroWavelength + ", I0 = " + I0 + ", trans = " + trans);
+            //save dark
+            mDeviceManager.setDark((int)mDorezeroWavelength, mDorezeroGain);
+            mDorezeroWavelength = mDorezeroWavelength - mInterval;
+            mDeviceManager.dorezeroWork((int)mDorezeroWavelength, mDeviceManager.getGainFromBaseline((int)mDorezeroWavelength));
         }
     }
 
@@ -539,6 +583,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 break;
             case R.id.action_print:
                 toastShow("print");
+                dozeroInit();
+                mDeviceManager.dorezeroWork((int)mDorezeroWavelength, mDorezeroGain);
                 break;
             case R.id.action_set_wavelength:
                 mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
