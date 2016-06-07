@@ -13,6 +13,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <TextView
                 android:id="@+id/tb_timescan_title"
                 android:layout_width="wrap_content"
@@ -24,20 +25,22 @@
             <LinearLayout
                 android:id="@+id/layout_timescan_reset"
                 android:layout_width="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginRight="@dimen/button_margin_left_right"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_height="wrap_content">
+                android:layout_marginRight="@dimen/button_margin_left_right"
+                android:orientation="horizontal">
+
                 <ImageView
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@mipmap/ic_reset"
-                    android:layout_height="wrap_content" />
+                    android:src="@mipmap/ic_reset" />
+
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
+                    android:layout_gravity="center"
                     android:text="@string/reset"
                     android:textColor="@color/colorTitle" />
 
@@ -81,5 +84,180 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/layout_setting_buttons"
-        android:orientation="horizontal"></LinearLayout>
+        android:layout_below="@id/tb_timescan_setting"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_timescan_setting_work_wavelength"
+                android:textSize="@dimen/setting_title" />
+
+            <LinearLayout
+                android:id="@+id/layout_work_wavelength"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+
+                    android:text="@string/title_timescan_work_wavelength"
+                    android:textSize="@dimen/setting_content" />
+
+                <TextView
+                    android:id="@+id/work_wavelength_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+
+                    android:clickable="false"
+                    android:text="@string/summary_timescan_work_wavelength"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_timescan_setting_x"
+                android:textSize="@dimen/setting_title" />
+
+            <LinearLayout
+                android:id="@+id/layout_start_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+
+                    android:clickable="false"
+                    android:text="@string/title_timescan_start"
+                    android:textSize="@dimen/setting_content" />
+
+                <TextView
+                    android:id="@+id/start_time_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+
+                    android:clickable="false"
+                    android:text="@string/summary_timescan_start"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
+
+            <LinearLayout
+                android:id="@+id/layout_end_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+
+                    android:text="@string/title_timescan_end"
+                    android:textSize="@dimen/setting_content" />
+
+                <TextView
+                    android:id="@+id/end_time_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+
+                    android:clickable="false"
+                    android:text="@string/summary_timescan_end"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
+
+            <LinearLayout
+                android:id="@+id/layout_time_interval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/title_timescan_end"
+                    android:textSize="@dimen/setting_content" />
+
+                <TextView
+                    android:id="@+id/time_interval_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/summary_timescan_interval"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="match_parent"
+            android:background="@color/color_divide_line" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"></LinearLayout>
+
+    </LinearLayout>
 </RelativeLayout>

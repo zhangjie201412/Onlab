@@ -19,4 +19,5 @@
     <color name="color_content_text">#ffffff</color>
     <color name="color_divide_line">#caddea</color>
     <color name="colorOperate">#FF2C526C</color>
+    <color name="color_setting_value">#9c9e9f</color>
 </resources>
