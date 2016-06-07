@@ -413,6 +413,7 @@ public class DeviceManager implements BtleListener {
 
         if (wavelength < BASELINE_START && wavelength > 0) {
             Log.d(TAG, "BASELINE DONE!");
+            setLoopThreadRestart();
             return;
         }
 
@@ -443,6 +444,7 @@ public class DeviceManager implements BtleListener {
     public synchronized void dorezeroWork(int wavelength, int a) {
         if (wavelength < 700 && wavelength > 0) {
             Log.d(TAG, "DOREZERO DONE!");
+            setLoopThreadRestart();
             return;
         }
 
@@ -486,6 +488,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public void setLoopThreadRestart() {
+        mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
         mUpdateThread.restart();
     }
 

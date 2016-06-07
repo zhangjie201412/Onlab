@@ -61,6 +61,8 @@
     <string name="summary_timescan_start">输入开始时间</string>
     <string name="title_timescan_end">结束时间</string>
     <string name="summary_timescan_end">输入结束时间</string>
+    <string name="setting_timescan_title">时间扫描设置</string>
+    <string name="reset">重置</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

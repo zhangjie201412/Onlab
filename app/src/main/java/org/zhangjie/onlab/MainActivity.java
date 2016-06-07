@@ -38,6 +38,7 @@ import org.zhangjie.onlab.fragment.QuantitativeAnalysisFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.RezeroEvent;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
@@ -583,8 +584,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 break;
             case R.id.action_print:
                 toastShow("print");
-                dozeroInit();
-                mDeviceManager.dorezeroWork((int)mDorezeroWavelength, mDorezeroGain);
                 break;
             case R.id.action_set_wavelength:
                 mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
@@ -792,6 +791,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Subscribe
     public void onSetOperateModeEvent(SetOperateModeEvent event) {
         setOperateMode(event.isOperateMode);
+    }
+
+    @Subscribe
+    public void onDozeroEvent(RezeroEvent event) {
+        dozeroInit();
+        mDeviceManager.dorezeroWork((int)mDorezeroWavelength, mDorezeroGain);
     }
 
     @Override
