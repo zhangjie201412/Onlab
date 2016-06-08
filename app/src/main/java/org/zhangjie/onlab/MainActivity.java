@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
@@ -20,7 +21,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     private final String TAG = "Onlab.MainActivity";
     private boolean mIsBluetoothConnected = false;
+    private boolean mIsInitialized = false;
     private Toolbar mTopToolbar;
     private LinearLayout mSelectall;
     private LinearLayout mDelete;
@@ -76,13 +77,16 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private int permissionCheck;
     private BluetoothAdapter mBluetoothAdapter;
-    private ProgressDialog mWatiDialog;
+    private ProgressDialog mWaitDialog;
     //++++UV DATA
     private int[] mDark;
     private int mA = 2;
     private int mI0 = 20000;
     private float mWavelength = 0;
     //----
+    private final int WAVELENGTH_TIMEOUT = 120000;
+    private final int PROCESS_TIMEOUT = 5000;
+    private Handler mHandler = new Handler();
 
     private Handler mUiHandler = new Handler() {
         @Override
@@ -174,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             if (msg[1].startsWith("ok.")) {
                 Log.d(TAG, "connect successfully!");
                 dismissDialog();
+                mIsInitialized = true;
                 toastShow(getString(R.string.connect_done));
             }
         } else if (tag.startsWith(DeviceManager.TAG_GET_WAVELENGTH)) {
@@ -449,6 +454,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         Log.d(TAG, "onCreate");
         initToolbar();
         initView();
+        mIsInitialized = false;
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             toastShow(getString(R.string.ble_not_support));
@@ -463,7 +469,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mWavelengthDialog.setListener(this);
 
         mDeviceSelectDialog = new DevicesSelectDialog();
-        mDeviceSelectDialog.setDialog(mWatiDialog);
+        mDeviceSelectDialog.setDialog(mWaitDialog);
+        mDeviceSelectDialog.setContext(this);
 
         mDeviceManager = DeviceManager.getInstance();
         mDeviceManager.init(this, mUiHandler);
@@ -548,6 +555,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     @Override
     public void onMainClick(int id) {
+
+//        if(!checkConnected()) {
+//            return;
+//        }
+
         switch (id + 100) {
             case MainFragment.ITEM_PHOTOMETRIC_MEASURE:
                 addContentFragment(mPhotometricFragment);
@@ -586,9 +598,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 toastShow("print");
                 break;
             case R.id.action_set_wavelength:
+                if(!checkConnected()) {
+                    return super.onOptionsItemSelected(item);
+                }
                 mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
                 break;
             case R.id.action_baseline:
+                if(!checkConnected()) {
+                    return super.onOptionsItemSelected(item);
+                }
                 baselineInit();
                 mDeviceManager.baselineWork((int) DeviceManager.BASELINE_END, DeviceManager.GAIN_MAX);
                 break;
@@ -615,13 +633,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     mDeviceManager.scan();
                     mDeviceSelectDialog.show(getFragmentManager(), getString(R.string.select_devices));
                 }
-
-//                if (mIsBluetoothConnected) {
-//                    mIsBluetoothConnected = false;
-//                } else {
-//                    mIsBluetoothConnected = true;
-//                }
-//                setBluetoothConnected(mIsBluetoothConnected);
             }
         });
     }
@@ -660,8 +671,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         mHelloChart = new HelloChartFragment();
 
-        mWatiDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
-        mWatiDialog.setCancelable(false);
+        mWaitDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
+        mWaitDialog.setCancelable(false);
 
         if (getFragmentManager().getBackStackEntryCount() == 0) {
             addContentFragment(mMain);
@@ -750,23 +761,58 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void loadSetWavelengthDialog() {
-        if (!mWatiDialog.isShowing()) {
-            mWatiDialog.setMessage(getString(R.string.set_wavelength_message));
-            mWatiDialog.show();
+        final Runnable callback = new Runnable() {
+            @Override
+            public void run() {
+                mWaitDialog.dismiss();
+                toastShow(getString(R.string.timeout_set_wavelength));
+            }
+        };
+        if (!mWaitDialog.isShowing()) {
+            mWaitDialog.setMessage(getString(R.string.set_wavelength_message));
+            mWaitDialog.show();
+            mHandler.postDelayed(callback, WAVELENGTH_TIMEOUT);
+            mWaitDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    mHandler.removeCallbacks(callback);
+                }
+            });
         }
     }
 
     private void loadDataprocessDialog() {
-        if (!mWatiDialog.isShowing()) {
-            mWatiDialog.setMessage(getString(R.string.data_processing_message));
-            mWatiDialog.show();
+        final Runnable callback = new Runnable() {
+            @Override
+            public void run() {
+                mWaitDialog.dismiss();
+                toastShow(getString(R.string.timeout_process));
+            }
+        };
+        if (!mWaitDialog.isShowing()) {
+            mWaitDialog.setMessage(getString(R.string.data_processing_message));
+            mWaitDialog.show();
+            mHandler.postDelayed(callback, PROCESS_TIMEOUT);
+            mWaitDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    mHandler.removeCallbacks(callback);
+                }
+            });
         }
     }
 
     private void dismissDialog() {
-        if (mWatiDialog.isShowing()) {
-            mWatiDialog.dismiss();
+        if (mWaitDialog.isShowing()) {
+            mWaitDialog.dismiss();
         }
+    }
+
+    private boolean checkConnected() {
+        if(!mIsInitialized) {
+            toastShow(getString(R.string.notice_not_init));
+        }
+        return mIsInitialized;
     }
 
     @Subscribe

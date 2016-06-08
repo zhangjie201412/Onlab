@@ -6,7 +6,9 @@ import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +35,20 @@ public class DevicesSelectDialog extends DialogFragment {
     private SimpleAdapter mAdapter;
     private List<HashMap<String, String>> mData;
     private ProgressDialog mDialog = null;
+    private Context mContext;
+    private final int CONNECT_TIMEOUT = 10000; //10s
+    private Handler mHandler;
+
+
+    private Runnable mCallback = new Runnable() {
+        @Override
+        public void run() {
+            if (mDialog.isShowing()) {
+                mDialog.dismiss();
+//                Toast.makeText(mContext, getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -40,6 +56,7 @@ public class DevicesSelectDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_device_list, null);
 
+        mHandler = new Handler();
         mData = new ArrayList<HashMap<String, String>>();
 
         mDeviceListView = (ListView) view.findViewById(R.id.dialog_lv_devices);
@@ -53,9 +70,16 @@ public class DevicesSelectDialog extends DialogFragment {
                 BtleManager.getInstance().connect(address);
 //                Toast.makeText(getActivity(), getActivity().getString(R.string.attempt_connecting_device)
 //                        , Toast.LENGTH_SHORT).show();
-                if(mDialog != null && (!mDialog.isShowing())) {
+                if (mDialog != null && (!mDialog.isShowing())) {
                     mDialog.setMessage(getString(R.string.attempt_connecting_device));
                     mDialog.show();
+                    mHandler.postDelayed(mCallback, CONNECT_TIMEOUT);
+                    mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            mHandler.removeCallbacks(mCallback);
+                        }
+                    });
                 }
                 dismiss();
             }
@@ -68,6 +92,10 @@ public class DevicesSelectDialog extends DialogFragment {
         return builder.create();
     }
 
+    public void setContext(Context context) {
+        mContext = context;
+    }
+
     public void setDialog(ProgressDialog dialog) {
         mDialog = dialog;
     }
@@ -78,7 +106,7 @@ public class DevicesSelectDialog extends DialogFragment {
     }
 
     public void addDevice(String name, String addr) {
-        if(mData == null)
+        if (mData == null)
             return;
         for (int i = 0; i < mData.size(); i++) {
             if (mData.get(i).get("addr").equals(addr))

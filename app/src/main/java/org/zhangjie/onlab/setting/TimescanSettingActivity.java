@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.dialog.SettingDialog;
 
@@ -69,6 +70,21 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
         mStartValue = (TextView)findViewById(R.id.start_time_value);
         mEndValue = (TextView)findViewById(R.id.end_time_value);
         mIntervalValue = (TextView)findViewById(R.id.time_interval_value);
+        loadPreference();
+    }
+
+    private void loadPreference() {
+        float wavelength = DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength();
+        int startTime = DeviceApplication.getInstance().getSpUtils().getTimescanStartTime();
+        int endTime = DeviceApplication.getInstance().getSpUtils().getTimescanEndTime();
+        int timeInterval = DeviceApplication.getInstance().getSpUtils().getTimescanTimeInterval();
+
+        Log.d(TAG, "load wavelength = " + wavelength);
+
+        mWavelengthValue.setText("" + wavelength + " " + getString(R.string.nm));
+        mStartValue.setText("" + startTime + " " + getString(R.string.s));
+        mEndValue.setText("" + endTime + " " + getString(R.string.s));
+        mIntervalValue.setText("" + timeInterval + " " + getString(R.string.s));
     }
 
     @Override
@@ -100,18 +116,22 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
             case R.id.layout_work_wavelength:
                 Log.d(TAG, "wavelength = " + setting);
                 mWavelengthValue.setText(setting + " " + getString(R.string.nm));
+                DeviceApplication.getInstance().getSpUtils().setKeyTimescanWorkWavelength(Float.parseFloat(setting));
                 break;
             case R.id.layout_start_time:
                 Log.d(TAG, "start time = " + setting);
                 mStartValue.setText(setting + " " + getString(R.string.s));
+                DeviceApplication.getInstance().getSpUtils().setKeyTimescanStartTime(Integer.parseInt(setting));
                 break;
             case R.id.layout_end_time:
                 Log.d(TAG, "end time = " + setting);
                 mEndValue.setText(setting + " " + getString(R.string.s));
+                DeviceApplication.getInstance().getSpUtils().setKeyTimescanEndTime(Integer.parseInt(setting));
                 break;
             case R.id.layout_time_interval:
                 Log.d(TAG, "interval time = " + setting);
                 mIntervalValue.setText(setting + " " + getString(R.string.s));
+                DeviceApplication.getInstance().getSpUtils().setKeyTimescanTimeInterval(Integer.parseInt(setting));
                 break;
             default:
                 break;

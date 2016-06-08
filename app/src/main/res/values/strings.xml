@@ -67,6 +67,17 @@
     <string name="reset">重置</string>
     <string name="nm">nm</string>
     <string name="s">s</string>
+    <string name="connect_timeout">连接超时</string>
+    <string name="timeout_set_wavelength">设置波长超时</string>
+    <string name="timeout_process">处理数据超时</string>
+    <string name="notice_not_init">请先成功连接昂拉设备</string>
+    <string name="title_test_mode">测试模式</string>
+    <string name="summary_timescan_test_mode">点击选择测试模式</string>
+    <string name="title_timescan_setting_y">坐标设定(Y轴)</string>
+    <string name="title_timescan_limit_up">坐标上限</string>
+    <string name="title_timescan_limit_down">坐标下限</string>
+    <string name="summary_limit_up">点击输入坐标上限</string>
+    <string name="summary_limit_down">点击输入坐标下限</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
