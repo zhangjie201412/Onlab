@@ -1,6 +1,9 @@
 package org.zhangjie.onlab.fragment;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -10,9 +13,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.squareup.otto.Subscribe;
+
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.RezeroEvent;
+import org.zhangjie.onlab.otto.SettingEvent;
+import org.zhangjie.onlab.setting.TimescanSettingActivity;
+import org.zhangjie.onlab.setting.WavelengthSettingActivity;
 
 /**
  * Created by H151136 on 5/24/2016.
@@ -62,6 +70,19 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+    }
+
+    @Subscribe
+    public void OnSettingEvent(SettingEvent event) {
+        Context context = null;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            context = getContext();
+        } else {
+            context = getActivity();
+        }
+
+        Intent intent = new Intent(context, WavelengthSettingActivity.class);
+        startActivityForResult(intent, 0);
     }
 
     @Override

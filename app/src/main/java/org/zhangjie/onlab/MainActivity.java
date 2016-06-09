@@ -42,6 +42,7 @@ import org.zhangjie.onlab.otto.RezeroEvent;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
+import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
@@ -574,8 +575,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 addContentFragment(mQuantitativeAnalysisFragment);
                 break;
             case MainFragment.ITEM_MULTI_WAVELENGTH:
-                Intent intent = new Intent(this, TimescanSettingActivity.class);
-                startActivity(intent);
                 break;
             default:
                 break;
@@ -588,6 +587,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.action_setting:
+                BusProvider.getInstance().post(new SettingEvent(0));
+                break;
             case R.id.action_open:
                 toastShow("open");
                 break;

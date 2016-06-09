@@ -74,16 +74,34 @@
     <string name="title_test_mode">测试模式</string>
     <string name="summary_timescan_test_mode">点击选择测试模式</string>
     <string name="title_timescan_setting_y">坐标设定(Y轴)</string>
-    <string name="title_timescan_limit_up">坐标上限</string>
-    <string name="title_timescan_limit_down">坐标下限</string>
+    <string name="title_limit_up">坐标上限</string>
+    <string name="title_limit_down">坐标下限</string>
     <string name="summary_limit_up">点击输入坐标上限</string>
     <string name="summary_limit_down">点击输入坐标下限</string>
+    <string name="abs_unit">Abs</string>
+    <string name="trans_unit">%T</string>
+    <string name="setting_wavelengthscan_title">波长扫描设置</string>
+    <string name="title_wavelength_test_mode_y">测试模式(Y轴)</string>
+    <string name="summary_wavelength_test_mode">点击选择测试模式</string>
+    <string name="title_wavelength_y">坐标设定(Y轴)</string>
+    <string name="title_wavelength_x">波长设定(X轴)</string>
+    <string name="title_wavelength_start">起始波长</string>
+    <string name="title_wavelength_end">结束波长</string>
+    <string name="title_scan_speed">扫描速度</string>
+    <string name="speed_standard">标准</string>
+    <string name="title_wavelength_interval">波长间隔</string>
+    <string name="summary_wavelength_interval">点击选择波长间隔</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
 
 
+    <string-array name="speeds">
+        <item>快速</item>
+        <item>标准</item>
+        <item>慢速</item>
+    </string-array>
 
     <string-array name="titles">
         <item>光度测量</item>

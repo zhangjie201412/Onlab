@@ -1,6 +1,8 @@
 package org.zhangjie.onlab.fragment;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,14 +20,17 @@ import android.widget.TextView;
 import com.squareup.otto.Subscribe;
 
 import org.w3c.dom.Text;
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 import org.zhangjie.onlab.record.TimeScanRecord;
+import org.zhangjie.onlab.setting.TimescanSettingActivity;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -124,6 +129,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
         }
         mListView.setAdapter(mAdapter);
         initChart();
+        loadFromSetting();
     }
 
     private void initChart() {
@@ -137,9 +143,32 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
         mChartData = new LineChartData();
         mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
         mChartView.setLineChartData(mChartData);
-        //set default value
-        updateXYTitle(getString(R.string.time_with_unit), getString(R.string.abs_with_unit),
-                0, 60.0f, 3.0f, -3.0f);
+    }
+
+    private void loadFromSetting() {
+        int mode = DeviceApplication.getInstance().getSpUtils().getTimescanTestMode();
+        float work_wavelength = DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength();
+        int start_time = DeviceApplication.getInstance().getSpUtils().getTimescanStartTime();
+        int end_time = DeviceApplication.getInstance().getSpUtils().getTimescanEndTime();
+        int time_interval = DeviceApplication.getInstance().getSpUtils().getTimescanTimeInterval();
+        float limit_up = DeviceApplication.getInstance().getSpUtils().getTimescanLimitUp();
+        float limit_down = DeviceApplication.getInstance().getSpUtils().getTimescanLimitDown();
+
+        //set workwavelength
+        mWavelengthTextView.setText(getString(R.string.wavelength) + ": " + work_wavelength);
+
+        if(mode == TimescanSettingActivity.TEST_MODE_ABS) {
+            updateXYTitle(getString(R.string.time_with_unit), getString(R.string.abs_with_unit),
+                    start_time, end_time, limit_up, limit_down);
+            mTestModeTextView.setText(getString(R.string.mode) + ": " + getString(R.string.abs));
+        } else {
+            updateXYTitle(getString(R.string.time_with_unit), getString(R.string.trans_with_unit),
+                    start_time, end_time, limit_up, limit_down);
+            mTestModeTextView.setText(getString(R.string.mode) + ": " + getString(R.string.trans));
+        }
+
+        mInterval = time_interval;
+        mIntervalTextView.setText(getString(R.string.interval) + ": " + mInterval + " " + getString(R.string.s));
     }
 
     void updateXYTitle(String xTitle, String yTitle, float left, float right, float top, float bottom) {
@@ -250,6 +279,30 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
             }
         }
     };
+
+    @Subscribe public void OnSettingEvent(SettingEvent event) {
+        Context context = null;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            context = getContext();
+        } else {
+            context = getActivity();
+        }
+
+        Intent intent = new Intent(context, TimescanSettingActivity.class);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == TimescanSettingActivity.RESULT_OK) {
+            Log.d(TAG, "OK");
+            loadFromSetting();
+        } else if(resultCode == TimescanSettingActivity.RESULT_CANCEL) {
+            Log.d(TAG, "CANCEL");
+        }
+    }
 
     class TimescanThread extends Thread {
 

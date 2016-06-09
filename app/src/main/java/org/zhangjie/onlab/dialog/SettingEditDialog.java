@@ -15,7 +15,7 @@ import org.zhangjie.onlab.R;
 /**
  * Created by H151136 on 5/24/2016.
  */
-public class SettingDialog extends DialogFragment {
+public class SettingEditDialog extends DialogFragment {
 
     private EditText mEditText;
     private SettingInputListern mListener;

@@ -311,7 +311,7 @@
                     android:layout_centerVertical="true"
                     android:clickable="false"
 
-                    android:text="@string/title_timescan_limit_up"
+                    android:text="@string/title_limit_up"
                     android:textSize="@dimen/setting_content" />
 
                 <TextView
@@ -347,7 +347,7 @@
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
                     android:clickable="false"
-                    android:text="@string/title_timescan_limit_down"
+                    android:text="@string/title_limit_down"
                     android:textSize="@dimen/setting_content" />
 
                 <TextView

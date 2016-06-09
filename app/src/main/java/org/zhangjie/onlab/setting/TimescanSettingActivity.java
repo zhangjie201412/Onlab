@@ -7,18 +7,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
-import org.zhangjie.onlab.dialog.SettingDialog;
+import org.zhangjie.onlab.dialog.SettingEditDialog;
 
 /**
  * Created by H151136 on 6/6/2016.
  */
-public class TimescanSettingActivity extends AppCompatActivity implements View.OnClickListener, SettingDialog.SettingInputListern {
+public class TimescanSettingActivity extends AppCompatActivity implements View.OnClickListener, SettingEditDialog.SettingInputListern {
+
+    public static final int RESULT_OK = 0;
+    public static final int RESULT_CANCEL = 1;
+
+    public static final int TEST_MODE_ABS = 0;
+    public static final int TEST_MODE_TRANS = 1;
 
     private static final String TAG = "Onlab.TimescanSetting";
     private Toolbar mToolbar;
@@ -27,6 +34,10 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
     private LinearLayout mStartTime;
     private LinearLayout mEndTime;
     private LinearLayout mIntervalTime;
+    private LinearLayout mTestMode;
+    private LinearLayout mLimitUp;
+    private LinearLayout mLimitDown;
+
     private EditText mWavelengthEditText;
     private EditText mStartEditText;
     private EditText mEndEditText;
@@ -36,15 +47,23 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
     private TextView mStartValue;
     private TextView mEndValue;
     private TextView mIntervalValue;
+    private TextView mTestModeValue;
+    private TextView mLimitUpValue;
+    private TextView mLimitDownValue;
 
-    private SettingDialog mDialog;
+    private SettingEditDialog mDialog;
+
+    private int mMode = 0;
+
+    private Button mOkButton;
+    private Button mCancelButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setting_fragment_timescan);
         initView();
-        mDialog = new SettingDialog();
+        mDialog = new SettingEditDialog();
     }
 
     private void initView() {
@@ -57,10 +76,18 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
         mStartTime = (LinearLayout)findViewById(R.id.layout_start_time);
         mEndTime = (LinearLayout)findViewById(R.id.layout_end_time);
         mIntervalTime = (LinearLayout)findViewById(R.id.layout_time_interval) ;
+        mTestMode = (LinearLayout)findViewById(R.id.layout_test_mode);
+        mLimitUp = (LinearLayout)findViewById(R.id.layout_limit_up);
+        mLimitDown = (LinearLayout)findViewById(R.id.layout_limit_down);
+
         mWorkWavelength.setOnClickListener(this);
         mStartTime.setOnClickListener(this);
         mEndTime.setOnClickListener(this);
         mIntervalTime.setOnClickListener(this);
+        mTestMode.setOnClickListener(this);
+        mLimitUp.setOnClickListener(this);
+        mLimitDown.setOnClickListener(this);
+
         mWavelengthEditText = new EditText(this);
         mStartEditText = new EditText(this);
         mEndEditText = new EditText(this);
@@ -70,7 +97,16 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
         mStartValue = (TextView)findViewById(R.id.start_time_value);
         mEndValue = (TextView)findViewById(R.id.end_time_value);
         mIntervalValue = (TextView)findViewById(R.id.time_interval_value);
+        mTestModeValue = (TextView)findViewById(R.id.test_mode_value);
+        mLimitUpValue = (TextView)findViewById(R.id.limit_up_value);
+        mLimitDownValue = (TextView)findViewById(R.id.limit_down_value);
+
         loadPreference();
+
+        mOkButton = (Button)findViewById(R.id.bt_setting_timescan_ok);
+        mCancelButton = (Button)findViewById(R.id.bt_setting_timescan_cancel);
+        mOkButton.setOnClickListener(this);
+        mCancelButton.setOnClickListener(this);
     }
 
     private void loadPreference() {
@@ -78,13 +114,28 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
         int startTime = DeviceApplication.getInstance().getSpUtils().getTimescanStartTime();
         int endTime = DeviceApplication.getInstance().getSpUtils().getTimescanEndTime();
         int timeInterval = DeviceApplication.getInstance().getSpUtils().getTimescanTimeInterval();
-
-        Log.d(TAG, "load wavelength = " + wavelength);
+        float limitUp = DeviceApplication.getInstance().getSpUtils().getTimescanLimitUp();
+        float limitDown = DeviceApplication.getInstance().getSpUtils().getTimescanLimitDown();
 
         mWavelengthValue.setText("" + wavelength + " " + getString(R.string.nm));
         mStartValue.setText("" + startTime + " " + getString(R.string.s));
         mEndValue.setText("" + endTime + " " + getString(R.string.s));
         mIntervalValue.setText("" + timeInterval + " " + getString(R.string.s));
+        if(DeviceApplication.getInstance().getSpUtils().getTimescanTestMode() == TEST_MODE_ABS) {
+            mTestModeValue.setText(getString(R.string.abs_with_unit));
+        } else {
+            mTestModeValue.setText(getString(R.string.trans_with_unit));
+        }
+        if(DeviceApplication.getInstance().getSpUtils().getTimescanTestMode() == TEST_MODE_ABS) {
+            mLimitUpValue.setText("" + limitUp + " " + getString(R.string.abs_unit));
+        } else {
+            mLimitUpValue.setText("" + limitUp + " " + getString(R.string.trans_unit));
+        }
+        if(DeviceApplication.getInstance().getSpUtils().getTimescanTestMode() == TEST_MODE_ABS) {
+            mLimitDownValue.setText("" + limitDown + " " + getString(R.string.abs_unit));
+        } else {
+            mLimitDownValue.setText("" + limitDown + " " + getString(R.string.trans_unit));
+        }
     }
 
     @Override
@@ -107,7 +158,44 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
             mDialog.init(v.getId(), getString(R.string.title_timescan_setting_x),
                     getString(R.string.title_timescan_interval), this);
             mDialog.show(getFragmentManager(), "interval");
+        } else if(v.getId() == R.id.layout_test_mode) {
+            final String[] items = new String[2];
+            items[0] = getString(R.string.abs_with_unit);
+            items[1] = getString(R.string.trans_with_unit);
+            showSelectDialog(getString(R.string.title_test_mode), items,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            mTestModeValue.setText(items[which]);
+                            DeviceApplication.getInstance().getSpUtils().setKeyTimescanTestMode(which);
+                            //update limit up and dow
+                            loadPreference();
+
+                        }
+                    });
+        } else if(v.getId() == R.id.layout_limit_up) {
+            mDialog.init(v.getId(), getString(R.string.title_limit_up),
+                    getString(R.string.title_limit_up), this);
+            mDialog.show(getFragmentManager(), "limit_up");
+        } else if(v.getId() == R.id.layout_limit_down) {
+            mDialog.init(v.getId(), getString(R.string.title_limit_down),
+                    getString(R.string.title_limit_down), this);
+            mDialog.show(getFragmentManager(), "limit_down");
+        } else if(v.getId() == R.id.bt_setting_timescan_ok) {
+            this.setResult(RESULT_OK);
+            this.finish();
+        } else if(v.getId() == R.id.bt_setting_timescan_cancel) {
+            this.setResult(RESULT_CANCEL);
+            this.finish();
         }
+    }
+
+    private void showSelectDialog(String title, final String[] items, DialogInterface.OnClickListener listener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setItems(items, listener);
+        builder.create().show();
     }
 
     @Override
@@ -132,6 +220,22 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
                 Log.d(TAG, "interval time = " + setting);
                 mIntervalValue.setText(setting + " " + getString(R.string.s));
                 DeviceApplication.getInstance().getSpUtils().setKeyTimescanTimeInterval(Integer.parseInt(setting));
+                break;
+            case R.id.layout_limit_up:
+                if(DeviceApplication.getInstance().getSpUtils().getTimescanTestMode() == TEST_MODE_ABS) {
+                    mLimitUpValue.setText(setting + " " + getString(R.string.abs_unit));
+                } else {
+                    mLimitUpValue.setText(setting + " " + getString(R.string.trans_unit));
+                }
+                DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitUp(Float.parseFloat(setting));
+                break;
+            case R.id.layout_limit_down:
+                if(DeviceApplication.getInstance().getSpUtils().getTimescanTestMode() == TEST_MODE_ABS) {
+                    mLimitDownValue.setText(setting + " " + getString(R.string.abs_unit));
+                } else {
+                    mLimitDownValue.setText(setting + " " + getString(R.string.trans_unit));
+                }
+                DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitDown(Float.parseFloat(setting));
                 break;
             default:
                 break;

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tb_wavelengthscan_setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tb_wavelengthscan_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/setting_wavelengthscan_title"
+                android:textColor="@color/colorTitle" />
+
+            <LinearLayout
+                android:id="@+id/layout_wavelengthscan_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/button_margin_left_right"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@mipmap/ic_reset" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center"
+                    android:text="@string/reset"
+                    android:textColor="@color/colorTitle" />
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:id="@+id/layout_setting_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bt_setting_wavelengthscan_ok"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:text="@string/ok_string"
+            android:textColor="@color/color_button" />
+
+        <Button
+            android:id="@+id/bt_setting_wavelengthscan_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:text="@string/cancel_string"
+            android:textColor="@color/color_button" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layout_setting_buttons"
+        android:layout_below="@id/tb_wavelengthscan_setting"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/layout_test_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/title_wavelength_test_mode_y"
+                    android:textSize="@dimen/setting_content" />
+
+                <TextView
+                    android:id="@+id/test_mode_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/summary_wavelength_test_mode"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="match_parent"
+            android:background="@color/color_divide_line" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:text="@string/title_wavelength_y"
+                android:textSize="@dimen/setting_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:id="@+id/layout_limit_up"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_limit_up"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_limit_up_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/abs_unit"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/layout_limit_down"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_limit_down"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_limit_down_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/abs_unit"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
+            <TextView
+                android:text="@string/title_wavelength_x"
+                android:textSize="@dimen/setting_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:id="@+id/layout_wavelength_start"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_wavelength_start"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_wavelength_start_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/nm"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/layout_wavelength_end"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_wavelength_end"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_wavelength_end_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/nm"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
+            <TextView
+                android:text="@string/title_scan_speed"
+                android:textSize="@dimen/setting_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:text="@string/speed_standard"
+                android:textSize="@dimen/setting_content"
+                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:id="@+id/layout_wavelength_interval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/title_wavelength_interval"
+                    android:textSize="@dimen/setting_title" />
+
+                <TextView
+                    android:id="@+id/tv_wavelength_interval"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="@dimen/setting_margin_left"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/summary_wavelength_interval"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>
