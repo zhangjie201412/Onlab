@@ -234,17 +234,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="@color/color_divide_line" />
-            <TextView
-                android:text="@string/title_scan_speed"
-                android:textSize="@dimen/setting_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_marginLeft="@dimen/setting_margin_left"
-                android:text="@string/speed_standard"
-                android:textSize="@dimen/setting_content"
-                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/layout_wavelengthscan_speed"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="@string/title_scan_speed"
+                    android:textSize="@dimen/setting_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_speed_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="@dimen/setting_margin_left"
+                    android:text="@string/speed_standard"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/layout_wavelength_interval"
                 android:layout_width="match_parent"

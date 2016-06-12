@@ -91,6 +91,7 @@
     <string name="speed_standard">标准</string>
     <string name="title_wavelength_interval">波长间隔</string>
     <string name="summary_wavelength_interval">点击选择波长间隔</string>
+    <string name="notice_edit_null">请输入正确的数值！</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

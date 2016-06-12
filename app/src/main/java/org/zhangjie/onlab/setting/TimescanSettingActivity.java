@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
@@ -200,6 +201,12 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
 
     @Override
     public void onSettingInputComplete(int index, String setting) {
+
+        if(setting.length() < 1) {
+            Toast.makeText(this, getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         switch (index) {
             case R.id.layout_work_wavelength:
                 Log.d(TAG, "wavelength = " + setting);

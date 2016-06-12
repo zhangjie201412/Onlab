@@ -63,6 +63,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
     private List<HashMap<String, String>> mData;
     private int mInterval = 1;
     private int mDuration = 60;
+    private int mTestMode = 0;
 
     //+++chart
     private LineChartView mChartView;
@@ -169,6 +170,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
 
         mInterval = time_interval;
         mIntervalTextView.setText(getString(R.string.interval) + ": " + mInterval + " " + getString(R.string.s));
+        mTestMode = mode;
     }
 
     void updateXYTitle(String xTitle, String yTitle, float left, float right, float top, float bottom) {
@@ -224,7 +226,11 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
                     System.currentTimeMillis());
             addItem(record);
             //update chart
-            updateChart(mX, abs);
+            if(mTestMode == TimescanSettingActivity.TEST_MODE_ABS) {
+                updateChart(mX, abs);
+            } else if(mTestMode == TimescanSettingActivity.TEST_MODE_TRANS) {
+                updateChart(mX, trans);
+            }
         }
     }
 
