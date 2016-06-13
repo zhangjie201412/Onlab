@@ -37,6 +37,7 @@
             android:id="@+id/bt_wavelength_scan_start"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:minHeight="@dimen/button_min_height"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"
@@ -46,6 +47,7 @@
         <Button
             android:id="@+id/bt_wavelength_scan_stop"
             android:layout_width="0dp"
+            android:minHeight="@dimen/button_min_height"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
@@ -59,6 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
+            android:minHeight="@dimen/button_min_height"
             android:background="@drawable/bg_button"
             android:text="@string/rezero"
             android:textColor="@color/color_button" />
@@ -67,6 +70,7 @@
             android:id="@+id/bt_wavelength_scan_process"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:minHeight="@dimen/button_min_height"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"

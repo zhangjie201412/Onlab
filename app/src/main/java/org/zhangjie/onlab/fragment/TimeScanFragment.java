@@ -117,7 +117,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
 
         mListView = (ListView) view.findViewById(R.id.lv_time_scan);
         mData = new ArrayList<HashMap<String, String>>();
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mAdapter = new MultiSelectionAdapter(getContext(), mData,
                     R.layout.item_time_scan,
                     new String[]{"id", "abs", "trans", "energy"},
