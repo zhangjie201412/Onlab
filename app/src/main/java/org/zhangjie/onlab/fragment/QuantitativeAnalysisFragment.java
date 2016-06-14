@@ -1,6 +1,9 @@
 package org.zhangjie.onlab.fragment;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -11,9 +14,15 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.squareup.otto.Subscribe;
+
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.SettingEvent;
+import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
+import org.zhangjie.onlab.setting.TimescanSettingActivity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +63,18 @@ public class QuantitativeAnalysisFragment extends Fragment implements  View.OnCl
         return view;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        BusProvider.getInstance().unregister(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        BusProvider.getInstance().register(this);
+    }
+
     private void initView(View view) {
         mFittingTypeTextView = (TextView)view.findViewById(R.id.tv_qa_fitting_type);
         mFittingMethodTextView = (TextView)view.findViewById(R.id.tv_qa_fitting_method);
@@ -76,6 +97,31 @@ public class QuantitativeAnalysisFragment extends Fragment implements  View.OnCl
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+    }
+
+    @Subscribe
+    public void OnSettingEvent(SettingEvent event) {
+        Context context = null;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            context = getContext();
+        } else {
+            context = getActivity();
+        }
+
+        Intent intent = new Intent(context, QuantitativeAnalysisSettingActivity.class);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == QuantitativeAnalysisSettingActivity.RESULT_OK) {
+            Log.d(TAG, "OK");
+//            loadFromSetting();
+        } else if(resultCode == QuantitativeAnalysisSettingActivity.RESULT_CANCEL) {
+            Log.d(TAG, "CANCEL");
+        }
     }
 
     @Override

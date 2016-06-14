@@ -3,6 +3,7 @@ package org.zhangjie.onlab.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
 import org.zhangjie.onlab.setting.WavelengthSettingActivity;
 
@@ -10,6 +11,20 @@ import org.zhangjie.onlab.setting.WavelengthSettingActivity;
  * Created by H151136 on 6/8/2016.
  */
 public class SharedPreferenceUtils {
+    //+++qa
+    public static final String KEY_QA_FITTING_METHOD = "key_qa_fitting_method";
+    public static final String KEY_QA_CONC_UNIT = "key_qa_conc_unit";
+    public static final String KEY_QA_CALC_TYPE = "key_qa_calc_type";
+    public static final String KEY_QA_K0 = "key_qa_k0";
+    public static final String KEY_QA_K1 = "key_qa_k1";
+    public static final String KEY_QA_WAVELENGTH_SETTING = "key_qa_wavelength_setting";
+    public static final String KEY_QA_WAVELENGTH1 = "key_qa_wavelength1";
+    public static final String KEY_QA_WAVELENGTH2 = "key_qa_wavelength2";
+    public static final String KEY_QA_WAVELENGTH3 = "key_qa_wavelength3";
+    public static final String KEY_QA_RATIO1 = "key_qa_ratio1";
+    public static final String KEY_QA_RATIO2 = "key_qa_ratio2";
+    public static final String KEY_QA_RATIO3 = "key_qa_ratio3";
+    //---
     //+++time scan
     public static final String KEY_TIMESCAN_WORK_WAVELENGTH = "key_timescan_work_wavelength";
     public static final String KEY_TIMESCAN_START_TIME = "key_timescan_start_time";
@@ -35,6 +50,49 @@ public class SharedPreferenceUtils {
     public SharedPreferenceUtils(Context context, String file) {
         mSp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
         mEditor = mSp.edit();
+    }
+
+    public int getQAFittingMethod() {
+        return mSp.getInt(KEY_QA_FITTING_METHOD, QuantitativeAnalysisSettingActivity.FITTING_METHOD_ONE);
+    }
+
+    public int getQAConcUnit() {
+        return mSp.getInt(KEY_QA_CONC_UNIT, QuantitativeAnalysisSettingActivity.CONCENTRATION_UNIT_MG_ML);
+    }
+
+    public int getQACalcType() {
+        return mSp.getInt(KEY_QA_CALC_TYPE, QuantitativeAnalysisSettingActivity.CALC_TYPE_SAMPLE);
+    }
+
+    public float getQAK0() {
+        return mSp.getFloat(KEY_QA_K0, 1.0f);
+    }
+
+    public float getQAK1() {
+        return mSp.getFloat(KEY_QA_K1, 1.0f);
+    }
+
+    public int getQAWavelengthSetting() {
+        return mSp.getInt(KEY_QA_WAVELENGTH_SETTING, QuantitativeAnalysisSettingActivity.WAVELENGTH_ONE);
+    }
+
+    public float getQAWavelength1() {
+        return mSp.getFloat(KEY_QA_WAVELENGTH1, 645.0f);
+    }
+    public float getQAWavelength2() {
+        return mSp.getFloat(KEY_QA_WAVELENGTH2, 645.0f);
+    }
+    public float getQAWavelength3() {
+        return mSp.getFloat(KEY_QA_WAVELENGTH3, 645.0f);
+    }
+    public float getQARatio1() {
+        return mSp.getFloat(KEY_QA_RATIO1, 0.0f);
+    }
+    public float getQARatio2() {
+        return mSp.getFloat(KEY_QA_RATIO2, 0.0f);
+    }
+    public float getQARatio3() {
+        return mSp.getFloat(KEY_QA_RATIO3, 0.0f);
     }
 
     public float getTimescanWorkWavelength() {
@@ -101,6 +159,61 @@ public class SharedPreferenceUtils {
 
     public float getWavelengthscanInterval() {
         return mSp.getFloat(KEY_WAVELENGTHSCAN_INTERVAL, 1.0f);
+    }
+
+    public void setKeyQaFittingMethod(int method) {
+        mEditor.putInt(KEY_QA_FITTING_METHOD, method);
+        mEditor.commit();
+    }
+
+    public void setKeyQaCalcType(int type) {
+        mEditor.putInt(KEY_QA_CALC_TYPE, type);
+        mEditor.commit();
+    }
+
+    public void setKeyQaConcUnit(int unit) {
+        mEditor.putInt(KEY_QA_CONC_UNIT, unit);
+        mEditor.commit();
+    }
+
+    public void setKeyQaK0(float k) {
+        mEditor.putFloat(KEY_QA_K0, k);
+        mEditor.commit();
+    }
+    public void setKeyQaK1(float k) {
+        mEditor.putFloat(KEY_QA_K1, k);
+        mEditor.commit();
+    }
+
+    public void setKeyQaWavelengthSetting(int setting) {
+        mEditor.putInt(KEY_QA_WAVELENGTH_SETTING, setting);
+        mEditor.commit();
+    }
+
+    public void setKeyQaWavelength1(float wavelength) {
+        mEditor.putFloat(KEY_QA_WAVELENGTH1, wavelength);
+        mEditor.commit();
+    }
+    public void setKeyQaWavelength2(float wavelength) {
+        mEditor.putFloat(KEY_QA_WAVELENGTH2, wavelength);
+        mEditor.commit();
+    }
+    public void setKeyQaWavelength3(float wavelength) {
+        mEditor.putFloat(KEY_QA_WAVELENGTH3, wavelength);
+        mEditor.commit();
+    }
+
+    public void setKeyQaRatio1(float ratio) {
+        mEditor.putFloat(KEY_QA_RATIO1, ratio);
+        mEditor.commit();
+    }
+    public void setKeyQaRatio2(float ratio) {
+        mEditor.putFloat(KEY_QA_RATIO2, ratio);
+        mEditor.commit();
+    }
+    public void setKeyQaRatio3(float ratio) {
+        mEditor.putFloat(KEY_QA_RATIO3, ratio);
+        mEditor.commit();
     }
 
     public void setKeyTimescanWorkWavelength(float wavelength) {

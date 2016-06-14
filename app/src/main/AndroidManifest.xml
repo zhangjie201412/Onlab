@@ -30,6 +30,8 @@
             android:screenOrientation="landscape"/>
         <activity android:name=".setting.WavelengthSettingActivity"
             android:screenOrientation="landscape"/>
+        <activity android:name=".setting.QuantitativeAnalysisSettingActivity"
+            android:screenOrientation="landscape"/>
         <service
             android:name="org.zhangjie.onlab.ble.BluetoothLeService"
             android:enabled="true" />

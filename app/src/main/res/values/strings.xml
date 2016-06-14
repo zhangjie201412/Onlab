@@ -92,11 +92,57 @@
     <string name="title_wavelength_interval">波长间隔</string>
     <string name="summary_wavelength_interval">点击选择波长间隔</string>
     <string name="notice_edit_null">请输入正确的数值！</string>
+    <string name="setting_qa_title">定量分析设置</string>
+    <string name="title_fitting_method">拟合方式</string>
+    <string name="summary_fitting_method">点击选择拟合方式</string>
+    <string name="title_conc_unit">浓度单位</string>
+    <string name="summary_conc_unit">点击选择浓度单位</string>
+    <string name="standard_sample_fitting">标准样品标定</string>
+    <string name="formalu_ratio">方程系数</string>
+    <string name="formalu_detail1">CONC = K1 x A</string>
+    <string name="formalu_detail2">CONC = K0 + K1 x A</string>
+    <string name="wavelength_setting">波长设置</string>
+    <string name="nm_ratio1"> nm   系数1</string>
+    <string name="wavelength1">波长1</string>
+    <string name="nm_ratio2"> nm   系数2</string>
+    <string name="wavelength2">波长2</string>
+    <string name="nm_ratio3"> nm   系数3</string>
+    <string name="wavelength3">波长3</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
 
+    <string-array name="fitting_methods">
+        <item>一阶过零</item>
+        <item>一阶拟合</item>
+    </string-array>
+
+    <string-array name="concs">
+        <item>ug/ml</item>
+        <item>mg/ml</item>
+        <item>mg/L</item>
+        <item>g/L</item>
+        <item>mM/L</item>
+        <item>M/L</item>
+        <item>ppm</item>
+        <item>ppb</item>
+        <item>%</item>
+        <item>IU</item>
+    </string-array>
+
+    <string-array name="wavelength_settings">
+        <item>单波长法</item>
+        <item>双波长法</item>
+        <item>三波长法</item>
+    </string-array>
+    
+    <string-array name="intervals">
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+    </string-array>
 
     <string-array name="speeds">
         <item>快速</item>

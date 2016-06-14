@@ -39,8 +39,8 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
 
     private int mMode = 0;
 
-    private Button mOkButton;
-    private Button mCancelButton;
+    private Toolbar mToolbar;
+
     private LinearLayout mLayoutReset;
     private LinearLayout mLayoutTestMode;
     private RelativeLayout mLayoutLimitUp;
@@ -61,10 +61,10 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
     private SharedPreferenceUtils mSpUtils;
 
     private SettingEditDialog mDialog;
-    private EditText mLimitUpEditText;
-    private EditText mLimitDownEditText;
-    private EditText mStartEditText;
-    private EditText mEndEditText;
+//    private EditText mLimitUpEditText;
+//    private EditText mLimitDownEditText;
+//    private EditText mStartEditText;
+//    private EditText mEndEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +77,17 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
     }
 
     private void initView() {
-        mOkButton = (Button)findViewById(R.id.bt_setting_wavelengthscan_ok);
-        mCancelButton = (Button)findViewById(R.id.bt_setting_wavelengthscan_cancel);
+        mToolbar = (Toolbar) findViewById(R.id.tb_wavelengthscan_setting);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationIcon(R.mipmap.ic_arrow);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WavelengthSettingActivity.this.setResult(RESULT_OK);
+                finish();
+            }
+        });
+
         mLayoutReset = (LinearLayout) findViewById(R.id.layout_wavelengthscan_reset);
         mLayoutTestMode = (LinearLayout) findViewById(R.id.layout_test_mode);
         mLayoutLimitUp = (RelativeLayout) findViewById(R.id.layout_limit_up);
@@ -96,8 +105,6 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
         mSpeedValue = (TextView)findViewById(R.id.tv_speed_value);
         mIntervalValue = (TextView)findViewById(R.id.tv_wavelength_interval);
 
-        mOkButton.setOnClickListener(this);
-        mCancelButton.setOnClickListener(this);
         mLayoutReset.setOnClickListener(this);
         mLayoutTestMode.setOnClickListener(this);
         mLayoutLimitUp.setOnClickListener(this);
@@ -149,12 +156,6 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
     public void onClick(View v) {
         if(v.getId() == R.id.layout_wavelengthscan_reset) {
             Log.d(TAG, "reset");
-        } else if(v.getId() == R.id.bt_setting_wavelengthscan_ok) {
-            this.setResult(RESULT_OK);
-            this.finish();
-        } else if(v.getId() == R.id.bt_setting_wavelengthscan_cancel) {
-            this.setResult(RESULT_CANCEL);
-            this.finish();
         } else if(v.getId() == R.id.layout_test_mode) {
             final String[] items = new String[3];
             items[0] = getString(R.string.abs_with_unit);
@@ -200,12 +201,25 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
                             loadPreference();
                         }
                     });
+        } else if(v.getId() == R.id.layout_wavelength_interval) {
+            final String[] items = getResources().getStringArray(R.array.intervals);
+            showSelectDialog(getString(R.string.title_wavelength_interval), items,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            mIntervalValue.setText(items[which] + " " + getString(R.string.nm));
+                            mSpUtils.setKeyWavelengthscanInterval(Float.parseFloat(items[which]));
+                            loadPreference();
+                        }
+                    });
         }
     }
 
     private void showSelectDialog(String title, final String[] items, DialogInterface.OnClickListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
+        builder.setIcon(R.mipmap.ic_launcher);
         builder.setItems(items, listener);
         builder.create().show();
     }
