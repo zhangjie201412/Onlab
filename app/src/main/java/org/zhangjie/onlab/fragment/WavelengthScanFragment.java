@@ -22,6 +22,7 @@ import com.squareup.otto.Subscribe;
 import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
+import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.RezeroEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
@@ -48,7 +49,7 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 public class WavelengthScanFragment extends Fragment implements View.OnClickListener {
 
-    private boolean isFake = true;
+    private boolean isFake = false;
     private static final String TAG = "Onlab.WavelengthScan";
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
@@ -283,12 +284,27 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                             System.currentTimeMillis());
                     addItem(record);
                     updateChart((int) mStart + mData.size() * (int) mInterval, abs);
+                } else {
+                    SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+
+                    float start = sp.getWavelengthscanStart();
+                    float end = sp.getWavelengthscanEnd();
+                    int speed = sp.getWavelengthscanSpeed();
+                    float interval = sp.getWavelengthscanInterval();
+
+                    DeviceManager.getInstance().doWavelengthScan(start, end, interval);
                 }
                 break;
             case R.id.bt_wavelength_scan_stop:
                 break;
             case R.id.bt_wavelength_scan_rezero:
-                BusProvider.getInstance().post(new RezeroEvent());
+                SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+
+                float start = sp.getWavelengthscanStart();
+                float end = sp.getWavelengthscanEnd();
+                int speed = sp.getWavelengthscanSpeed();
+                float interval = sp.getWavelengthscanInterval();
+                BusProvider.getInstance().post(new RezeroEvent(start, end, speed, interval));
                 break;
             case R.id.bt_wavelength_scan_process:
                 break;

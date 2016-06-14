@@ -21,10 +21,12 @@ import com.squareup.otto.Subscribe;
 
 import org.w3c.dom.Text;
 import org.zhangjie.onlab.DeviceApplication;
+import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.LoadWavelengthDialogEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
@@ -84,13 +86,21 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
+    }
+
+    @Override
     public void onPause() {
+        Log.d(TAG, "onPause");
         super.onPause();
         BusProvider.getInstance().unregister(this);
     }
 
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume");
         super.onResume();
         BusProvider.getInstance().register(this);
     }
@@ -305,6 +315,10 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
         if(resultCode == TimescanSettingActivity.RESULT_OK) {
             Log.d(TAG, "OK");
             loadFromSetting();
+            //set wavelength to target
+            float work_wavelength = DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength();
+            ((MainActivity)getActivity()).loadWavelengthDialog(work_wavelength);
+
         } else if(resultCode == TimescanSettingActivity.RESULT_CANCEL) {
             Log.d(TAG, "CANCEL");
         }
@@ -341,7 +355,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
         public void run() {
             super.run();
 
-            for(int i = 0; i < duration; i += interval) {
+            for(int i = 0; i <= duration; i += interval) {
                 mX = i;
                 if(!start) {
                     break;

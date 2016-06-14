@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.ble.BtleListener;
 import org.zhangjie.onlab.ble.BtleManager;
 import org.zhangjie.onlab.device.work.WorkTask;
@@ -64,8 +65,8 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_GET_A = "ga";
     public static final String TAG_GET_ENERGY = "ge";
 
-    public static final float BASELINE_END = 900;//1100;
-    public static final float BASELINE_START = 650;//190;
+    public static final float BASELINE_END = 700;//1100;
+    public static final float BASELINE_START = 600;//190;
     public static int[] mBaseline;
     public static int[] mI0;
     public static int ENERGY_FIT_UP = 40000;
@@ -239,7 +240,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public void setGain(int wavelength, int gain) {
-//        Log.d(TAG, "set " + (wavelength - (int)BASELINE_START) + " = " + gain);
+        Log.d(TAG, "baselineWork: set " + (wavelength - (int)BASELINE_START) + " = " + gain);
         mBaseline[wavelength - (int)BASELINE_START] = gain;
     }
 
@@ -335,6 +336,7 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_TIME_SCAN = 1 << 5;
     public static final int WORK_ENTRY_FLAG_BASELINE = 1 << 6;
     public static final int WORK_ENTRY_FLAG_DOREZERO = 1 << 7;
+    public static final int WORK_ENTRY_FLAG_WAVELENGTH_SCAN = 1 << 8;
 
     private int mEntryFlag = 0x00000000;
 
@@ -411,8 +413,11 @@ public class DeviceManager implements BtleListener {
 
     public synchronized void baselineWork(int wavelength, int a) {
 
+        Log.d(TAG, "baselineWork: wavelength = " + wavelength);
+
         if (wavelength < BASELINE_START && wavelength > 0) {
             Log.d(TAG, "BASELINE DONE!");
+            mEntryFlag = 0x00000000;
             setLoopThreadRestart();
             return;
         }
@@ -442,9 +447,13 @@ public class DeviceManager implements BtleListener {
     }
 
     public synchronized void dorezeroWork(int wavelength, int a) {
-        if (wavelength < 700 && wavelength > 0) {
+        float wl_start = DeviceApplication.getInstance().getSpUtils().getWavelengthscanStart();
+
+        Log.d(TAG, "dorezeroWork: wavelength = " + wavelength);
+        if (wavelength < wl_start && wavelength > 0) {
             Log.d(TAG, "DOREZERO DONE!");
             setLoopThreadRestart();
+            mEntryFlag = 0x00000000;
             return;
         }
 
@@ -462,11 +471,26 @@ public class DeviceManager implements BtleListener {
         doWork(cmdList);
     }
 
+    public synchronized void doWavelengthScan(float start, float end, float interval) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_WAVELENGTH_SCAN;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        for(float wl = end; wl >= start; wl -= interval) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wl);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl));
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        }
+        doWork(cmdList);
+    }
+
     /*send ge and update bottom status bar
      */
     private synchronized void updateStatus() {
         //clear entry flag
-//        mEntryFlag &= 0x00000000;
+        mEntryFlag &= 0x00000000;
         //set update status flag
         mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
         Log.d(TAG, "UPDATE WORK FLAG = " + mEntryFlag);
@@ -488,6 +512,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public void setLoopThreadRestart() {
+        mEntryFlag = 0x00000000;
         mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
         mUpdateThread.restart();
     }
