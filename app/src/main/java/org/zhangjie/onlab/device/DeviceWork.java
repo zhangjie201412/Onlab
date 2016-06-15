@@ -18,12 +18,18 @@ public class DeviceWork extends BaseWork {
     public void setCmdList(List<HashMap<String, Cmd>> cmdList) {
         mCmdList = cmdList;
     }
+    private boolean running = true;
 
     @Override
     public void setup() throws InterruptedException {
         super.setup();
         Log.d(TAG, "setup");
 //        DeviceManager.getInstance().setLoopThreadPause();
+        running = true;
+    }
+
+    public void setStop() {
+        running = false;
     }
 
     @Override
@@ -32,7 +38,9 @@ public class DeviceWork extends BaseWork {
         Log.d(TAG, "process");
         int count = mCmdList.size();
         for(int i = 0; i < count; i++) {
-            DeviceManager.getInstance().sendCmd(mCmdList.get(i).get("cmd"));
+            if(running) {
+                DeviceManager.getInstance().sendCmd(mCmdList.get(i).get("cmd"));
+            }
         }
     }
 

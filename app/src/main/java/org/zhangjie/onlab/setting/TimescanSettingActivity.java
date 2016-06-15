@@ -16,6 +16,7 @@ import android.widget.Toast;
 import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
+import org.zhangjie.onlab.utils.Utils;
 
 /**
  * Created by H151136 on 6/6/2016.
@@ -171,7 +172,14 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
                             dialog.dismiss();
                             mTestModeValue.setText(items[which]);
                             DeviceApplication.getInstance().getSpUtils().setKeyTimescanTestMode(which);
-                            //update limit up and dow
+                            //update limit up and down
+                            if(which == TEST_MODE_ABS) {
+                                DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitUp(Utils.DEFAULT_ABS_VALUE);
+                                DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitDown(0.0f);
+                            } else if(which == TEST_MODE_TRANS) {
+                                DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitUp(Utils.DEFAULT_TRANS_VALUE);
+                                DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitDown(0.0f);
+                            }
                             loadPreference();
 
                         }

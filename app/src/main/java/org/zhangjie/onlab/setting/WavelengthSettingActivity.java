@@ -18,6 +18,7 @@ import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
+import org.zhangjie.onlab.utils.Utils;
 
 /**
  * Created by H151136 on 6/6/2016.
@@ -168,6 +169,16 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
                             dialog.dismiss();
                             mTestModeValue.setText(items[which]);
                             mSpUtils.setKeyWavelengthscanTestMode(which);
+                            if(which == TEST_MODE_ABS) {
+                                mSpUtils.setKeyWavelengthscanLimitUp(Utils.DEFAULT_ABS_VALUE);
+                                mSpUtils.setKeyWavelengthscanLimitDown(0.0f);
+                            } else if(which == TEST_MODE_TRANS) {
+                                mSpUtils.setKeyWavelengthscanLimitUp(Utils.DEFAULT_TRANS_VALUE);
+                                mSpUtils.setKeyWavelengthscanLimitDown(0.0f);
+                            } else if(which == TEST_MODE_ENERGY) {
+                                mSpUtils.setKeyWavelengthscanLimitUp(Utils.DEFAULT_ENERGY_VALUE);
+                                mSpUtils.setKeyWavelengthscanLimitDown(0.0f);
+                            }
                             //update limit up and dow
                             loadPreference();
 

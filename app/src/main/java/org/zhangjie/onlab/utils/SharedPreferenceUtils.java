@@ -3,10 +3,13 @@ package org.zhangjie.onlab.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.json.JSONArray;
 import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
 import org.zhangjie.onlab.setting.WavelengthSettingActivity;
+
+import java.util.Arrays;
 
 /**
  * Created by H151136 on 6/8/2016.
@@ -45,6 +48,7 @@ public class SharedPreferenceUtils {
     public static final String KEY_WAVELENGTHSCAN_INTERVAL = "key_wavelengthscan_interval";
     //---
     public static final String KEY_ACC = "key_acc";
+    public static final String KEY_BASELINE_AVAILABLE = "key_baseline_available";
 
     private SharedPreferences mSp;
     private SharedPreferences.Editor mEditor;
@@ -165,6 +169,10 @@ public class SharedPreferenceUtils {
 
     public int getAcc() {
         return mSp.getInt(KEY_ACC, MainActivity.ACC_LOW);
+    }
+
+    public boolean getBaselineAvailable() {
+        return mSp.getBoolean(KEY_BASELINE_AVAILABLE, false);
     }
 
     public void setKeyQaFittingMethod(int method) {
@@ -295,5 +303,34 @@ public class SharedPreferenceUtils {
     public void setKeyAcc(int acc) {
         mEditor.putInt(KEY_ACC, acc);
         mEditor.commit();
+    }
+
+    public void setKeyBaselineAvailable(boolean available) {
+        mEditor.putBoolean(KEY_BASELINE_AVAILABLE, available);
+        mEditor.commit();
+    }
+
+    public void saveBaseline(int[] base) {
+        JSONArray jsonArray = new JSONArray();
+        for(int i : base) {
+            jsonArray.put(i);
+        }
+        mEditor.putString("key_baseline", jsonArray.toString());
+        mEditor.commit();
+    }
+
+    public int[] getBaseline(int length) {
+        int[] base = new int[length];
+        Arrays.fill(base, 8);
+        try {
+            JSONArray jsonArray = new JSONArray(mSp.getString("key_baseline", "[]"));
+            for(int i= 0; i < jsonArray.length(); i++) {
+                base[i] = jsonArray.getInt(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return base;
     }
 }

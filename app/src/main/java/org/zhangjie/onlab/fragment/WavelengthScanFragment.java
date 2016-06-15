@@ -26,6 +26,7 @@ import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.RezeroEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
+import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 import org.zhangjie.onlab.record.TimeScanRecord;
 import org.zhangjie.onlab.record.WavelengthScanRecord;
@@ -125,6 +126,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartView = (LineChartView) view.findViewById(R.id.hello_wavelength_scan);
         initChart();
         loadFromSetting();
+        mStartButton.setEnabled(false);
+        mStopButton.setEnabled(false);
     }
 
     private void initChart() {
@@ -214,9 +217,15 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         }
     }
 
-    private void updateChart(int x, float y) {
-        Log.d(TAG, "update chart x = " + x + ", y = " + y);
-        mPoints.add(new PointValue(x, y));
+    private void updateChart(WavelengthScanRecord record) {
+        int mode = DeviceApplication.getInstance().getSpUtils().getWavelengthscanTestMode();
+        if(mode == WavelengthSettingActivity.TEST_MODE_ABS) {
+            mPoints.add(new PointValue(record.getWavelength(), record.getAbs()));
+        } else if(mode == WavelengthSettingActivity.TEST_MODE_TRANS) {
+            mPoints.add(new PointValue(record.getWavelength(), record.getTrans()));
+        } else if(mode == WavelengthSettingActivity.TEST_MODE_ENERGY) {
+            mPoints.add(new PointValue(record.getWavelength(), record.getEnergy()));
+        }
         mChartData.setLines(mLines);
         mChartView.setLineChartData(mChartData);
     }
@@ -225,6 +234,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mData.clear();
         mAdapter.notifyDataSetChanged();
         mPoints.clear();
+        mChartData.setLines(mLines);
+        mChartView.setLineChartData(mChartData);
     }
 
     @Override
@@ -270,10 +281,29 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         }
     }
 
+    @Subscribe
+    public void OnEventCallback(WavelengthScanCallbackEvent event) {
+        if(event.event_type == WavelengthScanCallbackEvent.EVENT_TYPE_REZERO_DONE) {
+            mStartButton.setEnabled(true);
+        } else if(event.event_type == WavelengthScanCallbackEvent.EVENT_TYPE_WORKING) {
+
+            WavelengthScanRecord record = new WavelengthScanRecord(-1,
+                    event.wavelength, event.abs, event.trans, event.energy,
+                    System.currentTimeMillis());
+            addItem(record);
+            updateChart(record);
+        } else if(event.event_type == WavelengthScanCallbackEvent.EVENT_TYPE_WORK_DONE) {
+            mStartButton.setEnabled(true);
+            mStopButton.setEnabled(false);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_wavelength_scan_start:
+                //clear
+                clearData();
                 if(isFake) {
                     int energy = (int) (Math.random() * 1000.0f);
                     float wavelength = (float) (Math.random() * 1000.0f);
@@ -284,7 +314,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                             wavelength, abs, trans, energy,
                             System.currentTimeMillis());
                     addItem(record);
-                    updateChart((int) mStart + mData.size() * (int) mInterval, abs);
+                    updateChart(record);
                 } else {
                     SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
 
@@ -294,9 +324,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     float interval = sp.getWavelengthscanInterval();
 
                     DeviceManager.getInstance().doWavelengthScan(start, end, interval);
+                    mStartButton.setEnabled(false);
+                    mStopButton.setEnabled(true);
                 }
                 break;
             case R.id.bt_wavelength_scan_stop:
+                mStartButton.setEnabled(true);
+                mStopButton.setEnabled(false);
+                DeviceManager.getInstance().stopWork();
                 break;
             case R.id.bt_wavelength_scan_rezero:
                 SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();

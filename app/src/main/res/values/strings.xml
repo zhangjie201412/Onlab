@@ -112,6 +112,9 @@
     <string name="wavelength3">波长3</string>
     <string name="system_setting">系统设置</string>
     <string name="acurrency_setting">精度设置</string>
+    <string name="baseline_message">正在建立基线...</string>
+    <string name="baseline_done">建立基线完成</string>
+    <string name="rezero_message">正在空白校正...</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

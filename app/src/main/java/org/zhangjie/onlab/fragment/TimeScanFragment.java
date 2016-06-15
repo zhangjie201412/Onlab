@@ -179,6 +179,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
             mTestModeTextView.setText(getString(R.string.mode) + ": " + getString(R.string.trans));
         }
 
+        mDuration = end_time;
         mInterval = time_interval;
         mIntervalTextView.setText(getString(R.string.interval) + ": " + mInterval + " " + getString(R.string.s));
         mTestMode = mode;

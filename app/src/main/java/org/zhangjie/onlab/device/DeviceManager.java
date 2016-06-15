@@ -76,6 +76,7 @@ public class DeviceManager implements BtleListener {
     private Context mContext;
     private Handler mUiHandler = null;
     private WorkTask mWorkThread;
+    private DeviceWork mWork;
     private final int BUF_SIZE = 1024;
     private byte[] buffer;
     private int position;
@@ -232,6 +233,10 @@ public class DeviceManager implements BtleListener {
         mUpdateThread = new UpdateThread();
         mBaseline = new int[(int)(BASELINE_END - BASELINE_START + 1)];
         mI0 = new int[(int)(BASELINE_END - BASELINE_START + 1)];
+
+        if(DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
+            mBaseline = DeviceApplication.getInstance().getSpUtils().getBaseline((int)(BASELINE_END - BASELINE_START + 1));
+        }
     }
 
     public int getGainFromBaseline(int wavelength) {
@@ -320,10 +325,20 @@ public class DeviceManager implements BtleListener {
     }
 
     private void doWork(List<HashMap<String, Cmd>> cmdList) {
-        DeviceWork work = new DeviceWork();
-        work.setCmdList(cmdList);
+        mWork = null;
+        mWork = new DeviceWork();
+        mWork.setCmdList(cmdList);
         mWorkThread = new WorkTask();
-        mWorkThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, work);
+        mWorkThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, mWork);
+    }
+
+    public void stopWork() {
+        if(mWork != null) {
+            mWork.setStop();
+        }
+        if(mWorkThread != null && (mWorkThread.getStatus() != AsyncTask.Status.FINISHED)) {
+            mWorkThread.cancel(true);
+        }
     }
 
     /*Bit switch if the work entry need to process
@@ -446,28 +461,18 @@ public class DeviceManager implements BtleListener {
         doWork(cmdList);
     }
 
-    public synchronized void dorezeroWork(int wavelength, int a) {
-        float wl_start = DeviceApplication.getInstance().getSpUtils().getWavelengthscanStart();
-
-        Log.d(TAG, "dorezeroWork: wavelength = " + wavelength);
-        if (wavelength < wl_start && wavelength > 0) {
-            Log.d(TAG, "DOREZERO DONE!");
-            setLoopThreadRestart();
-            mEntryFlag = 0x00000000;
-            return;
-        }
-
-        //stop main loop
+    public synchronized void dorezeroWork(float start, float end, float interval) {
         setLoopThreadPause();
-        //clear entry flag
         mEntryFlag = 0x00000000;
-        //set baseline flag
         mEntryFlag |= WORK_ENTRY_FLAG_DOREZERO;
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
-        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wavelength);
-        addCmd(cmdList, DEVICE_CMD_LIST_SET_A, a);
-        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+
+        for(float wl = end; wl >= start; wl -= interval) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wl);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl));
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        }
         doWork(cmdList);
     }
 
@@ -515,6 +520,11 @@ public class DeviceManager implements BtleListener {
         mEntryFlag = 0x00000000;
         mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
         mUpdateThread.restart();
+    }
+
+    public void saveBaseline() {
+        DeviceApplication.getInstance().getSpUtils().saveBaseline(mBaseline);
+        DeviceApplication.getInstance().getSpUtils().setKeyBaselineAvailable(true);
     }
 
     class UpdateThread extends Thread {
