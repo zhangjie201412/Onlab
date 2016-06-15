@@ -29,6 +29,9 @@ public class MainFragment extends Fragment {
     public static final int ITEM_WAVELENGTH_SCAN = 102;
     public static final int ITEM_TIME_SCAN = 103;
     public static final int ITEM_MULTI_WAVELENGTH = 104;
+    public static final int ITEM_HESUAN = 105;
+    public static final int ITEM_SYSTEM_SETTING = 106;
+    public static final int ITEM_ABOUT = 107;
 
     @Override
     public void onAttach(Context context) {
@@ -62,6 +65,12 @@ public class MainFragment extends Fragment {
                     case ITEM_TIME_SCAN:
                         break;
                     case ITEM_MULTI_WAVELENGTH:
+                        break;
+                    case ITEM_HESUAN:
+                        break;
+                    case ITEM_SYSTEM_SETTING:
+                        break;
+                    case ITEM_ABOUT:
                         break;
                     default:
                         break;

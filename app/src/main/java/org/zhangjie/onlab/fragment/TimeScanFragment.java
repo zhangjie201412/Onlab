@@ -33,6 +33,7 @@ import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 import org.zhangjie.onlab.record.TimeScanRecord;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
+import org.zhangjie.onlab.utils.Utils;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -212,8 +213,8 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
         record.setIndex(no);
 
         item.put("id", "" + no);
-        item.put("abs", String.format("%.3f", record.getAbs()));
-        item.put("trans", String.format("%.3f", record.getTrans()));
+        item.put("abs", Utils.formatAbs(record.getAbs()));
+        item.put("trans", Utils.formatTrans(record.getTrans()));
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData.add(item);

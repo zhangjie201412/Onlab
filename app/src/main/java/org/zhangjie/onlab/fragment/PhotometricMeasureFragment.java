@@ -28,6 +28,7 @@ import org.zhangjie.onlab.otto.SetWavelengthEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
+import org.zhangjie.onlab.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -132,8 +133,8 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
 
         item.put("id", "" + no);
         item.put("wavelength", "" + record.getWavelength());
-        item.put("abs", String.format("%.3f", record.getAbs()));
-        item.put("trans", String.format("%.3f", record.getTrans()));
+        item.put("abs", Utils.formatAbs(record.getAbs()));
+        item.put("trans", Utils.formatTrans(record.getTrans()));
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData.add(item);

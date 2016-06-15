@@ -3,6 +3,7 @@ package org.zhangjie.onlab.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
 import org.zhangjie.onlab.setting.WavelengthSettingActivity;
@@ -43,6 +44,7 @@ public class SharedPreferenceUtils {
     public static final String KEY_WAVELENGTHSCAN_SPEED = "key_wavelengthscan_speed";
     public static final String KEY_WAVELENGTHSCAN_INTERVAL = "key_wavelengthscan_interval";
     //---
+    public static final String KEY_ACC = "key_acc";
 
     private SharedPreferences mSp;
     private SharedPreferences.Editor mEditor;
@@ -159,6 +161,10 @@ public class SharedPreferenceUtils {
 
     public float getWavelengthscanInterval() {
         return mSp.getFloat(KEY_WAVELENGTHSCAN_INTERVAL, 1.0f);
+    }
+
+    public int getAcc() {
+        return mSp.getInt(KEY_ACC, MainActivity.ACC_LOW);
     }
 
     public void setKeyQaFittingMethod(int method) {
@@ -283,6 +289,11 @@ public class SharedPreferenceUtils {
 
     public void setKeyWavelengthscanInterval(float interval) {
         mEditor.putFloat(KEY_WAVELENGTHSCAN_INTERVAL, interval);
+        mEditor.commit();
+    }
+
+    public void setKeyAcc(int acc) {
+        mEditor.putInt(KEY_ACC, acc);
         mEditor.commit();
     }
 }

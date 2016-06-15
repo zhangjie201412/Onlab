@@ -18,6 +18,8 @@
     <string name="wavelength_scan">波长扫描</string>
     <string name="time_scan">时间扫描</string>
     <string name="multi_wavelength">多波长测试</string>
+    <string name="hesuan">核酸蛋白</string>
+    <string name="about">关于我们</string>
     <string name="ok_string">确定</string>
     <string name="cancel_string">取消</string>
     <string name="start_test">开始测试</string>
@@ -108,10 +110,26 @@
     <string name="wavelength2">波长2</string>
     <string name="nm_ratio3"> nm   系数3</string>
     <string name="wavelength3">波长3</string>
+    <string name="system_setting">系统设置</string>
+    <string name="acurrency_setting">精度设置</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
+
+    <string-array name="acurrencys">
+        <item>高精度</item>
+        <item>低精度</item>
+    </string-array>
+
+    <string-array name="system_settings">
+        <item>精度设置</item>
+        <item>波长校正</item>
+        <item>暗电流校正</item>
+        <item>光源管理</item>
+        <item>恢复出厂设置</item>
+        <item>系统版本</item>
+    </string-array>
 
     <string-array name="fitting_methods">
         <item>一阶过零</item>
@@ -156,5 +174,8 @@
         <item>波长扫描</item>
         <item>时间扫描</item>
         <item>多波长测试</item>
+        <item>核酸蛋白</item>
+        <item>系统设置</item>
+        <item>关于我们</item>
     </string-array>
 </resources>

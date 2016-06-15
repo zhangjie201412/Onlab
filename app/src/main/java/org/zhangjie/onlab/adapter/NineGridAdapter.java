@@ -16,10 +16,13 @@ public class NineGridAdapter extends BaseAdapter {
 
     public int[] img_text = {R.string.photometric_measurement, R.string.quantitative_analysis,
             R.string.wavelength_scan, R.string.time_scan, R.string.multi_wavelength,
+            R.string.hesuan, R.string.system_setting, R.string.about
     };
     public int[] imgs = {R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan,
             R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan,
-            R.mipmap.ic_wavelength_scan};
+            R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan,
+            R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan
+    };
 
     public NineGridAdapter(Context mContext) {
         super();

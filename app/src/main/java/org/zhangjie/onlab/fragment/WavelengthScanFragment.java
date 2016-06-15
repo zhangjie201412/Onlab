@@ -32,6 +32,7 @@ import org.zhangjie.onlab.record.WavelengthScanRecord;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
 import org.zhangjie.onlab.setting.WavelengthSettingActivity;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
+import org.zhangjie.onlab.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -201,8 +202,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         item.put("id", "" + no);
         item.put("wavelength", String.format("%.1f", record.getWavelength()));
-        item.put("abs", String.format("%.3f", record.getAbs()));
-        item.put("trans", String.format("%.3f", record.getTrans()));
+        item.put("abs", Utils.formatAbs(record.getAbs()));
+        item.put("trans", Utils.formatTrans(record.getTrans()));
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData.add(item);

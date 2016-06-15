@@ -1,5 +1,6 @@
 package org.zhangjie.onlab;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -14,6 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -47,9 +49,10 @@ import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
+import org.zhangjie.onlab.utils.Utils;
 
 public class MainActivity extends AppCompatActivity implements WavelengthDialog.WavelengthInputListern,
-        FragmentCallbackListener, View.OnClickListener {
+        FragmentCallbackListener, View.OnClickListener , DialogInterface.OnClickListener{
 
     private static boolean isExit = false;
     private MainFragment mMain;
@@ -491,6 +494,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             float interval = DeviceApplication.getInstance().getSpUtils().getWavelengthscanInterval();
             if(mWavelengthScanWavelength - interval < start) {
                 Log.d(TAG, "do wavelength scan done!");
+                mWavelengthScanWavelength = 0;
             }
         }
     }
@@ -651,6 +655,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 addContentFragment(mQuantitativeAnalysisFragment);
                 break;
             case MainFragment.ITEM_MULTI_WAVELENGTH:
+                break;
+            case MainFragment.ITEM_HESUAN:
+                break;
+            case MainFragment.ITEM_SYSTEM_SETTING:
+                showSystemSettingDialog();
+                break;
+            case MainFragment.ITEM_ABOUT:
                 break;
             default:
                 break;
@@ -823,18 +834,18 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void updateAbs(float abs) {
-        String absString = getString(R.string.abs) + ": " + String.format("%.2f", abs);
+        String absString = getString(R.string.abs) + ": " + Utils.formatAbs(abs);
         mBottomAbs.setText(absString);
     }
 
     private void updateTrans(float trans) {
-        String transString = getString(R.string.trans) + ": " + String.format("%.2f", trans);
+        String transString = getString(R.string.trans) + ": " + Utils.formatTrans(trans);
         mBottomTrans.setText(transString);
     }
 
     private void updateWavelength(float wavelength) {
         mWavelength = wavelength;
-        String wavelengthString = getString(R.string.wavelength) + ": " + String.format("%.2f", wavelength);
+        String wavelengthString = getString(R.string.wavelength) + ": " + String.format("%.1f", wavelength);
         mBottomWavelength.setText(wavelengthString);
     }
 
@@ -898,6 +909,33 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         loadSetWavelengthDialog();
     }
 
+    private void showSystemSettingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.system_setting));
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setItems(R.array.system_settings, this);
+        builder.create().show();
+    }
+
+    public final static int ACC_HIGH = 0;
+    public final static int ACC_LOW = 1;
+    private void showAcurrencyDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.acurrency_setting));
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setItems(R.array.acurrencys, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which == ACC_HIGH) {
+                    DeviceApplication.getInstance().getSpUtils().setKeyAcc(ACC_HIGH);
+                } else if(which == ACC_LOW) {
+                    DeviceApplication.getInstance().getSpUtils().setKeyAcc(ACC_LOW);
+                }
+            }
+        });
+        builder.create().show();
+    }
+
     @Subscribe
     public void onWaitProgressEvent(WaitProgressEvent event) {
         if (event.start) {
@@ -940,6 +978,35 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             BusProvider.getInstance().post(new SetOperateEvent(SetOperateEvent.OP_MODE_SELECTALL));
         } else if (v.getId() == R.id.layout_delete) {
             BusProvider.getInstance().post(new SetOperateEvent(SetOperateEvent.OP_MODE_DELETE));
+        }
+    }
+
+    /*
+    * */
+    private final int SYSTEM_SETTING_ITEM_ACURRENCY = 0;
+    private final int SYSTEM_SETTING_ITEM_WAVELENGTH_ADJUST = 1;
+    private final int SYSTEM_SETTING_ITEM_DARK_CURRENT_ADJUST = 2;
+    private final int SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT = 3;
+    private final int SYSTEM_SETTING_ITEM_FACTORY_RESET = 4;
+    private final int SYSTEM_SETTING_ITEM_SYSTEM_VERSION = 5;
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        switch (which) {
+            case SYSTEM_SETTING_ITEM_ACURRENCY:
+                showAcurrencyDialog();
+                break;
+            case SYSTEM_SETTING_ITEM_WAVELENGTH_ADJUST:
+                break;
+            case SYSTEM_SETTING_ITEM_DARK_CURRENT_ADJUST:
+                break;
+            case SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT:
+                break;
+            case SYSTEM_SETTING_ITEM_FACTORY_RESET:
+                break;
+            case SYSTEM_SETTING_ITEM_SYSTEM_VERSION:
+                break;
+            default:
+                break;
         }
     }
 }
