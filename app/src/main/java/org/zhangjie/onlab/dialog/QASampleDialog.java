@@ -19,11 +19,16 @@ public class QASampleDialog extends DialogFragment {
 
     private EditText mName;
     private EditText mConc;
-    private QASampleDialogCallback  mCallback;
+    String name = "", conc = "";
+    private QASampleDialogCallback mCallback;
+    private boolean isNew = true;
+    private int index = 0;
 
     public interface QASampleDialogCallback {
         void onCompleteInput(int type, String name, String conc);
-    };
+    }
+
+    ;
 
     public static final int TYPE_OK = 0;
     public static final int TYPE_CANCEL = 1;
@@ -39,8 +44,14 @@ public class QASampleDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_qa_sample, null);
 
-        mName = (EditText)view.findViewById(R.id.dialog_et_qa_name);
-        mConc = (EditText)view.findViewById(R.id.dialog_et_qa_conc);
+        mName = (EditText) view.findViewById(R.id.dialog_et_qa_name);
+        mConc = (EditText) view.findViewById(R.id.dialog_et_qa_conc);
+        if (name.length() < 1) {
+
+        } else {
+            mName.setText(name);
+        }
+        mConc.setText(conc);
 
         builder.setView(view).setPositiveButton(getString(R.string.ok_string),
                 new DialogInterface.OnClickListener() {
@@ -59,4 +70,26 @@ public class QASampleDialog extends DialogFragment {
 
         return builder.create();
     }
+
+    public void setData(String name, String conc) {
+        this.name = name;
+        this.conc = conc;
+    }
+
+    public void setIsNew(boolean n) {
+        isNew = n;
+    }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
 }

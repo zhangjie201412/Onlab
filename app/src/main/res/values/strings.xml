@@ -120,6 +120,9 @@
     <string name="test">测试</string>
     <string name="multi_wavelength_setting">多波长测试设置</string>
     <string name="add_item">+添加</string>
+    <string name="sample">样品</string>
+    <string name="notice_delete">删除</string>
+    <string name="noting_selected">当前没有选择项</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

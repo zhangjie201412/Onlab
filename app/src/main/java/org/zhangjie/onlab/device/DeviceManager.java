@@ -65,8 +65,8 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_GET_A = "ga";
     public static final String TAG_GET_ENERGY = "ge";
 
-    public static final float BASELINE_END = 700;//1100;
-    public static final float BASELINE_START = 600;//190;
+    public static final float BASELINE_END = 1100;//1100;
+    public static final float BASELINE_START = 190;//190;
     public static int[] mBaseline;
     public static int[] mI0;
     public static int ENERGY_FIT_UP = 40000;
