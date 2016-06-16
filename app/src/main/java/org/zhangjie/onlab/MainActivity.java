@@ -35,6 +35,7 @@ import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.fragment.FragmentCallbackListener;
 import org.zhangjie.onlab.fragment.HelloChartFragment;
 import org.zhangjie.onlab.fragment.MainFragment;
+import org.zhangjie.onlab.fragment.MultipleWavelengthFragment;
 import org.zhangjie.onlab.fragment.PhotometricMeasureFragment;
 import org.zhangjie.onlab.fragment.QuantitativeAnalysisFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private TimeScanFragment mTimeScanFragment;
     private WavelengthScanFragment mWavelengthScanFragment;
     private QuantitativeAnalysisFragment mQuantitativeAnalysisFragment;
+    private MultipleWavelengthFragment mMultipleWavelengthFragment;
     private HelloChartFragment mHelloChart;
     private TextView mTitleTextView;
     private TextView mBottomWavelength;
@@ -671,6 +673,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 addContentFragment(mQuantitativeAnalysisFragment);
                 break;
             case MainFragment.ITEM_MULTI_WAVELENGTH:
+                addContentFragment(mMultipleWavelengthFragment);
                 break;
             case MainFragment.ITEM_HESUAN:
                 break;
@@ -773,6 +776,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mTimeScanFragment = new TimeScanFragment();
         mWavelengthScanFragment = new WavelengthScanFragment();
         mQuantitativeAnalysisFragment = new QuantitativeAnalysisFragment();
+        mMultipleWavelengthFragment = new MultipleWavelengthFragment();
 
         mHelloChart = new HelloChartFragment();
 

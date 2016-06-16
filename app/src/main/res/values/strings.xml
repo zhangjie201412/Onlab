@@ -115,6 +115,11 @@
     <string name="baseline_message">正在建立基线...</string>
     <string name="baseline_done">建立基线完成</string>
     <string name="rezero_message">正在空白校正...</string>
+    <string name="add">添加</string>
+    <string name="sample_conc_setting">设置样品浓度</string>
+    <string name="test">测试</string>
+    <string name="multi_wavelength_setting">多波长测试设置</string>
+    <string name="add_item">+添加</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

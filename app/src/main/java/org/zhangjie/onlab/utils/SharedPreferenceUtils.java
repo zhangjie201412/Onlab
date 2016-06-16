@@ -63,7 +63,7 @@ public class SharedPreferenceUtils {
     }
 
     public int getQAConcUnit() {
-        return mSp.getInt(KEY_QA_CONC_UNIT, QuantitativeAnalysisSettingActivity.CONCENTRATION_UNIT_MG_ML);
+        return mSp.getInt(KEY_QA_CONC_UNIT, QuantitativeAnalysisSettingActivity.CONCENTRATION_UNIT_UG_ML);
     }
 
     public int getQACalcType() {

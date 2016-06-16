@@ -89,24 +89,24 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
     }
 
     private void initView() {
-        mToolbar = (Toolbar)findViewById(R.id.tb_qa_setting);
+        mToolbar = (Toolbar) findViewById(R.id.tb_qa_setting);
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationIcon(R.mipmap.ic_arrow);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isEditTextValid()) {
+                if (isEditTextValid()) {
                     QuantitativeAnalysisSettingActivity.this.setResult(RESULT_OK);
                     finish();
                 }
             }
         });
 
-        mResetLayout = (LinearLayout)findViewById(R.id.layout_qa_reset);
+        mResetLayout = (LinearLayout) findViewById(R.id.layout_qa_reset);
         mResetLayout.setOnClickListener(this);
 
-        mFormaluDetail = (TextView)findViewById(R.id.tv_formalu_detail);
-        mWavelengthSettingSpinner = (Spinner)findViewById(R.id.sp_wavelength_setting);
+        mFormaluDetail = (TextView) findViewById(R.id.tv_formalu_detail);
+        mWavelengthSettingSpinner = (Spinner) findViewById(R.id.sp_wavelength_setting);
         mWavelengthSettingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -120,37 +120,37 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
             }
         });
 
-        mFittingMethodLayout = (LinearLayout)findViewById(R.id.layout_fitting_method);
+        mFittingMethodLayout = (LinearLayout) findViewById(R.id.layout_fitting_method);
         mFittingMethodLayout.setOnClickListener(this);
-        mFittingMethodValue = (TextView)findViewById(R.id.fitting_method_value);
-        mConcUnitLayout = (LinearLayout)findViewById(R.id.layout_conc_unit);
+        mFittingMethodValue = (TextView) findViewById(R.id.fitting_method_value);
+        mConcUnitLayout = (LinearLayout) findViewById(R.id.layout_conc_unit);
         mConcUnitLayout.setOnClickListener(this);
-        mConcUnitValue = (TextView)findViewById(R.id.conc_unit_value);
-        mRadioGroup = (RadioGroup)findViewById(R.id.rg_qa_setting);
+        mConcUnitValue = (TextView) findViewById(R.id.conc_unit_value);
+        mRadioGroup = (RadioGroup) findViewById(R.id.rg_qa_setting);
         mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 int id = group.getCheckedRadioButtonId();
-                if(id == R.id.rb_formalu_ratio) {
+                if (id == R.id.rb_formalu_ratio) {
                     DeviceApplication.getInstance().getSpUtils().setKeyQaCalcType(CALC_TYPE_FORMALU);
                     loadPreference();
-                } else if(id == R.id.rb_standard_sample_fitting) {
+                } else if (id == R.id.rb_standard_sample_fitting) {
                     DeviceApplication.getInstance().getSpUtils().setKeyQaCalcType(CALC_TYPE_SAMPLE);
                     loadPreference();
                 }
             }
         });
-        mStandardSampleButton = (RadioButton)findViewById(R.id.rb_standard_sample_fitting);
-        mFormaluRatioButton = (RadioButton)findViewById(R.id.rb_formalu_ratio);
+        mStandardSampleButton = (RadioButton) findViewById(R.id.rb_standard_sample_fitting);
+        mFormaluRatioButton = (RadioButton) findViewById(R.id.rb_formalu_ratio);
 
-        mK0EditText = (EditText)findViewById(R.id.et_k0);
-        mK1EditText = (EditText)findViewById(R.id.et_k1);
-        mWavelength1EditText = (EditText)findViewById(R.id.ed_wavelength1);
-        mWavelength2EditText = (EditText)findViewById(R.id.ed_wavelength2);
-        mWavelength3EditText = (EditText)findViewById(R.id.ed_wavelength3);
-        mRatio1EditText = (EditText)findViewById(R.id.et_ratio1);
-        mRatio2EditText = (EditText)findViewById(R.id.et_ratio2);
-        mRatio3EditText = (EditText)findViewById(R.id.et_ratio3);
+        mK0EditText = (EditText) findViewById(R.id.et_k0);
+        mK1EditText = (EditText) findViewById(R.id.et_k1);
+        mWavelength1EditText = (EditText) findViewById(R.id.ed_wavelength1);
+        mWavelength2EditText = (EditText) findViewById(R.id.ed_wavelength2);
+        mWavelength3EditText = (EditText) findViewById(R.id.ed_wavelength3);
+        mRatio1EditText = (EditText) findViewById(R.id.et_ratio1);
+        mRatio2EditText = (EditText) findViewById(R.id.et_ratio2);
+        mRatio3EditText = (EditText) findViewById(R.id.et_ratio3);
         mK0EditText.addTextChangedListener(new EditTextDoneListener());
         mK1EditText.addTextChangedListener(new EditTextDoneListener());
         mWavelength1EditText.addTextChangedListener(new EditTextDoneListener());
@@ -179,30 +179,30 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
         int wavelength_setting = sp.getQAWavelengthSetting();
 
         mFittingMethodValue.setText(getResources().getStringArray(R.array.fitting_methods)[fitting_method]);
-        if(fitting_method == FITTING_METHOD_ONE) {
+        if (fitting_method == FITTING_METHOD_ONE) {
             mFormaluDetail.setText(getString(R.string.formalu_detail2));
             mK1EditText.setVisibility(View.VISIBLE);
-            ((TextView)findViewById(R.id.tv_k1)).setVisibility(View.VISIBLE);
-        } else if(fitting_method == FITTING_METHOD_ONE_ZERO) {
+            ((TextView) findViewById(R.id.tv_k1)).setVisibility(View.VISIBLE);
+        } else if (fitting_method == FITTING_METHOD_ONE_ZERO) {
             mFormaluDetail.setText(getString(R.string.formalu_detail1));
             mK1EditText.setVisibility(View.INVISIBLE);
-            ((TextView)findViewById(R.id.tv_k1)).setVisibility(View.INVISIBLE);
+            ((TextView) findViewById(R.id.tv_k1)).setVisibility(View.INVISIBLE);
         }
         mConcUnitValue.setText(getResources().getStringArray(R.array.concs)[conc_unit]);
-        if(calc_type == CALC_TYPE_SAMPLE) {
+        if (calc_type == CALC_TYPE_SAMPLE) {
             mStandardSampleButton.setChecked(true);
             mFormaluRatioButton.setChecked(false);
             mK0EditText.setEnabled(false);
             mK1EditText.setEnabled(false);
-            ((TextView)findViewById(R.id.tv_k0)).setEnabled(false);
-            ((TextView)findViewById(R.id.tv_k1)).setEnabled(false);
-        } else if(calc_type == CALC_TYPE_FORMALU) {
+            ((TextView) findViewById(R.id.tv_k0)).setEnabled(false);
+            ((TextView) findViewById(R.id.tv_k1)).setEnabled(false);
+        } else if (calc_type == CALC_TYPE_FORMALU) {
             mStandardSampleButton.setChecked(false);
             mFormaluRatioButton.setChecked(true);
             mK0EditText.setEnabled(true);
             mK1EditText.setEnabled(true);
-            ((TextView)findViewById(R.id.tv_k0)).setEnabled(true);
-            ((TextView)findViewById(R.id.tv_k1)).setEnabled(true);
+            ((TextView) findViewById(R.id.tv_k0)).setEnabled(true);
+            ((TextView) findViewById(R.id.tv_k1)).setEnabled(true);
         }
         mK0EditText.setText("" + k0);
         mK1EditText.setText("" + k1);
@@ -213,13 +213,35 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
         mRatio2EditText.setText("" + ratio2);
         mRatio3EditText.setText("" + ratio3);
         mWavelengthSettingSpinner.setSelection(wavelength_setting, true);
+        if (wavelength_setting == WAVELENGTH_ONE) {
+            mWavelength1EditText.setEnabled(true);
+            mWavelength2EditText.setEnabled(false);
+            mWavelength3EditText.setEnabled(false);
+            mRatio1EditText.setEnabled(true);
+            mRatio2EditText.setEnabled(false);
+            mRatio3EditText.setEnabled(false);
+        } else if (wavelength_setting == WAVELENGTH_TWO) {
+            mWavelength1EditText.setEnabled(true);
+            mWavelength2EditText.setEnabled(true);
+            mWavelength3EditText.setEnabled(false);
+            mRatio1EditText.setEnabled(true);
+            mRatio2EditText.setEnabled(true);
+            mRatio3EditText.setEnabled(false);
+        } else if (wavelength_setting == WAVELENGTH_THREE) {
+            mWavelength1EditText.setEnabled(true);
+            mWavelength2EditText.setEnabled(true);
+            mWavelength3EditText.setEnabled(true);
+            mRatio1EditText.setEnabled(true);
+            mRatio2EditText.setEnabled(true);
+            mRatio3EditText.setEnabled(true);
+        }
     }
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.layout_qa_reset) {
+        if (v.getId() == R.id.layout_qa_reset) {
             Log.d(TAG, "reset");
-        } else if(v.getId() == R.id.layout_fitting_method) {
+        } else if (v.getId() == R.id.layout_fitting_method) {
             final String[] items = getResources().getStringArray(R.array.fitting_methods);
             showSelectDialog(getString(R.string.title_fitting_method), items,
                     new DialogInterface.OnClickListener() {
@@ -232,7 +254,7 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
                             loadPreference();
                         }
                     });
-        } else if(v.getId() == R.id.layout_conc_unit) {
+        } else if (v.getId() == R.id.layout_conc_unit) {
             final String[] items = getResources().getStringArray(R.array.concs);
             showSelectDialog(getString(R.string.title_conc_unit), items,
                     new DialogInterface.OnClickListener() {
@@ -271,14 +293,14 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
         @Override
         public void afterTextChanged(Editable s) {
             //check all the edittext is null?
-            if(!isEditTextValid()) {
+            if (!isEditTextValid()) {
                 return;
             }
         }
     }
 
     private boolean isEditTextValid() {
-        if((mK0EditText.getEditableText().toString().length() < 1)
+        if ((mK0EditText.getEditableText().toString().length() < 1)
                 || mK1EditText.getEditableText().toString().length() < 1
                 || mWavelength1EditText.getEditableText().toString().length() < 1
                 || mWavelength2EditText.getEditableText().toString().length() < 1

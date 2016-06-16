@@ -20,5 +20,6 @@
     <color name="color_divide_line">#caddea</color>
     <color name="colorOperate">#FF2C526C</color>
     <color name="color_setting_value">#9c9e9f</color>
-    <color name="color_formalu">#1a44e9</color>
+    <color name="color_formalu_detail">#1a44e9</color>
+    <color name="color_formalu">#bf98e9</color>
 </resources>

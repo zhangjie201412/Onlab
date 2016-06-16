@@ -149,7 +149,7 @@
                 <TextView
                     android:id="@+id/tv_formalu_detail"
                     android:textSize="@dimen/formalu_size"
-                    android:textColor="@color/color_formalu"
+                    android:textColor="@color/color_formalu_detail"
                     android:layout_marginLeft="@dimen/setting_margin_left"
                     android:text="@string/formalu_detail2"
                     android:layout_width="wrap_content"

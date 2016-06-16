@@ -24,4 +24,5 @@
     <dimen name="setting_margin_right">30dp</dimen>
     <dimen name="button_min_height">30dp</dimen>
     <dimen name="formalu_size">18sp</dimen>
+    <dimen name="add_text_size">20sp</dimen>
 </resources>
