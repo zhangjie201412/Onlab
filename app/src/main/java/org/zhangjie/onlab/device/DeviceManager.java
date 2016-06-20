@@ -231,30 +231,30 @@ public class DeviceManager implements BtleListener {
         flag_pos = 0;
         mIsConnected = false;
         mUpdateThread = new UpdateThread();
-        mBaseline = new int[(int)(BASELINE_END - BASELINE_START + 1)];
-        mI0 = new int[(int)(BASELINE_END - BASELINE_START + 1)];
+        mBaseline = new int[(int) (BASELINE_END - BASELINE_START + 1)];
+        mI0 = new int[(int) (BASELINE_END - BASELINE_START + 1)];
 
-        if(DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
-            mBaseline = DeviceApplication.getInstance().getSpUtils().getBaseline((int)(BASELINE_END - BASELINE_START + 1));
+        if (DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
+            mBaseline = DeviceApplication.getInstance().getSpUtils().getBaseline((int) (BASELINE_END - BASELINE_START + 1));
         }
     }
 
     public int getGainFromBaseline(int wavelength) {
 //        Log.d(TAG, "get " + wavelength);
-        return mBaseline[wavelength - (int)BASELINE_START];
+        return mBaseline[wavelength - (int) BASELINE_START];
     }
 
     public void setGain(int wavelength, int gain) {
-        Log.d(TAG, "baselineWork: set " + (wavelength - (int)BASELINE_START) + " = " + gain);
-        mBaseline[wavelength - (int)BASELINE_START] = gain;
+        Log.d(TAG, "baselineWork: set " + (wavelength - (int) BASELINE_START) + " = " + gain);
+        mBaseline[wavelength - (int) BASELINE_START] = gain;
     }
 
     public int getDarkFromWavelength(int wavelength) {
-        return mI0[wavelength - (int)BASELINE_START];
+        return mI0[wavelength - (int) BASELINE_START];
     }
 
     public void setDark(int wavelength, int dark) {
-        mI0[wavelength - (int)BASELINE_START] = dark;
+        mI0[wavelength - (int) BASELINE_START] = dark;
     }
 
     public void start() {
@@ -333,10 +333,10 @@ public class DeviceManager implements BtleListener {
     }
 
     public void stopWork() {
-        if(mWork != null) {
+        if (mWork != null) {
             mWork.setStop();
         }
-        if(mWorkThread != null && (mWorkThread.getStatus() != AsyncTask.Status.FINISHED)) {
+        if (mWorkThread != null && (mWorkThread.getStatus() != AsyncTask.Status.FINISHED)) {
             mWorkThread.cancel(true);
         }
     }
@@ -353,7 +353,8 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_DOREZERO = 1 << 7;
     public static final int WORK_ENTRY_FLAG_WAVELENGTH_SCAN = 1 << 8;
     public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_REZERO = 1 << 9;
-    public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_TEST= 1 << 10;
+    public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_TEST = 1 << 10;
+    public static final int WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS = 1 << 11;
 
     private int mEntryFlag = 0x00000000;
 
@@ -470,9 +471,9 @@ public class DeviceManager implements BtleListener {
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
 
-        for(float wl = end; wl >= start; wl -= interval) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wl);
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl));
+        for (float wl = end; wl >= start; wl -= interval) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wl);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wl));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
         doWork(cmdList);
@@ -485,9 +486,9 @@ public class DeviceManager implements BtleListener {
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
 
-        for(float wl = end; wl >= start; wl -= interval) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wl);
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl));
+        for (float wl = end; wl >= start; wl -= interval) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wl);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wl));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
         doWork(cmdList);
@@ -500,9 +501,9 @@ public class DeviceManager implements BtleListener {
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
 
-        for(int i = 0; i < wavelengths.length; i++) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wavelengths[i]);
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wavelengths[i]));
+        for (int i = 0; i < wavelengths.length; i++) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wavelengths[i]);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wavelengths[i]));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
 
@@ -516,11 +517,22 @@ public class DeviceManager implements BtleListener {
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
 
-        for(int i = 0; i < wavelengths.length; i++) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wavelengths[i]);
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wavelengths[i]));
+        for (int i = 0; i < wavelengths.length; i++) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wavelengths[i]);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wavelengths[i]));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
+        doWork(cmdList);
+    }
+
+    public synchronized void doQuantitativeAnalysis() {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 5);
         doWork(cmdList);
     }
 

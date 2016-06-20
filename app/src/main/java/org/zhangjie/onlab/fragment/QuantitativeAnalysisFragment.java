@@ -22,11 +22,13 @@ import android.widget.Toast;
 import com.squareup.otto.Subscribe;
 
 import org.zhangjie.onlab.DeviceApplication;
+import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.QASampleDialog;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.QaUpdateEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.record.QuantitativeAnalysisRecord;
 import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
@@ -79,6 +81,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     private List<PointValue> mPoints;
     //---
     private QASampleDialog mSampleDialog;
+    private int mUpdateSampleIndex = 0;
+    private float sampleA0;
+    private float sampleA1;
 
     @Nullable
     @Override
@@ -216,8 +221,16 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 formalu = "CONC = 0";
             }
             mFormaluTextView.setText(formalu);
+            mAddButton.setEnabled(false);
+            mDoFittingButton.setEnabled(false);
+            mSelectallButton.setEnabled(false);
+            mDeleteButton.setEnabled(false);
         } else if (calc_type == QuantitativeAnalysisSettingActivity.CALC_TYPE_SAMPLE) {
             mFormaluTextView.setVisibility(View.GONE);
+            mAddButton.setEnabled(true);
+            mDoFittingButton.setEnabled(true);
+            mSelectallButton.setEnabled(true);
+            mDeleteButton.setEnabled(true);
         }
         String xTtitle = getString(R.string.abs_with_unit);
         String yTitle = getString(R.string.conc) + "(" + getResources().getStringArray(R.array.concs)[conc_unit] + ")";
@@ -267,6 +280,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         if (resultCode == QuantitativeAnalysisSettingActivity.RESULT_OK) {
             Log.d(TAG, "OK");
             loadSetting();
+            //set wavelength to target
+            float work_wavelength = DeviceApplication.getInstance().getSpUtils().getQAWavelength1();
+            ((MainActivity)getActivity()).loadWavelengthDialog(work_wavelength);
         } else if (resultCode == QuantitativeAnalysisSettingActivity.RESULT_CANCEL) {
             Log.d(TAG, "CANCEL");
         }
@@ -284,7 +300,6 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 //abs == -100 means null
                 if(mSampleDialog.isNew()) {
                     addSampleItem(new QuantitativeAnalysisRecord(-1, name, -100.0f,
@@ -301,9 +316,34 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     mSampleData.set(mSampleDialog.getIndex(), item);
                     mSampleAdapter.notifyDataSetChanged();
                 }
-
             } else if (type == QASampleDialog.TYPE_TEST) {
+                Log.d("###", "TEST");
+                //check input
+                if (name.length() < 1 || conc.length() < 1) {
+                    //show invalid input
+                    Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                //abs == -100 means null
+                if(mSampleDialog.isNew()) {
+                    addSampleItem(new QuantitativeAnalysisRecord(-1, name, -100.0f,
+                            Float.parseFloat(conc), System.currentTimeMillis()));
+                    mUpdateSampleIndex = mSampleData.size() - 1;
+                } else {
+                    //get index
+                    int index = mSampleDialog.getIndex();
+                    mUpdateSampleIndex = index;
+                    HashMap<String, String> item = new HashMap<String, String>();
+                    item.put("id", "" + (index + 1));
+                    item.put("name", name);
+                    item.put("conc", conc);
+                    item.put("abs", mSampleData.get(index).get("abs"));
 
+                    mSampleData.set(mSampleDialog.getIndex(), item);
+                    mSampleAdapter.notifyDataSetChanged();
+                }
+                //send get abs cmd
+                DeviceManager.getInstance().doQuantitativeAnalysis();
             } else if (type == QASampleDialog.TYPE_CANCEL) {
 
             }
@@ -341,6 +381,13 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         mSampleAdapter.notifyDataSetChanged();
     }
 
+    @Subscribe
+    void onUpdateEvent(QaUpdateEvent event) {
+        float abs = event.abs;
+        mSampleData.get(mUpdateSampleIndex).put("abs", Utils.formatAbs(abs));
+        mSampleAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -355,6 +402,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 mSampleDialog.show(getFragmentManager(), getString(R.string.sample_conc_setting));
                 break;
             case R.id.bt_qa_do_fitting:
+                doFitting();
                 break;
             case R.id.bt_qa_sample_selectall:
                 HashMap<Integer, Boolean> sel = mSampleAdapter.getIsSelected();
@@ -370,6 +418,59 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             default:
                 break;
         }
+    }
+
+    private void doFitting() {
+        HashMap<Integer, Boolean> sel = mSampleAdapter.getIsSelected();
+        int fittingCount = 0;
+        for(int i = 0; i < sel.size(); i++) {
+            if(sel.get(i)) {
+                String absVal = mSampleData.get(i).get("abs");
+                String concVal = mSampleData.get(i).get("conc");
+                if (absVal.length() > 0 && (concVal.length() > 0)) {
+                    fittingCount = fittingCount + 1;
+                } else {
+                    Toast.makeText(getActivity(), getString(R.string.notice_select_null), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        }
+        Log.d(TAG, "fittingCount = " + fittingCount);
+        double[] x = new double[fittingCount];
+        double[] y = new double[fittingCount];
+        int index = 0;
+        for(int i = 0; i < sel.size(); i++) {
+            if (sel.get(i)) {
+                String absVal = mSampleData.get(i).get("abs");
+                String concVal = mSampleData.get(i).get("conc");
+                if (absVal.length() > 0 && (concVal.length() > 0)) {
+                    x[index] = Double.parseDouble(absVal);
+                    y[index] = Double.parseDouble(concVal);
+                    index = index + 1;
+                }
+            }
+        }
+
+        float xi2 = 0;
+        float yi = 0;
+        float xi = 0;
+        float xiyi = 0;
+
+        float a0;
+        float a1;
+        for (int i = 0; i < x.length; i++) {
+            xi2 = (float) (xi2 + x[i] * x[i]);
+            yi = (float) (yi + y[i]);
+            xi = (float) (xi + x[i]);
+            xiyi = (float) (xiyi + x[i] * y[i]);
+        }
+
+        a0 = (xi2 * yi - xi * xiyi) / (x.length * xi2 - xi * xi);
+        a1 = (x.length * xiyi - xi * yi) / (x.length * xi2 - xi * xi);
+        sampleA0 = a0;
+        sampleA1 = a1;
+        Log.d(TAG, "a0 = " + a0 + ", a1 = " + a1);
+        //update hello chart
     }
 
 

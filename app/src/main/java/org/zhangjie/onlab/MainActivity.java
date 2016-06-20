@@ -43,6 +43,7 @@ import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.LoadWavelengthDialogEvent;
 import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
+import org.zhangjie.onlab.otto.QaUpdateEvent;
 import org.zhangjie.onlab.otto.RezeroEvent;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
@@ -189,6 +190,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             //do multiple wavelength test entry
             Log.d(TAG, "MULTIPLE WAVELENGTH TEST ENTRY");
             work_entry_multiple_wavelength_test(msg);
+        }
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS) != 0) {
+            //do quantitative analysis entry
+            Log.d(TAG, "QUANTITATIVE ANALYSIS ENTRY");
+            work_entry_quantitative_analysis(msg);
         }
     }
 
@@ -609,6 +615,35 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 mDeviceManager.setLoopThreadRestart();
             }
         }
+    }
+
+    private void work_entry_quantitative_analysis(String[] msgs) {
+        String[] msg = msgs.clone();
+        String tag = msg[0];
+
+        if (tag.startsWith("ge 5")) {
+            int[] energies = new int[5];
+            int I1 = 0;
+            float trans = 0;
+            float abs = 0;
+
+            for (int i = 0; i < 5; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energies[i] = Integer.parseInt(msg[i + 1], 10);
+                I1 += energies[i];
+            }
+            I1 /= 5;
+
+            if (mA > 0) {
+                trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
+                abs = (float) -Math.log10(trans);
+//                trans *= 100.0f;
+                Log.d(TAG, "Update abs = " + abs);
+            }
+            BusProvider.getInstance().post(new QaUpdateEvent(abs));
+            mDeviceManager.setLoopThreadRestart();
+        }
+        //done
     }
 
     private void work_entry_set_wavelength(String[] msgs) {
