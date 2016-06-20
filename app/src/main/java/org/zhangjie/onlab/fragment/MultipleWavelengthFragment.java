@@ -42,7 +42,7 @@ import java.util.List;
 /**
  * Created by H151136 on 5/24/2016.
  */
-public class MultipleWavelengthFragment extends Fragment implements  View.OnClickListener {
+public class MultipleWavelengthFragment extends Fragment implements View.OnClickListener, MultipleWavelengthSettingDialog.MultipleWavelengthSettingCallback {
     private static final String TAG = "Onlab.MultipleWave";
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
@@ -58,6 +58,7 @@ public class MultipleWavelengthFragment extends Fragment implements  View.OnClic
         View view = inflater.inflate(R.layout.fragment_multiple_wavelength, container, false);
         initUi(view);
         mSettingDialog = new MultipleWavelengthSettingDialog();
+        mSettingDialog.init(this);
         return view;
     }
 
@@ -75,24 +76,24 @@ public class MultipleWavelengthFragment extends Fragment implements  View.OnClic
 
     void initUi(View view) {
         mData = new ArrayList<HashMap<String, String>>();
-        if(Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             mAdapter = new MultiSelectionAdapter(getContext(), mData,
                     R.layout.item_photometric_measure,
-                    new String[] {"id", "wavelength", "abs", "trans", "energy"},
-                    new int[] {R.id.item_index, R.id.item_wavelength,
+                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
+                    new int[]{R.id.item_index, R.id.item_wavelength,
                             R.id.item_abs, R.id.item_trans, R.id.item_energy});
         } else {
             mAdapter = new MultiSelectionAdapter(getActivity(), mData,
                     R.layout.item_photometric_measure,
-                    new String[] {"id", "wavelength", "abs", "trans", "energy"},
-                    new int[] {R.id.item_index, R.id.item_wavelength,
+                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
+                    new int[]{R.id.item_index, R.id.item_wavelength,
                             R.id.item_abs, R.id.item_trans, R.id.item_energy});
         }
-        mListView = (ListView)view.findViewById(R.id.lv_multiple_wavelength);
+        mListView = (ListView) view.findViewById(R.id.lv_multiple_wavelength);
         mListView.setAdapter(mAdapter);
 
-        mStart = (Button)view.findViewById(R.id.bt_multiple_wavelength_start);
-        mRezero = (Button)view.findViewById(R.id.bt_multiple_wavelength_rezero);
+        mStart = (Button) view.findViewById(R.id.bt_multiple_wavelength_start);
+        mRezero = (Button) view.findViewById(R.id.bt_multiple_wavelength_rezero);
         mStart.setOnClickListener(this);
         mRezero.setOnClickListener(this);
     }
@@ -131,9 +132,10 @@ public class MultipleWavelengthFragment extends Fragment implements  View.OnClic
         mAdapter.notifyDataSetChanged();
     }
 
-    @Subscribe public void OnSettingEvent(SettingEvent event) {
+    @Subscribe
+    public void OnSettingEvent(SettingEvent event) {
         Context context = null;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             context = getContext();
         } else {
             context = getActivity();
@@ -154,6 +156,13 @@ public class MultipleWavelengthFragment extends Fragment implements  View.OnClic
 
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onCallback(float[] wavelengths) {
+        for(int i = 0; i < wavelengths.length; i++) {
+            Log.d(TAG, String.format("[%d] -> %f\n", i, wavelengths[i]));
         }
     }
 }
