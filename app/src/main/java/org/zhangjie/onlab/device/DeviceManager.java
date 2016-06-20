@@ -352,6 +352,8 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_BASELINE = 1 << 6;
     public static final int WORK_ENTRY_FLAG_DOREZERO = 1 << 7;
     public static final int WORK_ENTRY_FLAG_WAVELENGTH_SCAN = 1 << 8;
+    public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_REZERO = 1 << 9;
+    public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_TEST= 1 << 10;
 
     private int mEntryFlag = 0x00000000;
 
@@ -486,6 +488,37 @@ public class DeviceManager implements BtleListener {
         for(float wl = end; wl >= start; wl -= interval) {
             addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wl);
             addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl));
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        }
+        doWork(cmdList);
+    }
+
+    public synchronized void doMultipleWavelengthRezero(float[] wavelengths) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_REZERO;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        for(int i = 0; i < wavelengths.length; i++) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wavelengths[i]);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wavelengths[i]));
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        }
+
+        doWork(cmdList);
+    }
+
+    public synchronized void doMultipleWavelengthTest(float[] wavelengths) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_TEST;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        for(int i = 0; i < wavelengths.length; i++) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int)wavelengths[i]);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wavelengths[i]));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
         doWork(cmdList);

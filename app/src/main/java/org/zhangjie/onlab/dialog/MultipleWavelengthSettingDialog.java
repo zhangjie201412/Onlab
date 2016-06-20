@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.w3c.dom.Text;
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultipleWavelengthSettingAdapter;
 import org.zhangjie.onlab.ble.BtleManager;
@@ -114,7 +115,16 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
             }
         });
 
-        addItem();
+        if(DeviceApplication.getInstance().getSpUtils().getMultipleWavelengthLength() == 0) {
+            addItem();
+        } else {
+            int length = DeviceApplication.getInstance().getSpUtils().getMultipleWavelengthLength();
+            float[] wavelengths = DeviceApplication.getInstance().getSpUtils().getMultipleWavelength();
+
+            for(int i = 0; i < length; i++) {
+                addItem("" + wavelengths[i]);
+            }
+        }
 
         return builder.create();
     }

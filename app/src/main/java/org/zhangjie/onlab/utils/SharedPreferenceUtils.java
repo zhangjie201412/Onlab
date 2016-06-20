@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
@@ -47,6 +48,11 @@ public class SharedPreferenceUtils {
     public static final String KEY_WAVELENGTHSCAN_SPEED = "key_wavelengthscan_speed";
     public static final String KEY_WAVELENGTHSCAN_INTERVAL = "key_wavelengthscan_interval";
     //---
+    //+++multiple wavelength
+    public static final String KEY_MULTIPLE_WAVELENGTH = "key_multiple_wavelength_settings";
+    public static final String KEY_MULTIPLE_WAVELENGTH_LENGTH = "key_multiple_wavelength_length";
+    //---
+
     public static final String KEY_ACC = "key_acc";
     public static final String KEY_BASELINE_AVAILABLE = "key_baseline_available";
 
@@ -169,6 +175,10 @@ public class SharedPreferenceUtils {
 
     public int getAcc() {
         return mSp.getInt(KEY_ACC, MainActivity.ACC_LOW);
+    }
+
+    public int getMultipleWavelengthLength() {
+        return mSp.getInt(KEY_MULTIPLE_WAVELENGTH_LENGTH, 0);
     }
 
     public boolean getBaselineAvailable() {
@@ -305,6 +315,11 @@ public class SharedPreferenceUtils {
         mEditor.commit();
     }
 
+    public void setKeyMultipleWavelengthLength(int length) {
+        mEditor.putInt(KEY_MULTIPLE_WAVELENGTH_LENGTH, length);
+        mEditor.commit();
+    }
+
     public void setKeyBaselineAvailable(boolean available) {
         mEditor.putBoolean(KEY_BASELINE_AVAILABLE, available);
         mEditor.commit();
@@ -332,5 +347,37 @@ public class SharedPreferenceUtils {
         }
 
         return base;
+    }
+
+    public void saveMultipleWavelength(float[] wavelengths) {
+        JSONArray jsonArray = new JSONArray();
+        for(float i : wavelengths) {
+            double val = i;
+            try {
+                jsonArray.put(val);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        mEditor.putString(KEY_MULTIPLE_WAVELENGTH, jsonArray.toString());
+        mEditor.commit();
+    }
+
+    public float[] getMultipleWavelength() {
+        int length = getMultipleWavelengthLength();
+        if(length == 0)
+            return null;
+        float[] wavelengths = new float[length];
+        Arrays.fill(wavelengths, 0);
+        try {
+            JSONArray jsonArray = new JSONArray(mSp.getString(KEY_MULTIPLE_WAVELENGTH, "[]"));
+            for(int i= 0; i < jsonArray.length(); i++) {
+                wavelengths[i] = (float)jsonArray.getDouble(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return wavelengths;
     }
 }

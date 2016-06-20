@@ -19,20 +19,21 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.MultipleWavelengthSettingDialog;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
-import org.zhangjie.onlab.record.PhotoMeasureRecord;
-import org.zhangjie.onlab.setting.TimescanSettingActivity;
+import org.zhangjie.onlab.record.MultipleWavelengthRecord;
 import org.zhangjie.onlab.utils.Utils;
 
 import java.util.ArrayList;
@@ -49,8 +50,10 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
     private List<HashMap<String, String>> mData;
     private Button mStart;
     private Button mRezero;
+    private boolean isRezeroed = false;
 
     private MultipleWavelengthSettingDialog mSettingDialog;
+    public static float[] mWavelengths;
 
     @Nullable
     @Override
@@ -96,6 +99,11 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         mRezero = (Button) view.findViewById(R.id.bt_multiple_wavelength_rezero);
         mStart.setOnClickListener(this);
         mRezero.setOnClickListener(this);
+        mStart.setEnabled(false);
+        int length = DeviceApplication.getInstance().getSpUtils().getMultipleWavelengthLength();
+        if(length > 0) {
+            mWavelengths = DeviceApplication.getInstance().getSpUtils().getMultipleWavelength();
+        }
     }
 
     @Override
@@ -104,7 +112,7 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         Log.d(TAG, "onDestroy");
     }
 
-    private void addItem(PhotoMeasureRecord record) {
+    private void addItem(MultipleWavelengthRecord record) {
         HashMap<String, String> item = new HashMap<String, String>();
         int no = mData.size() + 1;
         record.setIndex(no);
@@ -144,14 +152,35 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         mSettingDialog.show(getFragmentManager(), getString(R.string.multi_wavelength_setting));
     }
 
+    @Subscribe
+    public void OnUpdateEvent(MultipleWavelengthCallbackEvent event) {
+        if(event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_UPDATE) {
+            addItem(new MultipleWavelengthRecord(-1, event.wavelength, event.abs, event.trans, event.energy, System.currentTimeMillis()));
+        } else if(event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_REZERO_DONE) {
+            mStart.setEnabled(true);
+        } else if(event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_TEST_DONE) {
+
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_multiple_wavelength_start:
-
+                Log.d(TAG, "start");
+                if(mWavelengths == null || mWavelengths.length < 1) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_setting_null), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_TEST, mWavelengths));
                 break;
             case R.id.bt_multiple_wavelength_rezero:
-
+                Log.d(TAG, "rezero");
+                if(mWavelengths == null || mWavelengths.length < 1) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_setting_null), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_REZERO, mWavelengths));
                 break;
 
             default:
@@ -164,5 +193,8 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         for(int i = 0; i < wavelengths.length; i++) {
             Log.d(TAG, String.format("[%d] -> %f\n", i, wavelengths[i]));
         }
+        DeviceApplication.getInstance().getSpUtils().setKeyMultipleWavelengthLength(wavelengths.length);
+        DeviceApplication.getInstance().getSpUtils().saveMultipleWavelength(wavelengths);
+        mWavelengths = wavelengths;
     }
 }
