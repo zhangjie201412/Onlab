@@ -20,7 +20,7 @@ public class WorkTask extends AsyncTask<WorkTaskMethod, Integer, Integer> {
                 e.printStackTrace();
             }
         }
-        Log.d(TAG, "Job done!");
+        Log.v(TAG, "Job done!");
         return null;
     }
 

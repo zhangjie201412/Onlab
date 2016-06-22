@@ -17,11 +17,14 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
+import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SetWavelengthEvent;
@@ -37,7 +40,7 @@ import java.util.List;
 /**
  * Created by H151136 on 5/24/2016.
  */
-public class PhotometricMeasureFragment extends Fragment implements  View.OnClickListener {
+public class PhotometricMeasureFragment extends Fragment implements View.OnClickListener {
 
     private boolean isFake = false;
     private static final String TAG = "Onlab.PhotometricMea";
@@ -45,6 +48,8 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
     private MultiSelectionAdapter mAdapter;
     private List<HashMap<String, String>> mData;
     private boolean mIsRezeroed = false;
+    private SaveNameDialog mSaveDialog;
+
 
     @Nullable
     @Override
@@ -69,20 +74,20 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
 
     void initUi(View view) {
         mData = new ArrayList<HashMap<String, String>>();
-        if(Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             mAdapter = new MultiSelectionAdapter(getContext(), mData,
                     R.layout.item_photometric_measure,
-                    new String[] {"id", "wavelength", "abs", "trans", "energy"},
-                    new int[] {R.id.item_index, R.id.item_wavelength,
-                    R.id.item_abs, R.id.item_trans, R.id.item_energy});
+                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
+                    new int[]{R.id.item_index, R.id.item_wavelength,
+                            R.id.item_abs, R.id.item_trans, R.id.item_energy});
         } else {
             mAdapter = new MultiSelectionAdapter(getActivity(), mData,
                     R.layout.item_photometric_measure,
-                    new String[] {"id", "wavelength", "abs", "trans", "energy"},
-                    new int[] {R.id.item_index, R.id.item_wavelength,
+                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
+                    new int[]{R.id.item_index, R.id.item_wavelength,
                             R.id.item_abs, R.id.item_trans, R.id.item_energy});
         }
-        mListView = (ListView)view.findViewById(R.id.lv_photometric_measure);
+        mListView = (ListView) view.findViewById(R.id.lv_photometric_measure);
         mListView.setAdapter(mAdapter);
 
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -102,8 +107,8 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                boolean mode = ((MainActivity)getActivity()).getOperateMode();
-                if(mode) {
+                boolean mode = ((MainActivity) getActivity()).getOperateMode();
+                if (mode) {
                     MultiSelectionAdapter.ViewHolder holder = (MultiSelectionAdapter.ViewHolder) view.getTag();
                     holder.cb.toggle();
                     mAdapter.getIsSelected().put(position, holder.cb.isChecked());
@@ -112,12 +117,50 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
             }
         });
 
-        Button start = (Button)view.findViewById(R.id.bt_photometric_measure_start);
-        Button rezero = (Button)view.findViewById(R.id.bt_photometric_measure_rezero);
-        Button setting = (Button)view.findViewById(R.id.bt_photometric_measure_setting);
+        Button start = (Button) view.findViewById(R.id.bt_photometric_measure_start);
+        Button rezero = (Button) view.findViewById(R.id.bt_photometric_measure_rezero);
+        Button setting = (Button) view.findViewById(R.id.bt_photometric_measure_setting);
         start.setOnClickListener(this);
         rezero.setOnClickListener(this);
         setting.setOnClickListener(this);
+        mSaveDialog = new SaveNameDialog();
+        mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(int id, String name) {
+
+                if (name.length() < 1) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                List<String> saveFileList = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+                Log.d(TAG, "Alread saved -> " + saveFileList.size() + " files.");
+
+                for (int i = 0; i < saveFileList.size(); i++) {
+                    Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
+                }
+                String fileName = name;
+                for (int i = 0; i < mData.size(); i++) {
+                    int index = 0;
+                    float wavelength = 0.0f;
+                    float abs = 0.0f;
+                    float trans = 0.0f;
+                    int energy = 0;
+                    long date = 0;
+
+                    HashMap<String, String> map = mData.get(i);
+                    index = Integer.parseInt(map.get("id"));
+                    wavelength = Float.parseFloat(map.get("wavelength"));
+                    abs = Float.parseFloat(map.get("abs"));
+                    trans = Float.parseFloat(map.get("trans"));
+                    energy = Integer.parseInt(map.get("energy"));
+                    date = Long.parseLong(map.get("date"));
+
+                    PhotoMeasureRecord record = new PhotoMeasureRecord(index, wavelength, abs, trans, energy, date);
+                    DeviceApplication.getInstance().getPhotometricMeasureDb().saveRecord(fileName, record);
+                }
+                Log.d(TAG, "save to -> " + fileName);
+            }
+        });
     }
 
     @Override
@@ -156,7 +199,7 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
 
     @Subscribe
     public void onSetOperateModeEvent(SetOperateModeEvent event) {
-        if(!event.isOperateMode) {
+        if (!event.isOperateMode) {
             //back to normal mode
             mAdapter.setSelectMode(false);
             mAdapter.notifyDataSetChanged();
@@ -166,31 +209,56 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
     @Subscribe
     public void onSetOperateEvent(SetOperateEvent event) {
 
-        if(event.mode == SetOperateEvent.OP_MODE_SELECTALL) {
+        if (event.mode == SetOperateEvent.OP_MODE_SELECTALL) {
             HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
             for (int i = 0; i < sel.size(); i++) {
                 sel.put(i, true);
             }
             mAdapter.notifyDataSetInvalidated();
-        } else if (event.mode == SetOperateEvent.OP_MODE_DELETE){
+        } else if (event.mode == SetOperateEvent.OP_MODE_DELETE) {
             int selectCount = 0;
             HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
             for (int i = 0; i < sel.size(); i++) {
-                if(sel.get(i)) {
-                    selectCount ++;
+                if (sel.get(i)) {
+                    selectCount++;
                 }
             }
 
-            if(selectCount > 0) {
+            if (selectCount > 0) {
                 showDeleteAlertDialog();
             }
         }
     }
 
     @Subscribe
+    public void onFileOperateEvent(FileOperateEvent event) {
+        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
+            List<String> saveFileList = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+
+            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
+                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+            if(mData.size() < 1) {
+                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            mSaveDialog.show(getFragmentManager(), "save");
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+
+        }
+    }
+
+    @Subscribe
     public void onUpdateFragmentEvent(UpdateFragmentEvent event) {
         Log.d(TAG, "pm onUpdate type = " + event.getType());
-        if(event.getType() == UpdateFragmentEvent.UPDATE_FRAGMENT_EVENT_TYPE_PHOTOMETRIC_MEASURE) {
+        if (event.getType() == UpdateFragmentEvent.UPDATE_FRAGMENT_EVENT_TYPE_PHOTOMETRIC_MEASURE) {
             int energy = event.getEnergy();
             float wavelength = event.getWavelength();
             float abs = event.getAbs();
@@ -258,18 +326,18 @@ public class PhotometricMeasureFragment extends Fragment implements  View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_photometric_measure_start:
-                if(isFake) {
-                    int energy = (int)(Math.random() * 1000.0f);
-                    float wavelength = (float)(Math.random() * 1000.0f);
-                    float abs = (float)(Math.random() * 10);
-                    float trans = (float)(Math.random() * 100);
+                if (isFake) {
+                    int energy = (int) (Math.random() * 1000.0f);
+                    float wavelength = (float) (Math.random() * 1000.0f);
+                    float abs = (float) (Math.random() * 10);
+                    float trans = (float) (Math.random() * 100);
 
                     PhotoMeasureRecord record = new PhotoMeasureRecord(-1,
                             wavelength, abs, trans, energy,
                             System.currentTimeMillis());
                     addItem(record);
                 } else {
-                    if(!mIsRezeroed) {
+                    if (!mIsRezeroed) {
                         Toast.makeText(getActivity(), getString(R.string.notice_rezero),
                                 Toast.LENGTH_SHORT).show();
                         return;

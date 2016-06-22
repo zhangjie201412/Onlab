@@ -23,7 +23,7 @@ public class DeviceWork extends BaseWork {
     @Override
     public void setup() throws InterruptedException {
         super.setup();
-        Log.d(TAG, "setup");
+        Log.v(TAG, "setup");
 //        DeviceManager.getInstance().setLoopThreadPause();
         running = true;
     }
@@ -35,7 +35,7 @@ public class DeviceWork extends BaseWork {
     @Override
     public void process() throws InterruptedException {
         super.process();
-        Log.d(TAG, "process");
+        Log.v(TAG, "process");
         int count = mCmdList.size();
         for(int i = 0; i < count; i++) {
             if(running) {
@@ -47,7 +47,7 @@ public class DeviceWork extends BaseWork {
     @Override
     public void cleanup() throws InterruptedException {
         super.cleanup();
-        Log.d(TAG, "cleanup");
+        Log.v(TAG, "cleanup");
 //        DeviceManager.getInstance().setLoopThreadRestart();
     }
 }

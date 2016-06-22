@@ -1,7 +1,12 @@
 package org.zhangjie.onlab.utils;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+
 import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.MainActivity;
+import org.zhangjie.onlab.R;
 
 /**
  * Created by H151136 on 6/15/2016.
@@ -32,5 +37,13 @@ public class Utils {
             result = String.format("%.1f", trans);
         }
         return result;
+    }
+
+    public static void showItemSelectDialog(Context context, String title, final String[] items, DialogInterface.OnClickListener listener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setItems(items, listener);
+        builder.create().show();
     }
 }

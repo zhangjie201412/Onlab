@@ -2,6 +2,7 @@ package org.zhangjie.onlab;
 
 import android.app.Application;
 
+import org.zhangjie.onlab.database.PhotometricMeasureDB;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 
 /**
@@ -10,8 +11,9 @@ import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 public class DeviceApplication extends Application {
     public static final String SP_FILE_NAME = "onlab_setting_sp";
     private static DeviceApplication mApplication;
-
     private SharedPreferenceUtils mSpUtils;
+
+    private PhotometricMeasureDB mPhotometricMeasureDb;
 
     public synchronized static DeviceApplication getInstance() {
         return mApplication;
@@ -21,8 +23,16 @@ public class DeviceApplication extends Application {
     public void onCreate() {
         super.onCreate();
         mApplication = this;
-
         mSpUtils = new SharedPreferenceUtils(this, SP_FILE_NAME);
+
+        mPhotometricMeasureDb = new PhotometricMeasureDB(this);
+    }
+
+    public synchronized PhotometricMeasureDB getPhotometricMeasureDb() {
+        if(mPhotometricMeasureDb == null)
+            mPhotometricMeasureDb = new PhotometricMeasureDB(this);
+
+        return mPhotometricMeasureDb;
     }
 
     public synchronized SharedPreferenceUtils getSpUtils() {

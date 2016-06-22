@@ -145,7 +145,7 @@ public class DeviceManager implements BtleListener {
 
             recvMsg = process();
             for (int i = 0; i < recvMsg.length; i++) {
-                Log.d(TAG, String.format("[%d] = %s\n", i, recvMsg[i]));
+                Log.v(TAG, String.format("[%d] = %s\n", i, recvMsg[i]));
             }
         } else {
             return;
@@ -156,10 +156,9 @@ public class DeviceManager implements BtleListener {
         bundle.putStringArray("MSG", recvMsg);
         msg.setData(bundle);
         msg.what = UI_MSG_DEVICE_DATA;
-        Log.d(TAG, "PASS FLAG = " + mEntryFlag);
         msg.arg1 = mEntryFlag;
         mUiHandler.sendMessage(msg);
-        Log.d(TAG, "TASK DONE!");
+        Log.v(TAG, "TASK DONE!");
     }
 
     private synchronized boolean handlerBuffer(byte[] data) {
@@ -188,7 +187,7 @@ public class DeviceManager implements BtleListener {
     private synchronized String[] process() {
         int validBufLength;
 
-        Log.d(TAG, "process: last_flag_pos = " + last_flag_pos + ", flag_pos = " + flag_pos);
+        Log.v(TAG, "process: last_flag_pos = " + last_flag_pos + ", flag_pos = " + flag_pos);
 
         if (flag_pos > last_flag_pos) {
             validBufLength = flag_pos - last_flag_pos;
@@ -214,7 +213,7 @@ public class DeviceManager implements BtleListener {
         }
         last_flag_pos = flag_pos;
         String validString = new String(validBuf);
-        Log.d(TAG, "VALID BUF = " + validString);
+        Log.v(TAG, "VALID BUF = " + validString);
 
         return validString.split("\n");
     }
@@ -303,9 +302,9 @@ public class DeviceManager implements BtleListener {
         if (!isFake) {
             try {
                 //wait '>'
-                Log.d(TAG, "wait");
+                Log.v(TAG, "wait");
                 this.wait();
-                Log.d(TAG, "wait done");
+                Log.v(TAG, "wait done");
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -543,7 +542,7 @@ public class DeviceManager implements BtleListener {
         mEntryFlag &= 0x00000000;
         //set update status flag
         mEntryFlag |= WORK_ENTRY_FLAG_UPDATE_STATUS;
-        Log.d(TAG, "UPDATE WORK FLAG = " + mEntryFlag);
+        Log.v(TAG, "UPDATE WORK FLAG = " + mEntryFlag);
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 10);
@@ -552,9 +551,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public synchronized void clearFlag(int mask) {
-        Log.d(TAG, "flag = " + mEntryFlag + ", mask = " + mask);
         mEntryFlag &= ~mask;
-        Log.d(TAG, "flag = " + mEntryFlag + ", mask = " + mask);
     }
 
     public void setLoopThreadPause() {
@@ -599,7 +596,7 @@ public class DeviceManager implements BtleListener {
                 try {
                     Thread.sleep(1000);
                     if (mIsConnected && !pause) {
-                        Log.d(TAG, "update!");
+                        Log.v(TAG, "update!");
                         updateStatus();
                     }
                 } catch (InterruptedException e) {

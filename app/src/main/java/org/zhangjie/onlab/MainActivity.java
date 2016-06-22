@@ -41,6 +41,7 @@ import org.zhangjie.onlab.fragment.QuantitativeAnalysisFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.LoadWavelengthDialogEvent;
 import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
 import org.zhangjie.onlab.otto.QaUpdateEvent;
@@ -132,8 +133,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     private void process(int flag, String[] msg) {
 
-        Log.d(TAG, String.format("flag = %d\n", flag));
-
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_INITIALIZE) != 0) {
             //initialzation ertry
             Log.d(TAG, "INITIALZE ENTRY");
@@ -143,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_UPDATE_STATUS) != 0) {
             mDeviceManager.clearFlag(DeviceManager.WORK_ENTRY_FLAG_INITIALIZE);
             //update status entry
-            Log.d(TAG, "UPDATE STATUS ENTRY");
+            Log.v(TAG, "UPDATE STATUS ENTRY");
             work_entry_updatestatus(msg);
         }
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_SET_WAVELENGTH) != 0) {
@@ -826,13 +825,16 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 BusProvider.getInstance().post(new SettingEvent(0));
                 break;
             case R.id.action_open:
-                toastShow("open");
+//                toastShow("open");
+                BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_OPEN));
                 break;
             case R.id.action_save:
-                toastShow("save");
+//                toastShow("save");
+                BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_SAVE));
                 break;
             case R.id.action_print:
-                toastShow("print");
+                BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_PRINT));
+//                toastShow("print");
                 break;
             case R.id.action_set_wavelength:
                 if (!checkConnected()) {
