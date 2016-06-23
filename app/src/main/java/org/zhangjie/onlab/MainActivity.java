@@ -246,6 +246,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             if (mA > 0) {
                 trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
                 abs = (float) -Math.log10(trans);
+                //get valid trans and abs
+                trans = Utils.getValidTrans(trans);
+                abs = Utils.getValidAbs(abs);
                 trans *= 100.0f;
                 updateAbs(abs);
                 updateTrans(trans);
@@ -278,6 +281,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             if (mA > 0) {
                 trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
                 abs = (float) -Math.log10(trans);
+                trans = Utils.getValidTrans(trans);
+                abs = Utils.getValidAbs(abs);
                 trans *= 100.0f;
                 Log.d(TAG, "trans = " + trans);
                 Log.d(TAG, "abs = " + abs);
@@ -314,6 +319,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             if (mA > 0) {
                 trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
                 abs = (float) -Math.log10(trans);
+                trans = Utils.getValidTrans(trans);
+                abs = Utils.getValidAbs(abs);
                 trans *= 100.0f;
                 Log.d(TAG, "trans = " + trans);
                 Log.d(TAG, "abs = " + abs);
@@ -478,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             Log.d(TAG, "Update get gain = " + mDorezeroGain);
             int I0 = energy;
             float trans = (energy - mDark[mDorezeroGain - 1]) / (I0 - mDark[mDorezeroGain - 1]);
+            trans = Utils.getValidTrans(trans);
             Log.d(TAG, "Update wavelength = " + mDorezeroWavelength + ", I0 = " + I0 + ", trans = " + trans);
             //save dark
             mDeviceManager.setDark((int) mDorezeroWavelength, I0);
@@ -520,6 +528,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             float trans = (float) (I1 - mDark[gain - 1]) /
                     (float) (mDeviceManager.getDarkFromWavelength((int) mWavelengthScanWavelength) - mDark[gain - 1]);
             float abs = (float) -Math.log10(trans);
+            trans = Utils.getValidTrans(trans);
+            abs = Utils.getValidAbs(abs);
             trans *= 100.0f;
             Log.d(TAG, "Update work_entry_wavelength_scan wavelength = " + mWavelengthScanWavelength + ", I1 = " + I1 + ", trans = " + trans);
             BusProvider.getInstance().post(new WavelengthScanCallbackEvent(WavelengthScanCallbackEvent.EVENT_TYPE_WORKING,
@@ -560,6 +570,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             int gain = mDeviceManager.getGainFromBaseline((int) mMultipleWavelength);
             int I0 = energy;
             float trans = (energy - mDark[gain - 1]) / (I0 - mDark[gain - 1]);
+            trans = Utils.getValidTrans(trans);
             Log.d(TAG, "Update wavelength = " + mMultipleWavelength + ", I0 = " + I0 + ", trans = " + trans);
             //save dark
             mDeviceManager.setDark((int) mMultipleWavelength, I0);
@@ -600,6 +611,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             float trans = (float) (I1 - mDark[gain - 1]) /
                     (float) (mDeviceManager.getDarkFromWavelength((int) mMultipleWavelength) - mDark[gain - 1]);
             float abs = (float) -Math.log10(trans);
+            trans = Utils.getValidTrans(trans);
+            abs = Utils.getValidAbs(abs);
             trans *= 100.0f;
             Log.d(TAG, "Update work_entry_multiple_wavelength_test wavelength = " + mMultipleWavelength + ", I1 = " + I1 + ", trans = " + trans);
 
@@ -636,6 +649,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             if (mA > 0) {
                 trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
                 abs = (float) -Math.log10(trans);
+//                trans = Utils.getValidTrans(trans);
+                abs = Utils.getValidAbs(abs);
 //                trans *= 100.0f;
                 Log.d(TAG, "Update abs = " + abs);
             }

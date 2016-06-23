@@ -53,6 +53,11 @@
                     android:gravity="center"
                     android:text="@string/conc"
                     android:textColor="@color/color_title_text" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <View
@@ -172,9 +177,9 @@
             <TextView
                 android:id="@+id/tv_formalu"
                 android:layout_width="match_parent"
-                android:textColor="@color/color_formalu"
+                android:layout_height="wrap_content"
                 android:gravity="center"
-                android:layout_height="wrap_content" />
+                android:textColor="@color/color_formalu" />
 
             <LinearLayout
                 android:id="@+id/layout_list_title2"

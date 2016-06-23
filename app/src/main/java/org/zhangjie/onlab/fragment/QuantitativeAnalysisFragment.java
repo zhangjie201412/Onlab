@@ -52,6 +52,9 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 public class QuantitativeAnalysisFragment extends Fragment implements View.OnClickListener {
 
+    private final int ACTION_TYPE_SAMPLE = 1;
+    private final int ACTION_TYPE_TEST = 2;
+
     private static final String TAG = "Onlab.Quantitative";
     private TextView mFittingTypeTextView;
     private TextView mFittingMethodTextView;
@@ -78,12 +81,16 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     private LineChartData mChartData;
     private List<Line> mLines;
     private Line mLine;
+    private Line mLine2;
     private List<PointValue> mPoints;
+    private List<PointValue> mPoints2;
     //---
     private QASampleDialog mSampleDialog;
     private int mUpdateSampleIndex = 0;
+    private boolean isFittinged = false;
     private float sampleA0;
     private float sampleA1;
+    private float mActionType = 0;
 
     @Nullable
     @Override
@@ -149,6 +156,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                         R.id.item_abs, R.id.item_conc});
         mListView.setAdapter(mAdapter);
         mSampleListView.setAdapter(mSampleAdapter);
+        mAdapter.setSelectMode(false);
 
         mSampleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -157,7 +165,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 item = mSampleData.get(position);
                 String name = item.get("name");
                 String conc = item.get("conc");
-                if(name.length() < 1) {
+                if (name.length() < 1) {
                     name = getString(R.string.sample);
                 }
                 Bundle bundle = new Bundle();
@@ -177,11 +185,16 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
 
     private void initChart() {
         mPoints = new ArrayList<PointValue>();
+        mPoints2 = new ArrayList<PointValue>();
         mLines = new ArrayList<Line>();
         mLine = new Line(mPoints).setColor(Color.WHITE).setCubic(true);
+        mLine2 = new Line(mPoints2).setColor(Color.GREEN).setCubic(true);
         mLine.setPointRadius(1);
         mLine.setStrokeWidth(1);
+        mLine2.setPointRadius(1);
+        mLine2.setStrokeWidth(1);
         mLines.add(mLine);
+        mLines.add(mLine2);
 
         mChartData = new LineChartData();
         mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
@@ -246,9 +259,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         viewport.right = right;
         viewport.bottom = bottom;
 
-//        mChartView.setMaximumViewport(new Viewport(left*2, top*2, right*2, bottom*2));
-//        mChartView.setCurrentViewport(viewport);
-        mChartView.setViewportCalculationEnabled(true);
+        mChartView.setMaximumViewport(new Viewport(left - right, top * 2, right, bottom * 2));
+        mChartView.setCurrentViewport(viewport);
+        mChartView.setViewportCalculationEnabled(false);
 
         Axis axisX = new Axis();
         Axis axisY = new Axis();
@@ -303,7 +316,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     return;
                 }
                 //abs == -100 means null
-                if(mSampleDialog.isNew()) {
+                if (mSampleDialog.isNew()) {
                     addSampleItem(new QuantitativeAnalysisRecord(-1, name, -100.0f,
                             Float.parseFloat(conc), System.currentTimeMillis()));
                 } else {
@@ -320,6 +333,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 }
             } else if (type == QASampleDialog.TYPE_TEST) {
                 Log.d("###", "TEST");
+                mActionType = ACTION_TYPE_SAMPLE;
                 //check input
                 if (name.length() < 1 || conc.length() < 1) {
                     //show invalid input
@@ -327,7 +341,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     return;
                 }
                 //abs == -100 means null
-                if(mSampleDialog.isNew()) {
+                if (mSampleDialog.isNew()) {
                     addSampleItem(new QuantitativeAnalysisRecord(-1, name, -100.0f,
                             Float.parseFloat(conc), System.currentTimeMillis()));
                     mUpdateSampleIndex = mSampleData.size() - 1;
@@ -352,6 +366,23 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         }
     }
 
+    private void addTestItem(QuantitativeAnalysisRecord record) {
+        HashMap<String, String> item = new HashMap<String, String>();
+        int no = mData.size() + 1;
+        record.setIndex(no);
+
+        item.put("id", "" + no);
+//        item.put("name", record.getName());
+        item.put("abs", Utils.formatAbs(record.getAbs()));
+        item.put("conc", "" + Utils.formatConc(record.getConc()));
+        mData.add(item);
+        mAdapter.add();
+        mAdapter.notifyDataSetChanged();
+        if (mData.size() > 0) {
+            mListView.setSelection(mSampleData.size() - 1);
+        }
+    }
+
     private void addSampleItem(QuantitativeAnalysisRecord record) {
         HashMap<String, String> item = new HashMap<String, String>();
         int no = mSampleData.size() + 1;
@@ -359,12 +390,12 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
 
         item.put("id", "" + no);
         item.put("name", record.getName());
-        if(record.getAbs() == -100.0f) {
+        if (record.getAbs() == -100.0f) {
             item.put("abs", "");
         } else {
             item.put("abs", Utils.formatAbs(record.getAbs()));
         }
-        item.put("conc", "" + record.getConc());
+        item.put("conc", "" + Utils.formatConc(record.getConc()));
         mSampleData.add(item);
         mSampleAdapter.add();
         mSampleAdapter.setSelectMode(true);
@@ -387,9 +418,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         mPoints.clear();
         mPoints.add(new PointValue(0, k0));
         mPoints.add(new PointValue(4, k0 + 4 * k1));
-        if(k1 != 0) {
+        if (k1 != 0) {
             mPoints.add(new PointValue((10 - k0) / k1, 10));
-            mPoints.add(new PointValue( - k0 / k1, 0));
+            mPoints.add(new PointValue(-k0 / k1, 0));
         } else {
             mPoints.add(new PointValue(4.0f, k0));
         }
@@ -401,15 +432,45 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     @Subscribe
     public void onUpdateEvent(QaUpdateEvent event) {
         float abs = event.abs;
-        mSampleData.get(mUpdateSampleIndex).put("abs", Utils.formatAbs(abs));
-        mSampleAdapter.notifyDataSetChanged();
+        if(mActionType == ACTION_TYPE_SAMPLE) {
+            mSampleData.get(mUpdateSampleIndex).put("abs", Utils.formatAbs(abs));
+            mSampleAdapter.notifyDataSetChanged();
+            //update point2 on chart
+            mPoints2.clear();
+            for (int i = 0; i < mSampleData.size(); i++) {
+                mPoints2.add(new PointValue(Float.parseFloat(mSampleData.get(i).get("abs"))
+                        , Float.parseFloat(mSampleData.get(i).get("conc"))));
+            }
+            mLine2.setHasPoints(true);
+            mLine2.setHasLines(false);
+            mChartData.setLines(mLines);
+            mChartView.setLineChartData(mChartData);
+        } else if(mActionType == ACTION_TYPE_TEST) {
+            float conc = 0.0f;
+            if(DeviceApplication.getInstance().getSpUtils().getQACalcType()
+                    == QuantitativeAnalysisSettingActivity.CALC_TYPE_SAMPLE) {
+                if(!isFittinged) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_fitting_null), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                conc = sampleA0 + sampleA1 * abs;
+            } else if(DeviceApplication.getInstance().getSpUtils().getQACalcType()
+                    == QuantitativeAnalysisSettingActivity.CALC_TYPE_FORMALU) {
+                float k0 = DeviceApplication.getInstance().getSpUtils().getQAK0();
+                float k1 = DeviceApplication.getInstance().getSpUtils().getQAK1();
+                conc = k0 + k1 * abs;
+            }
+            addTestItem(new QuantitativeAnalysisRecord(-1, "", abs, conc, System.currentTimeMillis()));
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_qa_start_test:
-
+                mActionType = ACTION_TYPE_TEST;
+                DeviceManager.getInstance().doQuantitativeAnalysis();
+//                addTestItem(new QuantitativeAnalysisRecord(-1, "Test", 1.0f, 2.4f, System.currentTimeMillis()));
                 break;
             case R.id.bt_qa_rezero:
                 DeviceManager.getInstance().rezeroWork();
@@ -440,8 +501,8 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     private void doFitting() {
         HashMap<Integer, Boolean> sel = mSampleAdapter.getIsSelected();
         int fittingCount = 0;
-        for(int i = 0; i < sel.size(); i++) {
-            if(sel.get(i)) {
+        for (int i = 0; i < sel.size(); i++) {
+            if (sel.get(i)) {
                 String absVal = mSampleData.get(i).get("abs");
                 String concVal = mSampleData.get(i).get("conc");
                 if (absVal.length() > 0 && (concVal.length() > 0)) {
@@ -456,7 +517,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         double[] x = new double[fittingCount];
         double[] y = new double[fittingCount];
         int index = 0;
-        for(int i = 0; i < sel.size(); i++) {
+        for (int i = 0; i < sel.size(); i++) {
             if (sel.get(i)) {
                 String absVal = mSampleData.get(i).get("abs");
                 String concVal = mSampleData.get(i).get("conc");
@@ -487,7 +548,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         sampleA0 = a0;
         sampleA1 = a1;
         Log.d(TAG, "a0 = " + a0 + ", a1 = " + a1);
+        isFittinged = true;
         //update hello chart
+        updateChartWithFormalu(a0, a1);
     }
 
 
@@ -496,11 +559,11 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         HashMap<Integer, Boolean> sel = mSampleAdapter.getIsSelected();
         sel = mSampleAdapter.getIsSelected();
         for (int i = 0; i < sel.size(); i++) {
-            if(sel.get(i) == true) {
-                c ++;
+            if (sel.get(i) == true) {
+                c++;
             }
         }
-        if(c == 0) {
+        if (c == 0) {
             Toast.makeText(getActivity(), getString(R.string.noting_selected), Toast.LENGTH_SHORT).show();
             return;
         }

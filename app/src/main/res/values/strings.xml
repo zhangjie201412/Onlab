@@ -126,6 +126,7 @@
     <string name="notice_setting_null">波长设置为空！</string>
     <string name="notice_select_null">选择数据不正确</string>
     <string name="notice_save_null">不能保存空数据</string>
+    <string name="notice_fitting_null">还未生成拟合曲线！</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
