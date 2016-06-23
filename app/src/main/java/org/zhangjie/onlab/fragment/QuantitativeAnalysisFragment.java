@@ -225,6 +225,8 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             mDoFittingButton.setEnabled(false);
             mSelectallButton.setEnabled(false);
             mDeleteButton.setEnabled(false);
+            //update hello chart with formalu
+            updateChartWithFormalu(k0, k1);
         } else if (calc_type == QuantitativeAnalysisSettingActivity.CALC_TYPE_SAMPLE) {
             mFormaluTextView.setVisibility(View.GONE);
             mAddButton.setEnabled(true);
@@ -244,9 +246,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         viewport.right = right;
         viewport.bottom = bottom;
 
-        mChartView.setMaximumViewport(viewport);
-        mChartView.setCurrentViewport(viewport);
-        mChartView.setViewportCalculationEnabled(false);
+//        mChartView.setMaximumViewport(new Viewport(left*2, top*2, right*2, bottom*2));
+//        mChartView.setCurrentViewport(viewport);
+        mChartView.setViewportCalculationEnabled(true);
 
         Axis axisX = new Axis();
         Axis axisY = new Axis();
@@ -282,7 +284,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             loadSetting();
             //set wavelength to target
             float work_wavelength = DeviceApplication.getInstance().getSpUtils().getQAWavelength1();
-            ((MainActivity)getActivity()).loadWavelengthDialog(work_wavelength);
+//            ((MainActivity)getActivity()).loadWavelengthDialog(work_wavelength);
         } else if (resultCode == QuantitativeAnalysisSettingActivity.RESULT_CANCEL) {
             Log.d(TAG, "CANCEL");
         }
@@ -372,7 +374,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         }
     }
 
-    void removeSampleItem(int pos) {
+    private void removeSampleItem(int pos) {
         mSampleData.remove(pos);
         for (int i = 0; i < mSampleData.size(); i++) {
             HashMap<String, String> item = mSampleData.get(i);
@@ -381,8 +383,23 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         mSampleAdapter.notifyDataSetChanged();
     }
 
+    private void updateChartWithFormalu(float k0, float k1) {
+        mPoints.clear();
+        mPoints.add(new PointValue(0, k0));
+        mPoints.add(new PointValue(4, k0 + 4 * k1));
+        if(k1 != 0) {
+            mPoints.add(new PointValue((10 - k0) / k1, 10));
+            mPoints.add(new PointValue( - k0 / k1, 0));
+        } else {
+            mPoints.add(new PointValue(4.0f, k0));
+        }
+        mLine.setHasPoints(false);
+        mChartData.setLines(mLines);
+        mChartView.setLineChartData(mChartData);
+    }
+
     @Subscribe
-    void onUpdateEvent(QaUpdateEvent event) {
+    public void onUpdateEvent(QaUpdateEvent event) {
         float abs = event.abs;
         mSampleData.get(mUpdateSampleIndex).put("abs", Utils.formatAbs(abs));
         mSampleAdapter.notifyDataSetChanged();
