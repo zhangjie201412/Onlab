@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.MainActivity;
@@ -85,5 +86,14 @@ public class Utils {
         builder.setIcon(R.mipmap.ic_launcher);
         builder.setItems(items, listener);
         builder.create().show();
+    }
+
+    public static boolean checkWavelengthInvalid(Context context, float wavelength) {
+        if(wavelength <= 190 || (wavelength >= 1100)) {
+            Toast.makeText(context, context.getString(R.string.notice_wavelength_invalid), Toast.LENGTH_LONG).show();
+            return false;
+        } else {
+            return true;
+        }
     }
 }

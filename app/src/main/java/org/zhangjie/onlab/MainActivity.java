@@ -623,6 +623,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     MultipleWavelengthFragment.mWavelengths[MultipleWavelengthFragment.mWavelengths.length - 1]) {
                 Log.d(TAG, "do multiple wavelength test done!");
                 mMultipleWavelength = 0;
+                dismissDialog();
                 BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_TEST_DONE));
                 mDeviceManager.setLoopThreadRestart();
             }
@@ -683,8 +684,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onWavelengthInputComplete(String wavelength) {
         if (wavelength.length() > 0) {
-            mDeviceManager.setWavelengthWork(Integer.parseInt(wavelength));
-            loadSetWavelengthDialog();
+            int wl = Integer.parseInt(wavelength);
+            if (Utils.checkWavelengthInvalid(this, (float) wl)) {
+                mDeviceManager.setWavelengthWork(wl);
+                loadSetWavelengthDialog();
+            }
         }
     }
 
@@ -798,9 +802,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onMainClick(int id) {
 
-//        if(!checkConnected()) {
-//            return;
-//        }
+        if(!checkConnected()) {
+            return;
+        }
 
         switch (id + 100) {
             case MainFragment.ITEM_PHOTOMETRIC_MEASURE:
@@ -1071,6 +1075,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    private void doTestDialog() {
+        if (!mWaitDialog.isShowing()) {
+            mWaitDialog.setMessage(getString(R.string.test_message));
+            mWaitDialog.show();
+        }
+    }
+
     private void dismissDialog() {
         if (mWaitDialog.isShowing()) {
             mWaitDialog.dismiss();
@@ -1089,7 +1100,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         loadSetWavelengthDialog();
     }
 
-    private void showSystemSettingDialog() {
+    public void showSystemSettingDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.system_setting));
         builder.setIcon(R.mipmap.ic_launcher);
@@ -1153,6 +1164,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             doRezeroDialog();
             DeviceManager.getInstance().doMultipleWavelengthRezero(event.wavelengths);
         } else if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_TEST) {
+            doTestDialog();
             DeviceManager.getInstance().doMultipleWavelengthTest(event.wavelengths);
         }
     }
@@ -1196,6 +1208,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             case SYSTEM_SETTING_ITEM_FACTORY_RESET:
                 break;
             case SYSTEM_SETTING_ITEM_SYSTEM_VERSION:
+                Toast.makeText(this, getString(R.string.version_string), Toast.LENGTH_LONG).show();
                 break;
             default:
                 break;

@@ -127,6 +127,9 @@
     <string name="notice_select_null">选择数据不正确</string>
     <string name="notice_save_null">不能保存空数据</string>
     <string name="notice_fitting_null">还未生成拟合曲线！</string>
+    <string name="name_setting">设置实验名称</string>
+    <string name="notice_wavelength_invalid">输入波长无效，有效范围为: 190 ~ 1100</string>
+    <string name="test_message">测试中...</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
@@ -193,4 +196,6 @@
         <item>系统设置</item>
         <item>关于我们</item>
     </string-array>
+
+    <string name="version_string">V16.06.01</string>
 </resources>

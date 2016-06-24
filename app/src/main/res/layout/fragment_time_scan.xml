@@ -35,10 +35,10 @@
             android:id="@+id/bt_time_scan_start"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="@dimen/button_min_height"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
             android:text="@string/start_test"
             android:textColor="@color/color_button" />
 
@@ -46,10 +46,10 @@
             android:id="@+id/bt_time_scan_stop"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="@dimen/button_min_height"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
             android:text="@string/stop_test"
             android:textColor="@color/color_button" />
 
@@ -57,10 +57,10 @@
             android:id="@+id/bt_time_scan_rezero"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="@dimen/button_min_height"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
             android:text="@string/rezero"
             android:textColor="@color/color_button" />
     </LinearLayout>
@@ -109,11 +109,11 @@
             </LinearLayout>
 
             <lecho.lib.hellocharts.view.LineChartView
-                android:layout_margin="@dimen/margin_2_dp"
                 android:id="@+id/hello_time_scan"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/layout_chart" />
+                android:layout_below="@id/layout_chart"
+                android:layout_margin="@dimen/margin_2_dp" />
         </RelativeLayout>
 
         <View
@@ -163,6 +163,12 @@
                     android:gravity="center"
                     android:text="@string/energy"
                     android:textColor="@color/color_title_text" />
+
+                <TextView
+
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5" />
             </LinearLayout>
 
             <View

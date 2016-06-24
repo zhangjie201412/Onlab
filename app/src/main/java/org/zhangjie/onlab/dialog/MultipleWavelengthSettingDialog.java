@@ -22,6 +22,7 @@ import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultipleWavelengthSettingAdapter;
 import org.zhangjie.onlab.ble.BtleManager;
+import org.zhangjie.onlab.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,6 +159,7 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 mData.remove(index);
+                mAdapter.notifyDataSetChanged();
             }
         });
         builder.setNegativeButton(R.string.cancel_string, new DialogInterface.OnClickListener() {
@@ -177,11 +179,14 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
             return;
         }
 
-        if(index == -1) {
-            addItem(wavelength);
-        } else {
-            mData.get(index).put("wavelength", wavelength);
+        float wl = Float.parseFloat(wavelength);
+        if(Utils.checkWavelengthInvalid(getActivity(), wl)) {
+            if(index == -1) {
+                addItem(wavelength);
+            } else {
+                mData.get(index).put("wavelength", wavelength);
+            }
+            mAdapter.notifyDataSetChanged();
         }
-        mAdapter.notifyDataSetChanged();
     }
 }

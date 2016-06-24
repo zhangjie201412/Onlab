@@ -3,6 +3,7 @@ package org.zhangjie.onlab.fragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -10,10 +11,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
+import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.NineGridAdapter;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
+import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.view.NineGridView;
 
 /**
@@ -82,6 +89,30 @@ public class MainFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        BusProvider.getInstance().unregister(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        BusProvider.getInstance().register(this);
+    }
+
+    @Subscribe
+    public void OnSettingEvent(SettingEvent event) {
+        Context context = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            context = getContext();
+        } else {
+            context = getActivity();
+        }
+
+        ((MainActivity)getActivity()).showSystemSettingDialog();
     }
 
     @Override

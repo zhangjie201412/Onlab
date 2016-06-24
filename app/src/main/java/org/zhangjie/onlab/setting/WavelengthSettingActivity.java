@@ -263,12 +263,25 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
                 mSpUtils.setKeyWavelengthscanLimitDown(Float.parseFloat(setting));
                 break;
             case R.id.layout_wavelength_start:
-                mStartValue.setText(setting + " " + getString(R.string.nm));
-                mSpUtils.setKeyWavelengthscanStart(Float.parseFloat(setting));
+                float wl = Float.parseFloat(setting);
+                if(Utils.checkWavelengthInvalid(this, wl)) {
+                    mStartValue.setText(setting + " " + getString(R.string.nm));
+                    mSpUtils.setKeyWavelengthscanStart(wl);
+                } else {
+                    mStartValue.setText("" + mSpUtils.getWavelengthscanStart() + " " + getString(R.string.nm));
+                    mSpUtils.setKeyWavelengthscanStart(mSpUtils.getWavelengthscanStart());
+                }
+
                 break;
             case R.id.layout_wavelength_end:
-                mEndValue.setText(setting + " " + getString(R.string.nm));
-                mSpUtils.setKeyWavelengthscanEnd(Float.parseFloat(setting));
+                wl = Float.parseFloat(setting);
+                if(Utils.checkWavelengthInvalid(this, wl)) {
+                    mEndValue.setText(setting + " " + getString(R.string.nm));
+                    mSpUtils.setKeyWavelengthscanEnd(wl);
+                } else {
+                    mEndValue.setText("" + mSpUtils.getWavelengthscanEnd() + " " + getString(R.string.nm));
+                    mSpUtils.setKeyWavelengthscanEnd(mSpUtils.getWavelengthscanStart());
+                }
                 break;
             default:
                 break;

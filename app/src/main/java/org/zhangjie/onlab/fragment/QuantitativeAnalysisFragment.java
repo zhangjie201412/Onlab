@@ -27,12 +27,14 @@ import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.QASampleDialog;
+import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.QaUpdateEvent;
+import org.zhangjie.onlab.otto.SetOperateEvent;
+import org.zhangjie.onlab.otto.SetOperateModeEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.record.QuantitativeAnalysisRecord;
 import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
-import org.zhangjie.onlab.setting.TimescanSettingActivity;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 import org.zhangjie.onlab.utils.Utils;
 
@@ -91,6 +93,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     private float sampleA0;
     private float sampleA1;
     private float mActionType = 0;
+    private SaveNameDialog mNameDialog;
 
     @Nullable
     @Override
@@ -99,6 +102,8 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         initView(view);
         mSampleDialog = new QASampleDialog();
         mSampleDialog.setCallback(new QASampleDialogSample());
+
+        mNameDialog = new SaveNameDialog();
         return view;
     }
 
@@ -155,6 +160,48 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 new int[]{R.id.item_index, R.id.item_name,
                         R.id.item_abs, R.id.item_conc});
         mListView.setAdapter(mAdapter);
+        //set test listview on click listener
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                boolean mode = ((MainActivity) getActivity()).getOperateMode();
+                if (mode) {
+                    MultiSelectionAdapter.ViewHolder holder = (MultiSelectionAdapter.ViewHolder) view.getTag();
+                    holder.cb.toggle();
+                    mAdapter.getIsSelected().put(position, holder.cb.isChecked());
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    //set test name
+                    mNameDialog.init(position, getString(R.string.name_setting), getString(R.string.name)
+                            , new SaveNameDialog.SettingInputListern() {
+                        @Override
+                        public void onSettingInputComplete(int index, String name) {
+                            if(name.length() < 1) {
+                                Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            mData.get(position).put("name", name);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
+                    mNameDialog.show(getFragmentManager(), "name");
+                }
+            }
+        });
+
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
+                for (int i = 0; i < sel.size(); i++) {
+                    sel.put(i, false);
+                }
+                mAdapter.setSelectMode(true);
+                mAdapter.notifyDataSetChanged();
+                BusProvider.getInstance().post(new SetOperateModeEvent(true));
+                return true;
+            }
+        });
         mSampleListView.setAdapter(mSampleAdapter);
         mAdapter.setSelectMode(false);
 
@@ -288,6 +335,91 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         startActivityForResult(intent, 0);
     }
 
+    @Subscribe
+    public void onSetOperateModeEvent(SetOperateModeEvent event) {
+        if (!event.isOperateMode) {
+            //back to normal mode
+            mAdapter.setSelectMode(false);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Subscribe
+    public void onSetOperateEvent(SetOperateEvent event) {
+
+        if (event.mode == SetOperateEvent.OP_MODE_SELECTALL) {
+            HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
+            for (int i = 0; i < sel.size(); i++) {
+                sel.put(i, true);
+            }
+            mAdapter.notifyDataSetInvalidated();
+        } else if (event.mode == SetOperateEvent.OP_MODE_DELETE) {
+            int selectCount = 0;
+            HashMap<Integer, Boolean> sel = mAdapter.getIsSelected();
+            for (int i = 0; i < sel.size(); i++) {
+                if (sel.get(i)) {
+                    selectCount++;
+                }
+            }
+
+            if (selectCount > 0) {
+                showDeleteAlertDialog();
+            }
+        }
+    }
+
+
+    void showDeleteAlertDialog() {
+        new android.app.AlertDialog.Builder(getActivity())
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(getString(R.string.notice_string))
+                .setMessage(getString(R.string.sure_to_delete))
+                .setPositiveButton(R.string.ok_string,
+                        new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                // TODO Auto-generated method stub
+                                HashMap<Integer, Boolean> sel = mAdapter
+                                        .getIsSelected();
+                                int delCount = 0;
+                                HashMap<Integer, Integer> delHashMap = new HashMap<Integer, Integer>();
+                                for (int i = 0; i < sel.size(); i++) {
+                                    if (sel.get(i)) {
+                                        delHashMap.put(delCount, i);
+                                        Log.d(TAG, "count = "
+                                                + delCount + ", id = " + i);
+                                        delCount = delCount + 1;
+                                    }
+                                }
+                                Log.d(TAG, "count = " + delCount);
+                                for (int i = 0; i < delCount; i++) {
+                                    removeTestItem(delHashMap.get(i));
+                                    sel = mAdapter.getIsSelected();
+                                    for (int j = delHashMap.get(i); j < sel
+                                            .size() - 1; j++) {
+                                        sel.put(j, sel.get(j + 1));
+                                    }
+                                    sel.remove(sel.size() - 1);
+                                    for (int j = 0; j < delHashMap.size(); j++) {
+                                        delHashMap.put(j, delHashMap.get(j) - 1);
+                                    }
+                                    mAdapter.setIsSelected(sel);
+                                }
+
+                            }
+                        })
+                .setNegativeButton(getString(R.string.cancel_string),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {// 响应事件
+                                // TODO Auto-generated method stub
+                            }
+                        }).show();
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -383,6 +515,15 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         }
     }
 
+    private void removeTestItem(int position) {
+        mData.remove(position);
+        for (int i = 0; i < mData.size(); i++) {
+            HashMap<String, String> item = mData.get(i);
+            item.put("id", "" + (i + 1));
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
     private void addSampleItem(QuantitativeAnalysisRecord record) {
         HashMap<String, String> item = new HashMap<String, String>();
         int no = mSampleData.size() + 1;
@@ -432,7 +573,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     @Subscribe
     public void onUpdateEvent(QaUpdateEvent event) {
         float abs = event.abs;
-        if(mActionType == ACTION_TYPE_SAMPLE) {
+        if (mActionType == ACTION_TYPE_SAMPLE) {
             mSampleData.get(mUpdateSampleIndex).put("abs", Utils.formatAbs(abs));
             mSampleAdapter.notifyDataSetChanged();
             //update point2 on chart
@@ -445,16 +586,16 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             mLine2.setHasLines(false);
             mChartData.setLines(mLines);
             mChartView.setLineChartData(mChartData);
-        } else if(mActionType == ACTION_TYPE_TEST) {
+        } else if (mActionType == ACTION_TYPE_TEST) {
             float conc = 0.0f;
-            if(DeviceApplication.getInstance().getSpUtils().getQACalcType()
+            if (DeviceApplication.getInstance().getSpUtils().getQACalcType()
                     == QuantitativeAnalysisSettingActivity.CALC_TYPE_SAMPLE) {
-                if(!isFittinged) {
+                if (!isFittinged) {
                     Toast.makeText(getActivity(), getString(R.string.notice_fitting_null), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 conc = sampleA0 + sampleA1 * abs;
-            } else if(DeviceApplication.getInstance().getSpUtils().getQACalcType()
+            } else if (DeviceApplication.getInstance().getSpUtils().getQACalcType()
                     == QuantitativeAnalysisSettingActivity.CALC_TYPE_FORMALU) {
                 float k0 = DeviceApplication.getInstance().getSpUtils().getQAK0();
                 float k1 = DeviceApplication.getInstance().getSpUtils().getQAK1();
