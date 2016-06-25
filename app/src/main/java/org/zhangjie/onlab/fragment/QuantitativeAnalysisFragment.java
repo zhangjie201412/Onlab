@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.QASampleDialog;
 import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.QaUpdateEvent;
 import org.zhangjie.onlab.otto.SetOperateEvent;
 import org.zhangjie.onlab.otto.SetOperateModeEvent;
@@ -94,11 +96,13 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     private float sampleA1;
     private float mActionType = 0;
     private SaveNameDialog mNameDialog;
+    private SaveNameDialog mSaveDialog;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quantitative_analysis, container, false);
+        Utils.needToSave = false;
         initView(view);
         mSampleDialog = new QASampleDialog();
         mSampleDialog.setCallback(new QASampleDialogSample());
@@ -122,6 +126,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Utils.needToSave = false;
         Log.d(TAG, "onDestroy");
     }
 
@@ -160,6 +165,17 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 new int[]{R.id.item_index, R.id.item_name,
                         R.id.item_abs, R.id.item_conc});
         mListView.setAdapter(mAdapter);
+        mAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                if (mData.size() > 0) {
+                    Utils.needToSave = true;
+                } else {
+                    Utils.needToSave = false;
+                }
+            }
+        });
         //set test listview on click listener
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -174,16 +190,22 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     //set test name
                     mNameDialog.init(position, getString(R.string.name_setting), getString(R.string.name)
                             , new SaveNameDialog.SettingInputListern() {
-                        @Override
-                        public void onSettingInputComplete(int index, String name) {
-                            if(name.length() < 1) {
-                                Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            mData.get(position).put("name", name);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    });
+                                @Override
+                                public void onSettingInputComplete(int index, String name) {
+                                    if (name.length() < 1) {
+                                        Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    mData.get(position).put("name", name);
+                                    mAdapter.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void abort() {
+
+                                }
+                            });
+                    mNameDialog.setAbort(false);
                     mNameDialog.show(getFragmentManager(), "name");
                 }
             }
@@ -228,6 +250,50 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         mChartView = (LineChartView) view.findViewById(R.id.hello_qa);
         initChart();
         loadSetting();
+        mSaveDialog = new SaveNameDialog();
+        mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(int id, String name) {
+
+                if (name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                List<String> saveFileList = DeviceApplication.getInstance().getQuantitativeAnalysisDb().getTables();
+                Log.d(TAG, "Alread saved -> " + saveFileList.size() + " files.");
+
+                for (int i = 0; i < saveFileList.size(); i++) {
+                    Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
+                }
+                String fileName = name;
+                for (int i = 0; i < mData.size(); i++) {
+                    int index = 0;
+                    float abs = 0.0f;
+                    float conc = 0.0f;
+                    long date = 0;
+                    String name2 = "";
+
+                    HashMap<String, String> map = mData.get(i);
+                    index = Integer.parseInt(map.get("id"));
+                    abs = Float.parseFloat(map.get("abs"));
+                    conc = Float.parseFloat(map.get("conc"));
+                    name2 = map.get("name");
+                    date = Long.parseLong(map.get("date"));
+
+                    Log.d(TAG, "####save name = " + name2);
+
+                    QuantitativeAnalysisRecord record = new QuantitativeAnalysisRecord(index, name2, abs, conc, date);
+                    DeviceApplication.getInstance().getQuantitativeAnalysisDb().saveRecord(fileName, record);
+                }
+                Log.d(TAG, "save to -> " + fileName);
+                Utils.needToSave = false;
+            }
+
+            @Override
+            public void abort() {
+                getFragmentManager().popBackStack();
+            }
+        });
     }
 
     private void initChart() {
@@ -368,6 +434,41 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         }
     }
 
+    @Subscribe
+    public void onFileOperateEvent(FileOperateEvent event) {
+        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
+            List<String> saveFileList = DeviceApplication.getInstance().getQuantitativeAnalysisDb().getTables();
+
+            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
+                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            loadFileById(which);
+                        }
+                    });
+
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+            if (mData.size() < 1) {
+                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mSaveDialog.show(getFragmentManager(), "save");
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+
+        }
+    }
+
+    private void loadFileById(int id) {
+        List<String> fileList = DeviceApplication.getInstance().getQuantitativeAnalysisDb().getTables();
+        String fileName = fileList.get(id);
+        List<QuantitativeAnalysisRecord> lists = DeviceApplication.getInstance().getQuantitativeAnalysisDb().getRecords(fileName);
+        mData.clear();
+        for (int i = 0; i < lists.size(); i++) {
+            addTestItem(lists.get(i));
+        }
+        Utils.needToSave = false;
+    }
+
 
     void showDeleteAlertDialog() {
         new android.app.AlertDialog.Builder(getActivity())
@@ -504,9 +605,10 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         record.setIndex(no);
 
         item.put("id", "" + no);
-//        item.put("name", record.getName());
+        item.put("name", (record.getName() == null) ? "" : record.getName());
         item.put("abs", Utils.formatAbs(record.getAbs()));
         item.put("conc", "" + Utils.formatConc(record.getConc()));
+        item.put("date", "" + record.getDate());
         mData.add(item);
         mAdapter.add();
         mAdapter.notifyDataSetChanged();

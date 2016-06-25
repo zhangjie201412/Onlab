@@ -24,9 +24,12 @@ public class SaveNameDialog extends DialogFragment {
     private String mText;
     private AlertDialog.Builder builder;
     private int mIndex;
+    private boolean mAbort;
 
     public interface SettingInputListern {
-        void onSettingInputComplete(int index, String wavelength);
+        void onSettingInputComplete(int index, String name);
+
+        void abort();
     }
 
     public void init(int index, String title, String text, SettingInputListern listener) {
@@ -34,6 +37,11 @@ public class SaveNameDialog extends DialogFragment {
         mTitle = title;
         mText = text;
         mListener = listener;
+        mAbort = true;
+    }
+
+    public void setAbort(boolean enable) {
+        mAbort = enable;
     }
 
     @Override
@@ -55,6 +63,16 @@ public class SaveNameDialog extends DialogFragment {
                     }
                 }).setNegativeButton(getString(R.string.cancel_string), null)
                 .setTitle(mTitle).setIcon(R.mipmap.ic_launcher);
+        if(mAbort) {
+            builder.setNeutralButton(getString(R.string.not_save), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (mListener != null) {
+                        mListener.abort();
+                    }
+                }
+            });
+        }
 
         return builder.create();
     }

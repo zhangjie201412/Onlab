@@ -10,6 +10,8 @@ import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 
+import java.util.regex.Pattern;
+
 /**
  * Created by H151136 on 6/15/2016.
  */
@@ -18,6 +20,8 @@ public class Utils {
     public static final float DEFAULT_ABS_VALUE = 3.0f;
     public static final float DEFAULT_TRANS_VALUE = 100.0f;
     public static final int DEFAULT_ENERGY_VALUE = 65535;
+
+    public static boolean needToSave = false;
 
     public static String formatAbs(float abs) {
         String result = "";
@@ -95,5 +99,11 @@ public class Utils {
         } else {
             return true;
         }
+    }
+
+    public static boolean isValidName(String name) {
+        String namePattern = "^[\\u4E00-\\u9FA5\\uF900-\\uFA2D\\w]{2,10}$";
+        boolean result = Pattern.matches(namePattern, name);
+        return result;
     }
 }

@@ -6,13 +6,15 @@ public class TimeScanRecord extends BaseData {
     private float trans;
     private int energy;
     private long time;
+    private int second;
 
     public TimeScanRecord() {
     }
 
-    public TimeScanRecord(int index, float abs,
+    public TimeScanRecord(int index, int second, float abs,
                           float trans, int energy, long date) {
         this.index = index;
+        this.second = second;
         this.abs = abs;
         this.trans = trans;
         this.energy = energy;
@@ -25,6 +27,14 @@ public class TimeScanRecord extends BaseData {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public int getSecond() {
+        return second;
+    }
+
+    public void setSecond(int second) {
+        this.second = second;
     }
 
     public float getAbs() {

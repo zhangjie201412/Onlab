@@ -3,6 +3,7 @@ package org.zhangjie.onlab.fragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -50,13 +51,13 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
     private boolean mIsRezeroed = false;
     private SaveNameDialog mSaveDialog;
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_photometric_measure, container, false);
         initUi(view);
         mIsRezeroed = false;
+        Utils.needToSave = false;
         return view;
     }
 
@@ -89,6 +90,18 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
         }
         mListView = (ListView) view.findViewById(R.id.lv_photometric_measure);
         mListView.setAdapter(mAdapter);
+        mAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                Log.d(TAG, "onChanged!!");
+                if(mData.size() > 0) {
+                    Utils.needToSave = true;
+                } else {
+                    Utils.needToSave = false;
+                }
+            }
+        });
 
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -128,8 +141,8 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
             @Override
             public void onSettingInputComplete(int id, String name) {
 
-                if (name.length() < 1) {
-                    Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 List<String> saveFileList = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
@@ -159,6 +172,12 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
                     DeviceApplication.getInstance().getPhotometricMeasureDb().saveRecord(fileName, record);
                 }
                 Log.d(TAG, "save to -> " + fileName);
+                Utils.needToSave = false;
+            }
+
+            @Override
+            public void abort() {
+                getFragmentManager().popBackStack();
             }
         });
     }
@@ -167,6 +186,7 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+        Utils.needToSave = false;
     }
 
     private void addItem(PhotoMeasureRecord record) {
@@ -230,6 +250,17 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
         }
     }
 
+    private void loadFileById(int id) {
+        List<String> fileList = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+        String fileName = fileList.get(id);
+        List<PhotoMeasureRecord> lists = DeviceApplication.getInstance().getPhotometricMeasureDb().getRecords(fileName);
+        mData.clear();
+        for(int i = 0; i < lists.size(); i++) {
+            addItem(lists.get(i));
+        }
+        Utils.needToSave = false;
+    }
+
     @Subscribe
     public void onFileOperateEvent(FileOperateEvent event) {
         if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
@@ -239,7 +270,7 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
                     , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
+                            loadFileById(which);
                         }
                     });
 
@@ -248,7 +279,6 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
                 Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
                 return;
             }
-
             mSaveDialog.show(getFragmentManager(), "save");
         } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
 

@@ -2,7 +2,9 @@ package org.zhangjie.onlab.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -23,7 +26,9 @@ import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.RezeroEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
@@ -78,11 +83,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private Line mLine;
     private List<PointValue> mPoints;
     //----
+    private SaveNameDialog mSaveDialog;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_wavelength_scan, container, false);
+        Utils.needToSave = false;
         initUi(view);
         return view;
     }
@@ -111,6 +119,17 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
         }
         mListView.setAdapter(mAdapter);
+        mAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                if(mData.size() > 0) {
+                    Utils.needToSave = true;
+                } else {
+                    Utils.needToSave = false;
+                }
+            }
+        });
 
         mTestModeTextView = (TextView)view.findViewById(R.id.tv_wavelength_scan_test_mode);
         mSmoothCheckBox = (CheckBox)view.findViewById(R.id.check_smooth);
@@ -128,6 +147,50 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         loadFromSetting();
         mStartButton.setEnabled(false);
         mStopButton.setEnabled(false);
+        mSaveDialog = new SaveNameDialog();
+        mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(int id, String name) {
+
+                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                List<String> saveFileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+                Log.d(TAG, "Alread saved -> " + saveFileList.size() + " files.");
+
+                for (int i = 0; i < saveFileList.size(); i++) {
+                    Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
+                }
+                String fileName = name;
+                for (int i = 0; i < mData.size(); i++) {
+                    int index = 0;
+                    float wavelength = 0;
+                    float abs = 0.0f;
+                    float trans = 0.0f;
+                    int energy = 0;
+                    long date = 0;
+
+                    HashMap<String, String> map = mData.get(i);
+                    index = Integer.parseInt(map.get("id"));
+                    wavelength = Float.parseFloat(map.get("wavelength"));
+                    abs = Float.parseFloat(map.get("abs"));
+                    trans = Float.parseFloat(map.get("trans"));
+                    energy = Integer.parseInt(map.get("energy"));
+                    date = Long.parseLong(map.get("date"));
+
+                    WavelengthScanRecord record = new WavelengthScanRecord(index, wavelength, abs, trans, energy, date);
+                    DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, record);
+                }
+                Log.d(TAG, "save to -> " + fileName);
+                Utils.needToSave = false;
+            }
+
+            @Override
+            public void abort() {
+                getFragmentManager().popBackStack();
+            }
+        });
     }
 
     private void initChart() {
@@ -254,6 +317,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+        Utils.needToSave = false;
     }
 
     @Subscribe
@@ -279,6 +343,44 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         } else if(resultCode == WavelengthSettingActivity.RESULT_CANCEL) {
             Log.d(TAG, "CANCEL");
         }
+    }
+
+
+    @Subscribe
+    public void onFileOperateEvent(FileOperateEvent event) {
+        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
+            List<String> saveFileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+
+            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
+                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            loadFileById(which);
+                        }
+                    });
+
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+            if(mData.size() < 1) {
+                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mSaveDialog.show(getFragmentManager(), "save");
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+
+        }
+    }
+
+    private void loadFileById(int id) {
+        List<String> fileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+        String fileName = fileList.get(id);
+        List<WavelengthScanRecord> lists = DeviceApplication.getInstance().getWavelengthScanDb().getRecords(fileName);
+        clearData();
+        for(int i = 0; i < lists.size(); i++) {
+            addItem(lists.get(i));
+            updateChart(lists.get(i));
+        }
+        Utils.needToSave = false;
+
     }
 
     @Subscribe

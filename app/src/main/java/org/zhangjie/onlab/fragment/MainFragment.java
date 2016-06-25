@@ -111,8 +111,11 @@ public class MainFragment extends Fragment {
         } else {
             context = getActivity();
         }
+        int backStackCount = getFragmentManager().getBackStackEntryCount();
 
-        ((MainActivity)getActivity()).showSystemSettingDialog();
+        if (backStackCount <= 1) {
+            ((MainActivity) getActivity()).showSystemSettingDialog();
+        }
     }
 
     @Override

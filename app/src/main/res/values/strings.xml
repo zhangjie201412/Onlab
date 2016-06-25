@@ -130,6 +130,9 @@
     <string name="name_setting">设置实验名称</string>
     <string name="notice_wavelength_invalid">输入波长无效，有效范围为: 190 ~ 1100</string>
     <string name="test_message">测试中...</string>
+    <string name="gain">放大倍数</string>
+    <string name="not_save">直接退出</string>
+    <string name="notice_name_invalid">名称无效字符</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

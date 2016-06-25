@@ -408,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         return;
                     }
                     mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
+                    updateBaseline(mBaselineWavelength, mBaselineGain);
                 }
             }
             if (energy < DeviceManager.ENERGY_FIT_DOWN) {
@@ -440,6 +441,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         return;
                     }
                     mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
+                    updateBaseline(mBaselineWavelength, mBaselineGain);
                 }
             }
             if (energy >= DeviceManager.ENERGY_FIT_DOWN && (energy <= DeviceManager.ENERGY_FIT_UP)) {
@@ -453,6 +455,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     return;
                 }
                 mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
+                updateBaseline(mBaselineWavelength, mBaselineGain);
             }
         }
     }
@@ -756,6 +759,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onBackPressed() {
 
+        if(Utils.needToSave) {
+            BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_SAVE));
+            return;
+        }
+
         if (mOperateMode) {
             BusProvider.getInstance().post(new SetOperateModeEvent(false));
             setOperateMode(false);
@@ -802,7 +810,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onMainClick(int id) {
 
-        if(!checkConnected()) {
+        if (!checkConnected()) {
             return;
         }
 
@@ -1065,6 +1073,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         if (!mWaitDialog.isShowing()) {
             mWaitDialog.setMessage(getString(R.string.baseline_message));
             mWaitDialog.show();
+        }
+    }
+
+    private void updateBaseline(float wavelength, int gain) {
+        if (mWaitDialog.isShowing()) {
+            mWaitDialog.setMessage(getString(R.string.baseline_message) + "\n"
+                    + getString(R.string.wavelength) + ": " + wavelength + " " + getString(R.string.nm)
+                    + "  " + getString(R.string.gain) + ": " + gain);
+//            mWaitDialog.show();
         }
     }
 

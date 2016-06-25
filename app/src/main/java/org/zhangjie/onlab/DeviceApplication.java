@@ -3,6 +3,9 @@ package org.zhangjie.onlab;
 import android.app.Application;
 
 import org.zhangjie.onlab.database.PhotometricMeasureDB;
+import org.zhangjie.onlab.database.QuantitativeAnalysisDB;
+import org.zhangjie.onlab.database.TimeScanDB;
+import org.zhangjie.onlab.database.WavelengthScanDB;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 
 /**
@@ -14,6 +17,9 @@ public class DeviceApplication extends Application {
     private SharedPreferenceUtils mSpUtils;
 
     private PhotometricMeasureDB mPhotometricMeasureDb;
+    private TimeScanDB mTimeScanDb;
+    private WavelengthScanDB mWavelengthScanDb;
+    private QuantitativeAnalysisDB mQuantitativeAnalysisDb;
 
     public synchronized static DeviceApplication getInstance() {
         return mApplication;
@@ -26,17 +32,41 @@ public class DeviceApplication extends Application {
         mSpUtils = new SharedPreferenceUtils(this, SP_FILE_NAME);
 
         mPhotometricMeasureDb = new PhotometricMeasureDB(this);
+        mTimeScanDb = new TimeScanDB(this);
+        mWavelengthScanDb = new WavelengthScanDB(this);
+        mQuantitativeAnalysisDb = new QuantitativeAnalysisDB(this);
     }
 
     public synchronized PhotometricMeasureDB getPhotometricMeasureDb() {
-        if(mPhotometricMeasureDb == null)
+        if (mPhotometricMeasureDb == null)
             mPhotometricMeasureDb = new PhotometricMeasureDB(this);
 
         return mPhotometricMeasureDb;
     }
 
+    public synchronized TimeScanDB getTimeScanDb() {
+        if (mTimeScanDb == null)
+            mTimeScanDb = new TimeScanDB(this);
+
+        return mTimeScanDb;
+    }
+
+    public synchronized WavelengthScanDB getWavelengthScanDb() {
+        if (mWavelengthScanDb == null)
+            mWavelengthScanDb = new WavelengthScanDB(this);
+
+        return mWavelengthScanDb;
+    }
+
+    public synchronized QuantitativeAnalysisDB getQuantitativeAnalysisDb() {
+        if (mQuantitativeAnalysisDb == null)
+            mQuantitativeAnalysisDb = new QuantitativeAnalysisDB(this);
+
+        return mQuantitativeAnalysisDb;
+    }
+
     public synchronized SharedPreferenceUtils getSpUtils() {
-        if(mSpUtils == null)
+        if (mSpUtils == null)
             mSpUtils = new SharedPreferenceUtils(this, SP_FILE_NAME);
 
         return mSpUtils;
