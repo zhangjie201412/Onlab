@@ -3,6 +3,7 @@ package org.zhangjie.onlab.fragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,13 +16,18 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.NineGridAdapter;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
+import org.zhangjie.onlab.utils.Utils;
 import org.zhangjie.onlab.view.NineGridView;
+
+import java.util.List;
 
 /**
  * Created by H151136 on 5/24/2016.
@@ -116,6 +122,86 @@ public class MainFragment extends Fragment {
         if (backStackCount <= 1) {
             ((MainActivity) getActivity()).showSystemSettingDialog();
         }
+    }
+
+    @Subscribe
+    public void onFileOperateEvent(FileOperateEvent event) {
+
+        int backStackCount = getFragmentManager().getBackStackEntryCount();
+
+        if (backStackCount <= 1) {
+            if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
+
+                String[] items = getResources().getStringArray(R.array.open_titles);
+                Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
+                        , items, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, final int which) {
+//                                if (getFragmentManager().getBackStackEntryCount() <= 1) {
+//                                    mListener.onMainClick(which);
+//                                }
+                                Log.d(TAG, "which = " + which);
+                                switch (which + 100) {
+                                    case ITEM_PHOTOMETRIC_MEASURE:
+                                        List<String> saveFileList0 = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+
+                                        Utils.showItemSelectDialog(getActivity(), getResources().getStringArray(R.array.open_titles)[0]
+                                                , saveFileList0.toArray(new String[saveFileList0.size()]), new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        mListener.loadFile(which, id);
+                                                    }
+                                                });
+                                        break;
+                                    case ITEM_QUANTITATIVE_ANALYSIS:
+                                        List<String> saveFileList1 = DeviceApplication.getInstance().getQuantitativeAnalysisDb().getTables();
+
+                                        Utils.showItemSelectDialog(getActivity(), getResources().getStringArray(R.array.open_titles)[1]
+                                                , saveFileList1.toArray(new String[saveFileList1.size()]), new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        mListener.loadFile(which, id);
+                                                    }
+                                                });
+                                        break;
+                                    case ITEM_WAVELENGTH_SCAN:
+                                        List<String> saveFileList2 = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+
+                                        Utils.showItemSelectDialog(getActivity(), getResources().getStringArray(R.array.open_titles)[2]
+                                                , saveFileList2.toArray(new String[saveFileList2.size()]), new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        mListener.loadFile(which, id);
+                                                    }
+                                                });
+                                        break;
+                                    case ITEM_TIME_SCAN:
+                                        List<String> saveFileList3 = DeviceApplication.getInstance().getTimeScanDb().getTables();
+
+                                        Utils.showItemSelectDialog(getActivity(), getResources().getStringArray(R.array.open_titles)[3]
+                                                , saveFileList3.toArray(new String[saveFileList3.size()]), new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        mListener.loadFile(which, id);
+                                                    }
+                                                });
+                                        break;
+                                }
+                            }
+                        });
+
+            } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+//                if(mData.size() < 1) {
+//                    Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                mSaveDialog.show(getFragmentManager(), "save");
+            } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+
+            }
+        }
+
+
     }
 
     @Override

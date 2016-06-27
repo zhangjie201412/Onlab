@@ -7,4 +7,5 @@ import android.view.View;
  */
 public interface FragmentCallbackListener {
     void onMainClick(int id);
+    void loadFile(int id, int fileIndex);
 }

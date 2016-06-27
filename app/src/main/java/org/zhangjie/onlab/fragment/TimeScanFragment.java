@@ -84,6 +84,9 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
     private int mX = 0;
     private SaveNameDialog mSaveDialog;
 
+    private boolean loadFile = false;
+    private int loadFileIndex = -1;
+
 
     @Nullable
     @Override
@@ -119,6 +122,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
         super.onDestroy();
         Utils.needToSave = false;
         Log.d(TAG, "onDestroy");
+        loadFile = false;
     }
 
     private void initUi(View view) {
@@ -206,6 +210,14 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener {
                 getFragmentManager().popBackStack();
             }
         });
+        if(loadFile) {
+            loadFileById(loadFileIndex);
+        }
+    }
+
+    public void prepareLoadFile(int id) {
+        loadFile = true;
+        loadFileIndex = id;
     }
 
     private void initChart() {

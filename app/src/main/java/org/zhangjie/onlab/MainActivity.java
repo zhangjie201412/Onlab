@@ -20,9 +20,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,7 +56,11 @@ import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
 import org.zhangjie.onlab.setting.TimescanSettingActivity;
+import org.zhangjie.onlab.utils.DES;
+import org.zhangjie.onlab.utils.MD5;
 import org.zhangjie.onlab.utils.Utils;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements WavelengthDialog.WavelengthInputListern,
         FragmentCallbackListener, View.OnClickListener, DialogInterface.OnClickListener {
@@ -759,7 +765,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onBackPressed() {
 
-        if(Utils.needToSave) {
+        if (Utils.needToSave) {
             BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_SAVE));
             return;
         }
@@ -810,9 +816,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onMainClick(int id) {
 
-        if (!checkConnected()) {
-            return;
-        }
+//        if (!checkConnected()) {
+//            return;
+//        }
 
         switch (id + 100) {
             case MainFragment.ITEM_PHOTOMETRIC_MEASURE:
@@ -837,6 +843,32 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 break;
             case MainFragment.ITEM_ABOUT:
                 break;
+            default:
+                break;
+        }
+        setTitle(getResources().getStringArray(R.array.titles)[id]);
+    }
+
+    @Override
+    public void loadFile(int id, int fileIndex) {
+        switch (id + 100) {
+            case MainFragment.ITEM_PHOTOMETRIC_MEASURE:
+                mPhotometricFragment.prepareLoadFile(fileIndex);
+                addContentFragment(mPhotometricFragment);
+                break;
+            case MainFragment.ITEM_TIME_SCAN:
+                mTimeScanFragment.prepareLoadFile(fileIndex);
+                addContentFragment(mTimeScanFragment);
+                break;
+            case MainFragment.ITEM_WAVELENGTH_SCAN:
+                mWavelengthScanFragment.prepareLoadFile(fileIndex);
+                addContentFragment(mWavelengthScanFragment);
+                break;
+            case MainFragment.ITEM_QUANTITATIVE_ANALYSIS:
+                mQuantitativeAnalysisFragment.prepareLoadFile(fileIndex);
+                addContentFragment(mQuantitativeAnalysisFragment);
+                break;
+
             default:
                 break;
         }
@@ -1207,8 +1239,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private final int SYSTEM_SETTING_ITEM_WAVELENGTH_ADJUST = 1;
     private final int SYSTEM_SETTING_ITEM_DARK_CURRENT_ADJUST = 2;
     private final int SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT = 3;
-    private final int SYSTEM_SETTING_ITEM_FACTORY_RESET = 4;
-    private final int SYSTEM_SETTING_ITEM_SYSTEM_VERSION = 5;
+    private final int SYSTEM_SETTING_FILE_MANAGERMENT = 4;
+    private final int SYSTEM_SETTING_ADD_REGIST_CODE = 5;
+    private final int SYSTEM_SETTING_ITEM_FACTORY_RESET = 6;
+    private final int SYSTEM_SETTING_ITEM_SYSTEM_VERSION = 7;
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
@@ -1222,6 +1256,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 break;
             case SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT:
                 break;
+            case SYSTEM_SETTING_FILE_MANAGERMENT:
+                fileManagerment();
+                break;
+            case SYSTEM_SETTING_ADD_REGIST_CODE:
+                addRegistCode();
+                break;
             case SYSTEM_SETTING_ITEM_FACTORY_RESET:
                 break;
             case SYSTEM_SETTING_ITEM_SYSTEM_VERSION:
@@ -1230,5 +1270,145 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             default:
                 break;
         }
+    }
+
+
+    private void fileManagerment() {
+        String[] items = getResources().getStringArray(R.array.open_titles);
+        Utils.showItemSelectDialog(this, getString(R.string.action_delete)
+                , items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, final int which) {
+                        switch (which + 100) {
+                            case MainFragment.ITEM_PHOTOMETRIC_MEASURE:
+                                final List<String> saveFileList0 = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+                                final boolean[] selected0 = new boolean[saveFileList0.size()];
+                                for (int i = 0; i < selected0.length; i++) {
+                                    selected0[i] = false;
+                                }
+                                Utils.showMultipleSelectDialog(MainActivity.this, getResources().getStringArray(R.array.open_titles)[0]
+                                        , saveFileList0.toArray(new String[saveFileList0.size()]),
+                                        new DialogInterface.OnMultiChoiceClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                                selected0[which] = isChecked;
+                                            }
+                                        },
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                for (int i = 0; i < saveFileList0.size(); i++) {
+                                                    if (selected0[i]) {
+                                                        Log.d(TAG, "delete -> " + saveFileList0.get(i));
+                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList0.get(i));
+                                                    }
+                                                }
+                                            }
+                                        });
+                                break;
+                            case MainFragment.ITEM_QUANTITATIVE_ANALYSIS:
+                                final List<String> saveFileList1 = DeviceApplication.getInstance().getQuantitativeAnalysisDb().getTables();
+                                final boolean[] selected1 = new boolean[saveFileList1.size()];
+                                for (int i = 0; i < selected1.length; i++) {
+                                    selected1[i] = false;
+                                }
+                                Utils.showMultipleSelectDialog(MainActivity.this, getResources().getStringArray(R.array.open_titles)[0]
+                                        , saveFileList1.toArray(new String[saveFileList1.size()]),
+                                        new DialogInterface.OnMultiChoiceClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                                selected1[which] = isChecked;
+                                            }
+                                        },
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                for (int i = 0; i < saveFileList1.size(); i++) {
+                                                    if (selected1[i]) {
+                                                        Log.d(TAG, "delete -> " + saveFileList1.get(i));
+                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList1.get(i));
+                                                    }
+                                                }
+                                            }
+                                        });
+                                break;
+                            case MainFragment.ITEM_WAVELENGTH_SCAN:
+                                final List<String> saveFileList2 = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+                                final boolean[] selected2 = new boolean[saveFileList2.size()];
+                                for (int i = 0; i < selected2.length; i++) {
+                                    selected2[i] = false;
+                                }
+                                Utils.showMultipleSelectDialog(MainActivity.this, getResources().getStringArray(R.array.open_titles)[0]
+                                        , saveFileList2.toArray(new String[saveFileList2.size()]),
+                                        new DialogInterface.OnMultiChoiceClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                                selected2[which] = isChecked;
+                                            }
+                                        },
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                for (int i = 0; i < saveFileList2.size(); i++) {
+                                                    if (selected2[i]) {
+                                                        Log.d(TAG, "delete -> " + saveFileList2.get(i));
+                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList2.get(i));
+                                                    }
+                                                }
+                                            }
+                                        });
+                                break;
+                            case MainFragment.ITEM_TIME_SCAN:
+                                final List<String> saveFileList3 = DeviceApplication.getInstance().getTimeScanDb().getTables();
+                                final boolean[] selected3 = new boolean[saveFileList3.size()];
+                                for (int i = 0; i < selected3.length; i++) {
+                                    selected3[i] = false;
+                                }
+                                Utils.showMultipleSelectDialog(MainActivity.this, getResources().getStringArray(R.array.open_titles)[0]
+                                        , saveFileList3.toArray(new String[saveFileList3.size()]),
+                                        new DialogInterface.OnMultiChoiceClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                                selected3[which] = isChecked;
+                                            }
+                                        },
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                for (int i = 0; i < saveFileList3.size(); i++) {
+                                                    if (selected3[i]) {
+                                                        Log.d(TAG, "delete -> " + saveFileList3.get(i));
+                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList3.get(i));
+                                                    }
+                                                }
+                                            }
+                                        });
+                                break;
+                        }
+                    }
+                });
+    }
+
+    private void addRegistCode() {
+        TextView registCode;
+        EditText license;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_add_regist_code, null);
+        registCode = (TextView)view.findViewById(R.id.tv_regist_code);
+        String key = "ONLAB_TEST_CODE2016";
+        String password = "ONLABCOM";
+        registCode.setText(new String(MD5.GetMD5Code(key)).substring(0, 16));
+        license = (EditText)view.findViewById(R.id.dialog_et_license);
+        builder.setView(view).setPositiveButton(getString(R.string.ok_string),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).setNegativeButton(getString(R.string.cancel_string), null)
+                .setTitle(R.string.regist_code_title).setIcon(R.mipmap.ic_launcher);
+
+        builder.create().show();
     }
 }

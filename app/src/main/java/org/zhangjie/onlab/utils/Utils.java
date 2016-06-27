@@ -26,9 +26,9 @@ public class Utils {
     public static String formatAbs(float abs) {
         String result = "";
         int acc = DeviceApplication.getInstance().getSpUtils().getAcc();
-        if(acc == MainActivity.ACC_HIGH) {
+        if (acc == MainActivity.ACC_HIGH) {
             result = String.format("%.4f", abs);
-        } else if(acc == MainActivity.ACC_LOW) {
+        } else if (acc == MainActivity.ACC_LOW) {
             result = String.format("%.3f", abs);
         }
         return result;
@@ -37,9 +37,9 @@ public class Utils {
     public static String formatTrans(float trans) {
         String result = "";
         int acc = DeviceApplication.getInstance().getSpUtils().getAcc();
-        if(acc == MainActivity.ACC_HIGH) {
+        if (acc == MainActivity.ACC_HIGH) {
             result = String.format("%.2f", trans);
-        } else if(acc == MainActivity.ACC_LOW) {
+        } else if (acc == MainActivity.ACC_LOW) {
             result = String.format("%.1f", trans);
         }
         return result;
@@ -48,9 +48,9 @@ public class Utils {
     public static String formatConc(float conc) {
         String result = "";
         int acc = DeviceApplication.getInstance().getSpUtils().getAcc();
-        if(acc == MainActivity.ACC_HIGH) {
+        if (acc == MainActivity.ACC_HIGH) {
             result = String.format("%.3f", conc);
-        } else if(acc == MainActivity.ACC_LOW) {
+        } else if (acc == MainActivity.ACC_LOW) {
             result = String.format("%.2f", conc);
         }
         return result;
@@ -58,13 +58,13 @@ public class Utils {
 
     public static float getValidAbs(float abs) {
         float valid = abs;
-        if(valid < -4.0f) {
+        if (valid < -4.0f) {
             valid = -4.0f;
-        } else if(valid > 4.0f) {
+        } else if (valid > 4.0f) {
             valid = 4.0f;
         }
 
-        if(Float.isNaN(abs))
+        if (Float.isNaN(abs))
             valid = 0.0f;
 
         return valid;
@@ -72,13 +72,13 @@ public class Utils {
 
     public static float getValidTrans(float trans) {
         float valid = trans;
-        if(valid > 3.0f) {
+        if (valid > 3.0f) {
             valid = 3.0f;
-        } else if(valid < -0.01f) {
+        } else if (valid < -0.01f) {
             valid = -0.01f;
         }
 
-        if(Float.isNaN(trans))
+        if (Float.isNaN(trans))
             valid = 0.0f;
 
         return valid;
@@ -92,8 +92,23 @@ public class Utils {
         builder.create().show();
     }
 
+    public static void showMultipleSelectDialog(Context context, String title, final String[] items
+            , DialogInterface.OnMultiChoiceClickListener listener,
+                                                DialogInterface.OnClickListener deleteListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        int count = items.length;
+        boolean[] select = new boolean[count];
+        builder.setTitle(title);
+        builder.setIcon(R.mipmap.ic_launcher);
+//        builder.setItems(items, listener);
+        builder.setMultiChoiceItems(items, select, listener);
+//        builder.setPositiveButton(context.getString(R.string.ok_string), okListener);
+        builder.setNeutralButton(context.getString(R.string.action_delete), deleteListener);
+        builder.create().show();
+    }
+
     public static boolean checkWavelengthInvalid(Context context, float wavelength) {
-        if(wavelength <= 190 || (wavelength >= 1100)) {
+        if (wavelength <= 190 || (wavelength >= 1100)) {
             Toast.makeText(context, context.getString(R.string.notice_wavelength_invalid), Toast.LENGTH_LONG).show();
             return false;
         } else {

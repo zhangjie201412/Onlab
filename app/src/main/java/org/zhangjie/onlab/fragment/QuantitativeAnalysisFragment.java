@@ -98,6 +98,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     private SaveNameDialog mNameDialog;
     private SaveNameDialog mSaveDialog;
 
+    private boolean loadFile = false;
+    private int loadFileIndex = -1;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -127,6 +130,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
     public void onDestroy() {
         super.onDestroy();
         Utils.needToSave = false;
+        loadFile = false;
         Log.d(TAG, "onDestroy");
     }
 
@@ -294,6 +298,14 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 getFragmentManager().popBackStack();
             }
         });
+        if(loadFile) {
+            loadFileById(loadFileIndex);
+        }
+    }
+
+    public void prepareLoadFile(int id) {
+        loadFile = true;
+        loadFileIndex = id;
     }
 
     private void initChart() {
@@ -795,7 +807,6 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         //update hello chart
         updateChartWithFormalu(a0, a1);
     }
-
 
     private void showSampleDeleteDialog() {
         int c = 0;

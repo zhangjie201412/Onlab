@@ -43,13 +43,16 @@ import java.util.List;
  */
 public class PhotometricMeasureFragment extends Fragment implements View.OnClickListener {
 
-    private boolean isFake = false;
+    private boolean isFake = true;
     private static final String TAG = "Onlab.PhotometricMea";
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
     private List<HashMap<String, String>> mData;
     private boolean mIsRezeroed = false;
     private SaveNameDialog mSaveDialog;
+
+    private boolean loadFile = false;
+    private int loadFileIndex = -1;
 
     @Nullable
     @Override
@@ -180,6 +183,14 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
                 getFragmentManager().popBackStack();
             }
         });
+        if(loadFile) {
+            loadFileById(loadFileIndex);
+        }
+    }
+
+    public void prepareLoadFile(int id) {
+        loadFile = true;
+        loadFileIndex = id;
     }
 
     @Override
@@ -187,6 +198,7 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         Utils.needToSave = false;
+        loadFile = false;
     }
 
     private void addItem(PhotoMeasureRecord record) {

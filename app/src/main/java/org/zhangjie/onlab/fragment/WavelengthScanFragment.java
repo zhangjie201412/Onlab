@@ -85,6 +85,9 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     //----
     private SaveNameDialog mSaveDialog;
 
+    private int loadFileIndex = -1;
+    private boolean loadFile = false;
+
 
     @Nullable
     @Override
@@ -191,6 +194,15 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 getFragmentManager().popBackStack();
             }
         });
+
+        if(loadFile) {
+            loadFileById(loadFileIndex);
+        }
+    }
+
+    public void prepareLoadFile(int id) {
+        loadFile = true;
+        loadFileIndex = id;
     }
 
     private void initChart() {
@@ -318,6 +330,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         Utils.needToSave = false;
+        loadFile = false;
     }
 
     @Subscribe

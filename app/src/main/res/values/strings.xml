@@ -133,6 +133,9 @@
     <string name="gain">放大倍数</string>
     <string name="not_save">直接退出</string>
     <string name="notice_name_invalid">名称无效字符</string>
+    <string name="regist_code">注册码</string>
+    <string name="license">授权码</string>
+    <string name="regist_code_title">注册授权码</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
@@ -148,6 +151,8 @@
         <item>波长校正</item>
         <item>暗电流校正</item>
         <item>光源管理</item>
+        <item>文件管理</item>
+        <item>注册授权码</item>
         <item>恢复出厂设置</item>
         <item>系统版本</item>
     </string-array>
@@ -175,7 +180,7 @@
         <item>双波长法</item>
         <item>三波长法</item>
     </string-array>
-    
+
     <string-array name="intervals">
         <item>1</item>
         <item>2</item>
@@ -187,6 +192,13 @@
         <item>快速</item>
         <item>标准</item>
         <item>慢速</item>
+    </string-array>
+
+    <string-array name="open_titles">
+        <item>光度测量</item>
+        <item>定量分析</item>
+        <item>波长扫描</item>
+        <item>时间扫描</item>
     </string-array>
 
     <string-array name="titles">
