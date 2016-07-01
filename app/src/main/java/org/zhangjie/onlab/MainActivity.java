@@ -216,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 dismissDialog();
                 mIsInitialized = true;
                 toastShow(getString(R.string.connect_done));
+                mDeviceSelectDialog.dismiss();
             }
         } else if (tag.startsWith(DeviceManager.TAG_GET_WAVELENGTH)) {
             //get wavelength

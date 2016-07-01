@@ -48,7 +48,7 @@ public class DevicesSelectDialog extends DialogFragment {
                 mDialog.dismiss();
                 //timeout
                 BtleManager.getInstance().disconnect();
-//                Toast.makeText(getActivity(), getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -84,9 +84,10 @@ public class DevicesSelectDialog extends DialogFragment {
                         }
                     });
                 }
-                dismiss();
+//                dismiss();
             }
         });
+
         clear();
 
         builder.setView(view).setNegativeButton(getString(R.string.cancel_string), null)
