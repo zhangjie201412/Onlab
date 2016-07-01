@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import org.zhangjie.onlab.ble.BtleManager;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
@@ -930,6 +931,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 if (!mIsBluetoothConnected) {
                     mDeviceManager.scan();
                     mDeviceSelectDialog.show(getFragmentManager(), getString(R.string.select_devices));
+                } else {
+                    //alert dialog to disconnect current connection
+                    Utils.showAlertDialog(MainActivity.this, getString(R.string.notice), getString(R.string.sure_to_disconnect),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    BtleManager.getInstance().disconnect();
+                                }
+                            });
                 }
             }
         });
@@ -1395,11 +1405,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_add_regist_code, null);
-        registCode = (TextView)view.findViewById(R.id.tv_regist_code);
+        registCode = (TextView) view.findViewById(R.id.tv_regist_code);
         String key = "ONLAB_TEST_CODE2016";
         String password = "ONLABCOM";
         registCode.setText(new String(MD5.GetMD5Code(key)).substring(0, 16));
-        license = (EditText)view.findViewById(R.id.dialog_et_license);
+        license = (EditText) view.findViewById(R.id.dialog_et_license);
         builder.setView(view).setPositiveButton(getString(R.string.ok_string),
                 new DialogInterface.OnClickListener() {
                     @Override

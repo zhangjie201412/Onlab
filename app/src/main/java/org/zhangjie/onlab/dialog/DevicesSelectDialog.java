@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.ble.BtleManager;
 
@@ -45,7 +46,9 @@ public class DevicesSelectDialog extends DialogFragment {
         public void run() {
             if (mDialog.isShowing()) {
                 mDialog.dismiss();
-//                Toast.makeText(mContext, getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
+                //timeout
+                BtleManager.getInstance().disconnect();
+//                Toast.makeText(getActivity(), getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
             }
         }
     };

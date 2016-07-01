@@ -186,6 +186,10 @@ public class BtleManager {
         mBluetoothLeService.connect(addr);
     }
 
+    public void disconnect() {
+        mBluetoothLeService.disconnect();
+    }
+
     public void send(String data) {
         Log.d(TAG, "-> " + data);
         mBluetoothLeService.send(data);
