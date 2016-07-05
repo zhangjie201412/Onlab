@@ -45,7 +45,6 @@ import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.FileOperateEvent;
-import org.zhangjie.onlab.otto.LoadWavelengthDialogEvent;
 import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
 import org.zhangjie.onlab.otto.QaUpdateEvent;
 import org.zhangjie.onlab.otto.RezeroEvent;
@@ -56,8 +55,6 @@ import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
-import org.zhangjie.onlab.setting.TimescanSettingActivity;
-import org.zhangjie.onlab.utils.DES;
 import org.zhangjie.onlab.utils.MD5;
 import org.zhangjie.onlab.utils.Utils;
 
@@ -202,6 +199,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             Log.d(TAG, "QUANTITATIVE ANALYSIS ENTRY");
             work_entry_quantitative_analysis(msg);
         }
+
+        //...
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_SINGLE_COMMAND) != 0) {
+            //do quantitative analysis entry
+            Log.d(TAG, "SINGLE COMMAND ENTRY");
+            work_entry_single_command(msg);
+        }
     }
 
     private void work_entry_initialize(String[] msg) {
@@ -261,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 updateAbs(abs);
                 updateTrans(trans);
             }
-        } else if (tag.startsWith("getwl")) {
+        } else if (tag.startsWith(DeviceManager.TAG_GET_WAVELENGTH)) {
             msg[1] = msg[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             float wavelength = Float.parseFloat(msg[1]);
             updateWavelength(wavelength);
@@ -377,9 +381,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         String tag = msgs[0];
         int energy;
 
-        if (tag.startsWith("swl")) {
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
 
-        } else if (tag.startsWith("sa")) {
+        } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
         } else if (tag.startsWith("ge 1") && (!tag.startsWith("ge 10"))) {
             //get energy
@@ -477,12 +481,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         String tag = msgs[0];
         int energy;
 
-        if (tag.startsWith("swl")) {
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
             wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             Log.d(TAG, "rezero wl = " + wl);
             mDorezeroWavelength = Float.parseFloat(wl);
-        } else if (tag.startsWith("sa")) {
+        } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
         } else if (tag.startsWith("ge 1")) {
             Log.d(TAG, "mDorezeroWavelength = " + mDorezeroWavelength);
@@ -520,11 +524,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         Log.d(TAG, "msgs[0] = " + msgs[0]);
 
-        if (tag.startsWith("swl")) {
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
             wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mWavelengthScanWavelength = Float.parseFloat(wl);
-        } else if (tag.startsWith("sa")) {
+        } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
         } else if (tag.startsWith("ge 1")) {
             if (mWavelengthScanWavelength == 0) {
@@ -564,12 +568,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         String tag = msgs[0];
         int energy;
 
-        if (tag.startsWith("swl")) {
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
             wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             Log.d(TAG, "rezero wl = " + wl);
             mMultipleWavelength = Float.parseFloat(wl);
-        } else if (tag.startsWith("sa")) {
+        } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
         } else if (tag.startsWith("ge 1")) {
             if (mMultipleWavelength == 0) {
@@ -603,11 +607,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         Log.d(TAG, "msgs[0] = " + msgs[0]);
 
-        if (tag.startsWith("swl")) {
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
             wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mMultipleWavelength = Float.parseFloat(wl);
-        } else if (tag.startsWith("sa")) {
+        } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
         } else if (tag.startsWith("ge 1")) {
             if (mMultipleWavelength == 0) {
@@ -672,19 +676,27 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         //done
     }
 
+    private void work_entry_single_command(String[] msgs) {
+        String[] msg = msgs.clone();
+        String tag = msg[0];
+
+        Log.d(TAG, "single command -> " + tag);
+        //restart main loop
+        mDeviceManager.setLoopThreadRestart();
+    }
+
     private void work_entry_set_wavelength(String[] msgs) {
-        if (msgs[0].startsWith("swl")) {
-            String wl = msgs[0].substring(3);
-            wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
-            float w = Float.parseFloat(wl);
-            Log.d(TAG, "####wl = " + w);
+        if (msgs[0].startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
+//            String wl = msgs[0].substring(3);
+//            wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+//            float w = Float.parseFloat(wl);
             dismissDialog();
             mDeviceManager.setLoopThreadRestart();
         }
     }
 
     private void work_entry_rezero(String[] msgs) {
-        if (msgs[0].startsWith("rezero")) {
+        if (msgs[0].startsWith(DeviceManager.TAG_REZERO)) {
             msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mI0 = Integer.parseInt(msgs[1]);

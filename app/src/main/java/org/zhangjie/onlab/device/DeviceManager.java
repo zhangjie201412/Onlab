@@ -64,6 +64,9 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_GET_DARK = "getdark";
     public static final String TAG_GET_A = "ga";
     public static final String TAG_GET_ENERGY = "ge";
+    public static final String TAG_SET_WAVELENGTH = "swl";
+    public static final String TAG_SET_A = "sa";
+    public static final String TAG_REZERO = "rezero";
 
     public static final float BASELINE_END = 1100;//1100;
     public static final float BASELINE_START = 190;//190;
@@ -354,6 +357,7 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_REZERO = 1 << 9;
     public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_TEST = 1 << 10;
     public static final int WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS = 1 << 11;
+    public static final int WORK_ENTRY_FLAG_SINGLE_COMMAND = 1 << 31;
 
     private int mEntryFlag = 0x00000000;
 
@@ -532,6 +536,17 @@ public class DeviceManager implements BtleListener {
         clearCmd(cmdList);
 
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 5);
+        doWork(cmdList);
+    }
+
+    public synchronized void doSingleCommand(int cmdType) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_SINGLE_COMMAND;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        addCmd(cmdList, cmdType, -1);
         doWork(cmdList);
     }
 
