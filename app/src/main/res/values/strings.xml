@@ -140,10 +140,17 @@
     <string name="notice">提示</string>
     <string name="start">开始</string>
     <string name="stop">停止</string>
+    <string name="peak_setting">峰高设置</string>
+    <string name="peak_distance">峰高</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
+
+    <string-array name="processings">
+        <item>正常曲线</item>
+        <item>波峰波谷</item>
+    </string-array>
 
     <string-array name="acurrencys">
         <item>高精度</item>

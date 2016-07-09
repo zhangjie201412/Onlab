@@ -594,6 +594,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
             msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            mI0 = Integer.parseInt(msgs[1]);
+            mA = Integer.parseInt(msgs[2]);
+
             int I0 = Integer.parseInt(msgs[1]);
             mDeviceManager.setDark(mMultipleWavelength, I0);
             int gain = Integer.parseInt(msgs[2]);

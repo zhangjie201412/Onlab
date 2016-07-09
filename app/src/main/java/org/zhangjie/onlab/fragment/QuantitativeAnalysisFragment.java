@@ -298,7 +298,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 getFragmentManager().popBackStack();
             }
         });
-        if(loadFile) {
+        if (loadFile) {
             loadFileById(loadFileIndex);
         }
     }
@@ -693,8 +693,12 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             //update point2 on chart
             mPoints2.clear();
             for (int i = 0; i < mSampleData.size(); i++) {
-                mPoints2.add(new PointValue(Float.parseFloat(mSampleData.get(i).get("abs"))
-                        , Float.parseFloat(mSampleData.get(i).get("conc"))));
+                String absString = mSampleData.get(i).get("abs");
+                String concString = mSampleData.get(i).get("conc");
+                if (absString.length() > 0 && (concString.length() > 0)) {
+                    mPoints2.add(new PointValue(Float.parseFloat(absString)
+                            , Float.parseFloat(concString)));
+                }
             }
             mLine2.setHasPoints(true);
             mLine2.setHasLines(false);
