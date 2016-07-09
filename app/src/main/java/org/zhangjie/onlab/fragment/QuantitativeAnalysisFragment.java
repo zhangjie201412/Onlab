@@ -732,6 +732,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 break;
             case R.id.bt_qa_add:
                 mSampleDialog.setIsNew(true);
+                mSampleDialog.setIndex(mSampleData.size());
                 mSampleDialog.show(getFragmentManager(), getString(R.string.sample_conc_setting));
                 break;
             case R.id.bt_qa_do_fitting:

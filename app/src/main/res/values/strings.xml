@@ -120,7 +120,7 @@
     <string name="test">测试</string>
     <string name="multi_wavelength_setting">多波长测试设置</string>
     <string name="add_item">+添加</string>
-    <string name="sample">样品</string>
+    <string name="sample">标样</string>
     <string name="notice_delete">删除</string>
     <string name="noting_selected">当前没有选择项</string>
     <string name="notice_setting_null">波长设置为空！</string>
@@ -138,6 +138,8 @@
     <string name="regist_code_title">注册授权码</string>
     <string name="sure_to_disconnect">确定断开当前连接?</string>
     <string name="notice">提示</string>
+    <string name="start">开始</string>
+    <string name="stop">停止</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
@@ -184,6 +186,9 @@
     </string-array>
 
     <string-array name="intervals">
+        <item>0.1</item>
+        <item>0.2</item>
+        <item>0.5</item>
         <item>1</item>
         <item>2</item>
         <item>5</item>

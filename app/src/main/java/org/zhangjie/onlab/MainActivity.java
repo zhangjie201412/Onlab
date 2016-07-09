@@ -33,6 +33,8 @@ import com.squareup.otto.Subscribe;
 
 import org.zhangjie.onlab.ble.BtleManager;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.dialog.BaselineDialog;
+import org.zhangjie.onlab.dialog.BaselineDialog.BaselineOperateListener;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.fragment.FragmentCallbackListener;
@@ -102,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private final int WAVELENGTH_TIMEOUT = 120000;
     private final int PROCESS_TIMEOUT = 5000;
     private Handler mHandler = new Handler();
+
+    private BaselineDialog mBaselineDialog;
 
     private Handler mUiHandler = new Handler() {
         @Override
@@ -360,12 +364,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private float mBaselineWavelength;
     private int mBaselineGain;
     private int mDirection;
+    private boolean stopBaseline = true;
 
     //---
     private void baselineInit() {
         mBaselineWavelength = DeviceManager.BASELINE_END;
         mBaselineGain = 8;
         mDirection = DIRECTION_UNKNOW;
+        mBaselineDialog.clear();
+        stopBaseline = false;
         loadBaselineDialog();
     }
 
@@ -373,13 +380,21 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         Log.d(TAG, "do baseline work done!");
         mDeviceManager.setLoopThreadRestart();
         dismissDialog();
-        mDeviceManager.saveBaseline();
-        toastShow(getString(R.string.baseline_done));
+        if(!stopBaseline) {
+            mDeviceManager.saveBaseline();
+            mBaselineDialog.doneCallback();
+            toastShow(getString(R.string.baseline_done));
+        }
     }
 
     private void work_entry_baseline(String[] msgs) {
         String tag = msgs[0];
         int energy;
+
+        if(stopBaseline) {
+            baselineDoneCallback();
+            return;
+        }
 
         if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
 
@@ -420,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         return;
                     }
                     mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
-                    updateBaseline(mBaselineWavelength, mBaselineGain);
+                    updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                 }
             }
             if (energy < DeviceManager.ENERGY_FIT_DOWN) {
@@ -453,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         return;
                     }
                     mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
-                    updateBaseline(mBaselineWavelength, mBaselineGain);
+                    updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                 }
             }
             if (energy >= DeviceManager.ENERGY_FIT_DOWN && (energy <= DeviceManager.ENERGY_FIT_UP)) {
@@ -467,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     return;
                 }
                 mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
-                updateBaseline(mBaselineWavelength, mBaselineGain);
+                updateBaseline(mBaselineWavelength, mBaselineGain, energy);
             }
         }
     }
@@ -483,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
-            wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             Log.d(TAG, "rezero wl = " + wl);
             mDorezeroWavelength = Float.parseFloat(wl);
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
@@ -503,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             trans = Utils.getValidTrans(trans);
             Log.d(TAG, "Update wavelength = " + mDorezeroWavelength + ", I0 = " + I0 + ", trans = " + trans);
             //save dark
-            mDeviceManager.setDark((int) mDorezeroWavelength, I0);
+            mDeviceManager.setDark(mDorezeroWavelength, I0);
             float start = DeviceApplication.getInstance().getSpUtils().getWavelengthscanStart();
             float interval = DeviceApplication.getInstance().getSpUtils().getWavelengthscanInterval();
             if (mDorezeroWavelength - interval < start) {
@@ -526,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
-            wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mWavelengthScanWavelength = Float.parseFloat(wl);
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
@@ -541,7 +556,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
             int I1 = energy;
             float trans = (float) (I1 - mDark[gain - 1]) /
-                    (float) (mDeviceManager.getDarkFromWavelength((int) mWavelengthScanWavelength) - mDark[gain - 1]);
+                    (float) (mDeviceManager.getDarkFromWavelength(mWavelengthScanWavelength) - mDark[gain - 1]);
             float abs = (float) -Math.log10(trans);
             trans = Utils.getValidTrans(trans);
             abs = Utils.getValidAbs(abs);
@@ -570,26 +585,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
-            wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             Log.d(TAG, "rezero wl = " + wl);
             mMultipleWavelength = Float.parseFloat(wl);
-        } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
-
-        } else if (tag.startsWith("ge 1")) {
+        } else if (tag.startsWith(DeviceManager.TAG_REZERO)) {
             if (mMultipleWavelength == 0) {
                 return;
             }
-            //get energy
-            msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
-            energy = Integer.parseInt(msgs[1]);
-            int gain = mDeviceManager.getGainFromBaseline((int) mMultipleWavelength);
-            int I0 = energy;
-            float trans = (energy - mDark[gain - 1]) / (I0 - mDark[gain - 1]);
-            trans = Utils.getValidTrans(trans);
-            Log.d(TAG, "Update wavelength = " + mMultipleWavelength + ", I0 = " + I0 + ", trans = " + trans);
-            //save dark
-            mDeviceManager.setDark((int) mMultipleWavelength, I0);
-
+            msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            int I0 = Integer.parseInt(msgs[1]);
+            mDeviceManager.setDark(mMultipleWavelength, I0);
+            int gain = Integer.parseInt(msgs[2]);
+            mDeviceManager.setGain((int) mMultipleWavelength, gain);
             if (mMultipleWavelength ==
                     MultipleWavelengthFragment.mWavelengths[MultipleWavelengthFragment.mWavelengths.length - 1]) {
                 Log.d(TAG, "do multiple wavelength rezero done!");
@@ -599,6 +607,31 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 mDeviceManager.setLoopThreadRestart();
             }
         }
+
+//        else if (tag.startsWith("ge 1")) {
+//            if (mMultipleWavelength == 0) {
+//                return;
+//            }
+//            //get energy
+//            msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+//            energy = Integer.parseInt(msgs[1]);
+//            int gain = mDeviceManager.getGainFromBaseline((int) mMultipleWavelength);
+//            int I0 = energy;
+//            float trans = (energy - mDark[gain - 1]) / (I0 - mDark[gain - 1]);
+//            trans = Utils.getValidTrans(trans);
+//            Log.d(TAG, "Update wavelength = " + mMultipleWavelength + ", I0 = " + I0 + ", trans = " + trans);
+//            //save dark
+//            mDeviceManager.setDark((int) mMultipleWavelength, I0);
+//
+//            if (mMultipleWavelength ==
+//                    MultipleWavelengthFragment.mWavelengths[MultipleWavelengthFragment.mWavelengths.length - 1]) {
+//                Log.d(TAG, "do multiple wavelength rezero done!");
+//                mMultipleWavelength = 0;
+//                dismissDialog();
+//                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_REZERO_DONE));
+//                mDeviceManager.setLoopThreadRestart();
+//            }
+//        }
     }
 
     private void work_entry_multiple_wavelength_test(String[] msgs) {
@@ -609,7 +642,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
             String wl = msgs[0].substring(3);
-            wl = wl.replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mMultipleWavelength = Float.parseFloat(wl);
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
@@ -624,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
             int I1 = energy;
             float trans = (float) (I1 - mDark[gain - 1]) /
-                    (float) (mDeviceManager.getDarkFromWavelength((int) mMultipleWavelength) - mDark[gain - 1]);
+                    (float) (mDeviceManager.getDarkFromWavelength(mMultipleWavelength) - mDark[gain - 1]);
             float abs = (float) -Math.log10(trans);
             trans = Utils.getValidTrans(trans);
             abs = Utils.getValidAbs(abs);
@@ -741,6 +774,21 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mDeviceSelectDialog.setDialog(mWaitDialog);
         mDeviceSelectDialog.setContext(this);
 
+        mBaselineDialog = new BaselineDialog();
+        mBaselineDialog.setListener(new BaselineOperateListener() {
+            @Override
+            public void onStart() {
+                baselineInit();
+                mDeviceManager.baselineWork((int) DeviceManager.BASELINE_END, DeviceManager.GAIN_MAX);
+            }
+
+            @Override
+            public void onStop() {
+                DeviceManager.getInstance().stopWork();
+                stopBaseline = true;
+            }
+        });
+
         mDeviceManager = DeviceManager.getInstance();
         mDeviceManager.init(this, mUiHandler);
 
@@ -769,11 +817,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         super.onDestroy();
         mDeviceManager.release();
         mDeviceManager = null;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -919,8 +962,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 if (!checkConnected()) {
                     return super.onOptionsItemSelected(item);
                 }
-                baselineInit();
-                mDeviceManager.baselineWork((int) DeviceManager.BASELINE_END, DeviceManager.GAIN_MAX);
+
+                mBaselineDialog.show(getFragmentManager(), "baseline");
+
                 break;
             default:
                 break;
@@ -1131,7 +1175,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
-    private void updateBaseline(float wavelength, int gain) {
+    private void updateBaseline(float wavelength, int gain, int energy) {
+
+        mBaselineDialog.addItem(wavelength, gain, energy);
         if (mWaitDialog.isShowing()) {
             mWaitDialog.setMessage(getString(R.string.baseline_message) + "\n"
                     + getString(R.string.wavelength) + ": " + wavelength + " " + getString(R.string.nm)

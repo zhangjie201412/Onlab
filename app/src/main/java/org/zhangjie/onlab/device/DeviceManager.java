@@ -234,7 +234,7 @@ public class DeviceManager implements BtleListener {
         mIsConnected = false;
         mUpdateThread = new UpdateThread();
         mBaseline = new int[(int) (BASELINE_END - BASELINE_START + 1)];
-        mI0 = new int[(int) (BASELINE_END - BASELINE_START + 1)];
+        mI0 = new int[(int) (BASELINE_END - BASELINE_START + 1) * 10];
 
         if (DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
             mBaseline = DeviceApplication.getInstance().getSpUtils().getBaseline((int) (BASELINE_END - BASELINE_START + 1));
@@ -251,12 +251,12 @@ public class DeviceManager implements BtleListener {
         mBaseline[wavelength - (int) BASELINE_START] = gain;
     }
 
-    public int getDarkFromWavelength(int wavelength) {
-        return mI0[wavelength - (int) BASELINE_START];
+    public int getDarkFromWavelength(float wavelength) {
+        return mI0[(int)((wavelength - BASELINE_START)*10)];
     }
 
-    public void setDark(int wavelength, int dark) {
-        mI0[wavelength - (int) BASELINE_START] = dark;
+    public void setDark(float wavelength, int dark) {
+        mI0[(int)((wavelength - BASELINE_START)*10)] = dark;
     }
 
     public void start() {
@@ -281,6 +281,13 @@ public class DeviceManager implements BtleListener {
     }
 
     private void addCmd(List<HashMap<String, Cmd>> cmdList, int cmd, int param) {
+        Cmd c = new Cmd(cmd, param);
+        HashMap<String, Cmd> item = new HashMap<>();
+        item.put("cmd", c);
+        cmdList.add(item);
+    }
+
+    private void addCmd(List<HashMap<String, Cmd>> cmdList, int cmd, float param) {
         Cmd c = new Cmd(cmd, param);
         HashMap<String, Cmd> item = new HashMap<>();
         item.put("cmd", c);
@@ -475,7 +482,7 @@ public class DeviceManager implements BtleListener {
         clearCmd(cmdList);
 
         for (float wl = end; wl >= start; wl -= interval) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wl);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl);
             addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wl));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
@@ -490,7 +497,7 @@ public class DeviceManager implements BtleListener {
         clearCmd(cmdList);
 
         for (float wl = end; wl >= start; wl -= interval) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wl);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH,  wl);
             addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wl));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
@@ -506,8 +513,7 @@ public class DeviceManager implements BtleListener {
 
         for (int i = 0; i < wavelengths.length; i++) {
             addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wavelengths[i]);
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wavelengths[i]));
-            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+            addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
         }
 
         doWork(cmdList);

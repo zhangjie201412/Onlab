@@ -28,8 +28,6 @@ public class QASampleDialog extends DialogFragment {
         void onCompleteInput(int type, String name, String conc);
     }
 
-    ;
-
     public static final int TYPE_OK = 0;
     public static final int TYPE_CANCEL = 1;
     public static final int TYPE_TEST = 2;
@@ -46,8 +44,9 @@ public class QASampleDialog extends DialogFragment {
 
         mName = (EditText) view.findViewById(R.id.dialog_et_qa_name);
         mConc = (EditText) view.findViewById(R.id.dialog_et_qa_conc);
-        if (name.length() < 1) {
-
+        if (name.length() < 1 || isNew) {
+            mName.setText(getString(R.string.sample) + (index + 1));
+            Log.d("####", "index = " + index);
         } else {
             mName.setText(name);
         }
@@ -76,8 +75,16 @@ public class QASampleDialog extends DialogFragment {
         this.conc = conc;
     }
 
+    private void clear() {
+        this.name = "";
+        this.conc = "";
+    }
+
     public void setIsNew(boolean n) {
         isNew = n;
+        if(isNew) {
+            clear();
+        }
     }
 
     public boolean isNew() {

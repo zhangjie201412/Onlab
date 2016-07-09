@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+
 import org.zhangjie.onlab.R;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
     private boolean mSelectMode = false;
 
     public MultiSelectionAdapter(Context context, List<HashMap<String, String>> data,
-                                 int layout, String[]keys, int[] viewIds) {
+                                 int layout, String[] keys, int[] viewIds) {
         mContext = context;
         mData = data;
         mInflater = LayoutInflater.from(context);
@@ -40,7 +41,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
         mLayout = layout;
         mViewIds = viewIds;
         mSelectMode = false;
-        for(int i = 0 ; i< mData.size(); i++) {
+        for (int i = 0; i < mData.size(); i++) {
             mIsSelected.put(i, false);
         }
     }
@@ -65,32 +66,34 @@ public class MultiSelectionAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
 
-        if(convertView == null) {
+        if (convertView == null) {
             holder = new ViewHolder();
             convertView = mInflater.inflate(mLayout, null);
-            for(int i = 0; i < mKeys.length; i++) {
-                TextView tv = (TextView)convertView.findViewById(mViewIds[i]);
+            for (int i = 0; i < mKeys.length; i++) {
+                TextView tv = (TextView) convertView.findViewById(mViewIds[i]);
                 holder.setTextViewByKey(mKeys[i], tv);
             }
-            holder.cb = (CheckBox)convertView.findViewById(R.id.item_checkbox);
+            holder.cb = (CheckBox) convertView.findViewById(R.id.item_checkbox);
             convertView.setTag(holder);
         } else {
-            holder = (ViewHolder)convertView.getTag();
+            holder = (ViewHolder) convertView.getTag();
         }
-        if(mSelectMode) {
+        if (mSelectMode) {
             holder.cb.setVisibility(View.VISIBLE);
         } else {
             holder.cb.setVisibility(View.INVISIBLE);
         }
 
         //fill the textView
-        for(int i = 0; i < mKeys.length; i++) {
+        for (int i = 0; i < mKeys.length; i++) {
             if (mKeys[i].equals("id")) {
                 holder.id.setText(mData.get(position).get("id"));
             } else if (mKeys[i].equals("name")) {
                 holder.name.setText(mData.get(position).get("name"));
             } else if (mKeys[i].equals("wavelength")) {
                 holder.wavelength.setText(mData.get(position).get("wavelength"));
+            } else if (mKeys[i].equals("gain")) {
+                holder.gain.setText(mData.get(position).get("gain"));
             } else if (mKeys[i].equals("abs")) {
                 holder.abs.setText(mData.get(position).get("abs"));
             } else if (mKeys[i].equals("trans")) {
@@ -138,6 +141,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
         public TextView id;
         public TextView name;
         public TextView wavelength;
+        public TextView gain;
         public TextView abs;
         public TextView trans;
         public TextView energy;
@@ -151,6 +155,8 @@ public class MultiSelectionAdapter extends BaseAdapter {
                 name = tv;
             } else if (key.equals("wavelength")) {
                 wavelength = tv;
+            } else if (key.equals("gain")) {
+                gain = tv;
             } else if (key.equals("abs")) {
                 abs = tv;
             } else if (key.equals("trans")) {

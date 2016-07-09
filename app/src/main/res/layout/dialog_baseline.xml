@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="@dimen/title_top_bottom"
+        android:layout_marginTop="@dimen/title_top_bottom"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="@dimen/baseline_title_size"
+            android:gravity="center"
+            android:text="@string/index"
+            android:textColor="@color/color_baseline_text" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:textSize="@dimen/baseline_title_size"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="@string/wavelength_with_unit"
+            android:textColor="@color/color_baseline_text" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="@string/gain"
+            android:textSize="@dimen/baseline_title_size"
+            android:textColor="@color/color_baseline_text" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:textSize="@dimen/baseline_title_size"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="@string/energy"
+            android:textColor="@color/color_baseline_text" />
+        <!-- Fake view -->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/baseline_line"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@id/layout_title"
+        android:background="@color/color_baseline_text" />
+
+    <LinearLayout
+        android:id="@+id/layout_buttons"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/bt_baseline_start"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
+            android:text="@string/start"
+            android:textColor="@color/color_button" />
+        <Button
+            android:id="@+id/bt_baseline_stop"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
+            android:text="@string/stop"
+            android:textColor="@color/color_button" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lv_baseline"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layout_buttons"
+        android:layout_below="@id/baseline_line"></ListView>
+
+</RelativeLayout>

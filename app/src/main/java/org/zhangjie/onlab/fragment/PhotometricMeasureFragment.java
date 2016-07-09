@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class PhotometricMeasureFragment extends Fragment implements View.OnClickListener {
 
-    private boolean isFake = true;
+    private boolean isFake = false;
     private static final String TAG = "Onlab.PhotometricMea";
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;

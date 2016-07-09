@@ -125,7 +125,7 @@ public class Utils {
     }
 
     public static boolean isValidName(String name) {
-        String namePattern = "^[\\u4E00-\\u9FA5\\uF900-\\uFA2D\\w]{2,10}$";
+        String namePattern = "^[\\u4E00-\\u9FA5\\uF900-\\uFA2D\\w]{1,10}$";
         boolean result = Pattern.matches(namePattern, name);
         return result;
     }

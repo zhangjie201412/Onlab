@@ -5,10 +5,11 @@ package org.zhangjie.onlab.device;
  */
 public class Cmd {
     public int cmd;
-    public int param;
+    public float param;
 
-    public Cmd(int cmd, int param) {
+    public Cmd(int cmd, float param) {
         this.cmd = cmd;
         this.param = param;
     }
+
 }
