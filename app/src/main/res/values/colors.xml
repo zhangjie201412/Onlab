@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#0667b6</color>
+    <color name="colorStatus">#85c36a</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorControlNormal">#dad8d8</color>
     <color name="colorAccent">#FF4081</color>
@@ -9,8 +10,9 @@
     <color name="griditems_bg">#ffe8ecef</color>
     <color name="commo_text_color">#dae4e9</color>
     <color name="colorDialogText">#FF354CDE</color>
-    <color name="main_start">#FF4C5DB9</color>
-    <color name="main_end">#5c6dc6</color>
+    <color name="main_start">#0667b6</color>
+    <color name="main_center">#33a0dc</color>
+    <color name="main_end">#85c36a</color>
     <color name="color_button_normal">#0099ff</color>
     <color name="color_button_disable">#AAAAAA</color>
     <color name="color_button_pressed">#c8edfb</color>
