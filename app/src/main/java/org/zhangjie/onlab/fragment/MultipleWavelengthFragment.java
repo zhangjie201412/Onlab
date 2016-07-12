@@ -36,7 +36,10 @@ import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.record.MultipleWavelengthRecord;
 import org.zhangjie.onlab.utils.Utils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,6 +57,7 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
 
     private MultipleWavelengthSettingDialog mSettingDialog;
     public static float[] mWavelengths;
+    public static float[] mOrderWavelengths;
 
     @Nullable
     @Override
@@ -101,8 +105,21 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         mRezero.setOnClickListener(this);
         mStart.setEnabled(false);
         int length = DeviceApplication.getInstance().getSpUtils().getMultipleWavelengthLength();
-        if(length > 0) {
+        if (length > 0) {
             mWavelengths = DeviceApplication.getInstance().getSpUtils().getMultipleWavelength();
+            mOrderWavelengths = new float[length];
+            float[] temp = new float[length];
+            for (int i = 0; i < length; i++) {
+                temp[i] = mWavelengths[i];
+            }
+            Arrays.sort(temp);
+            for(int i = 0; i < length; i++) {
+                mOrderWavelengths[i] = temp[length - 1 - i];
+            }
+
+            for (int i = 0; i < mOrderWavelengths.length; i++) {
+                Log.d(TAG, String.format("[%d] -> %f\n", i, mOrderWavelengths[i]));
+            }
         }
     }
 
@@ -154,11 +171,11 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
 
     @Subscribe
     public void OnUpdateEvent(MultipleWavelengthCallbackEvent event) {
-        if(event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_UPDATE) {
+        if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_UPDATE) {
             addItem(new MultipleWavelengthRecord(-1, event.wavelength, event.abs, event.trans, event.energy, System.currentTimeMillis()));
-        } else if(event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_REZERO_DONE) {
+        } else if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_REZERO_DONE) {
             mStart.setEnabled(true);
-        } else if(event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_TEST_DONE) {
+        } else if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_TEST_DONE) {
 
         }
     }
@@ -168,19 +185,19 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         switch (v.getId()) {
             case R.id.bt_multiple_wavelength_start:
                 Log.d(TAG, "start");
-                if(mWavelengths == null || mWavelengths.length < 1) {
+                if (mOrderWavelengths == null || mOrderWavelengths.length < 1) {
                     Toast.makeText(getActivity(), getString(R.string.notice_setting_null), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_TEST, mWavelengths));
+                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_TEST, mOrderWavelengths));
                 break;
             case R.id.bt_multiple_wavelength_rezero:
                 Log.d(TAG, "rezero");
-                if(mWavelengths == null || mWavelengths.length < 1) {
+                if (mOrderWavelengths == null || mOrderWavelengths.length < 1) {
                     Toast.makeText(getActivity(), getString(R.string.notice_setting_null), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_REZERO, mWavelengths));
+                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_REZERO, mOrderWavelengths));
                 break;
 
             default:
@@ -190,11 +207,28 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
 
     @Override
     public void onCallback(float[] wavelengths) {
-        for(int i = 0; i < wavelengths.length; i++) {
+        for (int i = 0; i < wavelengths.length; i++) {
             Log.d(TAG, String.format("[%d] -> %f\n", i, wavelengths[i]));
         }
         DeviceApplication.getInstance().getSpUtils().setKeyMultipleWavelengthLength(wavelengths.length);
         DeviceApplication.getInstance().getSpUtils().saveMultipleWavelength(wavelengths);
         mWavelengths = wavelengths;
+        int length = wavelengths.length;
+        if (length > 0) {
+            mOrderWavelengths = new float[length];
+            float[] temp = new float[length];
+            for (int i = 0; i < length; i++) {
+                temp[i] = mWavelengths[i];
+            }
+            Arrays.sort(temp);
+            for(int i = 0; i < length; i++) {
+                mOrderWavelengths[i] = temp[length - 1 - i];
+            }
+
+            for (int i = 0; i < mOrderWavelengths.length; i++) {
+                Log.d(TAG, String.format("[%d] -> %f\n", i, mOrderWavelengths[i]));
+            }
+        }
     }
+
 }

@@ -57,7 +57,7 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 public class WavelengthScanFragment extends Fragment implements View.OnClickListener {
 
-    private boolean isFake = false;
+    private boolean isFake = true;
     private static final String TAG = "Onlab.WavelengthScan";
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;

@@ -603,7 +603,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             int gain = Integer.parseInt(msgs[2]);
             mDeviceManager.setGain((int) mMultipleWavelength, gain);
             if (mMultipleWavelength ==
-                    MultipleWavelengthFragment.mWavelengths[MultipleWavelengthFragment.mWavelengths.length - 1]) {
+                    MultipleWavelengthFragment.mOrderWavelengths[MultipleWavelengthFragment.mOrderWavelengths.length - 1]) {
                 Log.d(TAG, "do multiple wavelength rezero done!");
                 mMultipleWavelength = 0;
                 dismissDialog();
@@ -672,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     mMultipleWavelength, abs, trans, I1));
 
             if (mMultipleWavelength ==
-                    MultipleWavelengthFragment.mWavelengths[MultipleWavelengthFragment.mWavelengths.length - 1]) {
+                    MultipleWavelengthFragment.mOrderWavelengths[MultipleWavelengthFragment.mOrderWavelengths.length - 1]) {
                 Log.d(TAG, "do multiple wavelength test done!");
                 mMultipleWavelength = 0;
                 dismissDialog();
@@ -828,14 +828,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onBackPressed() {
 
-        if (Utils.needToSave) {
-            BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_SAVE));
-            return;
-        }
-
         if (mOperateMode) {
             BusProvider.getInstance().post(new SetOperateModeEvent(false));
             setOperateMode(false);
+            return;
+        }
+
+        if (Utils.needToSave) {
+            BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_SAVE));
             return;
         }
 

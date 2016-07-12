@@ -654,6 +654,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         mSampleData.add(item);
         mSampleAdapter.add();
         mSampleAdapter.setSelectMode(true);
+        mSampleAdapter.getIsSelected().put(no - 1, true);
         mSampleAdapter.notifyDataSetChanged();
         if (mSampleData.size() > 0) {
             mSampleListView.setSelection(mSampleData.size() - 1);
