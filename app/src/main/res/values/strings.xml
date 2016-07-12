@@ -148,8 +148,9 @@
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
 
     <string-array name="processings">
-        <item>正常曲线</item>
+        <item>曲线平滑</item>
         <item>波峰波谷</item>
+
     </string-array>
 
     <string-array name="acurrencys">
