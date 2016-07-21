@@ -142,14 +142,29 @@
     <string name="stop">停止</string>
     <string name="peak_setting">峰高设置</string>
     <string name="peak_distance">峰高</string>
+    <string name="current">当前</string>
+    <string name="line">曲线</string>
+    <string name="select_lines">选择曲线</string>
+    <string name="lines_less_than_2">当前曲线少于2条</string>
+    <string name="notice_select_2">只能选择两条曲线</string>
+    <string name="select_operation">选择运算方式</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
 
+    <string-array name="operations">
+        <item>加法</item>
+        <item>减法</item>
+        <item>乘法</item>
+        <item>除法</item>
+    </string-array>
+
     <string-array name="processings">
-        <item>曲线平滑</item>
-        <item>波峰波谷</item>
+        <item>光谱平滑</item>
+        <item>峰谷查找</item>
+        <item>导数光谱</item>
+        <item>四则运算</item>
 
     </string-array>
 

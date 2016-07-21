@@ -45,12 +45,14 @@ import org.zhangjie.onlab.utils.Utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.Viewport;
+import lecho.lib.hellocharts.util.ChartUtils;
 import lecho.lib.hellocharts.view.LineChartView;
 
 /**
@@ -60,9 +62,12 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
     private boolean isFake = true;
     private static final String TAG = "Onlab.WavelengthScan";
+    private static final int[] COLORS = {ChartUtils.DEFAULT_COLOR, ChartUtils.COLOR_ORANGE,
+            ChartUtils.COLOR_BLUE, ChartUtils.COLOR_VIOLET};
+
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
-    private List<HashMap<String, String>> mData;
+    private List<HashMap<String, String>>[] mData;
     private List<HashMap<String, String>> mPeakData;
 
     private float mInterval;
@@ -71,6 +76,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private int mTestMode;
     private int mSpeed;
 
+    private Button mCurrentButton;
     private Button mStartButton;
     private Button mStopButton;
     private Button mRezeroButton;
@@ -83,9 +89,12 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private LineChartView mChartView;
     private LineChartData mChartData;
     private List<Line> mLines;
-    private Line mLine;
+    private Line[] mLine;
     private Line mPeakLine;
-    private List<PointValue> mPoints;
+    private List<PointValue>[] mPoints;
+    //    private List<PointValue> mPoints;
+//    private List<PointValue> mPoints;
+//    private List<PointValue> mPoints;
     private List<PointValue> mPeakPoints;
     //----
     private SaveNameDialog mSaveDialog;
@@ -94,6 +103,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private boolean loadFile = false;
 
     private SettingEditDialog mPeakDialog;
+    private int mCurDataIndex = 0;
 
 
     @Nullable
@@ -101,12 +111,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_wavelength_scan, container, false);
         Utils.needToSave = false;
+        mCurDataIndex = 0;
         initUi(view);
         mPeakDialog = new SettingEditDialog();
         return view;
     }
 
     private void initUi(View view) {
+        mCurrentButton = (Button) view.findViewById(R.id.bt_wavelength_scan_current);
         mStartButton = (Button) view.findViewById(R.id.bt_wavelength_scan_start);
         mStopButton = (Button) view.findViewById(R.id.bt_wavelength_scan_stop);
         mRezeroButton = (Button) view.findViewById(R.id.bt_wavelength_scan_rezero);
@@ -117,31 +129,37 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mProcessButton.setOnClickListener(this);
 
         mListView = (ListView) view.findViewById(R.id.lv_wavelength_scan);
-        mData = new ArrayList<HashMap<String, String>>();
+
+        mData = new List[4];
+
+        mData[0] = new ArrayList<HashMap<String, String>>();
+        mData[1] = new ArrayList<HashMap<String, String>>();
+        mData[2] = new ArrayList<HashMap<String, String>>();
+        mData[3] = new ArrayList<HashMap<String, String>>();
         mPeakData = new ArrayList<HashMap<String, String>>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mAdapter = new MultiSelectionAdapter(getContext(), mData,
+            mAdapter = new MultiSelectionAdapter(getContext(), mData[mCurDataIndex],
                     R.layout.item_wavelength_scan,
                     new String[]{"id", "wavelength", "abs", "trans", "energy"},
                     new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
         } else {
-            mAdapter = new MultiSelectionAdapter(getActivity(), mData,
+            mAdapter = new MultiSelectionAdapter(getActivity(), mData[mCurDataIndex],
                     R.layout.item_wavelength_scan,
                     new String[]{"id", "wavelength", "abs", "trans", "energy"},
                     new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
         }
         mListView.setAdapter(mAdapter);
-        mAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                if (mData.size() > 0) {
-                    Utils.needToSave = true;
-                } else {
-                    Utils.needToSave = false;
-                }
-            }
-        });
+//        mAdapter.registerDataSetObserver(new DataSetObserver() {
+//            @Override
+//            public void onChanged() {
+//                super.onChanged();
+//                if (mData.size() > 0) {
+//                    Utils.needToSave = true;
+//                } else {
+//                    Utils.needToSave = false;
+//                }
+//            }
+//        });
 
         mTestModeTextView = (TextView) view.findViewById(R.id.tv_wavelength_scan_test_mode);
 //        mSmoothCheckBox = (CheckBox) view.findViewById(R.id.check_smooth);
@@ -180,7 +198,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
                 }
                 String fileName = name;
-                for (int i = 0; i < mData.size(); i++) {
+                for (int i = 0; i < mData[mCurDataIndex].size(); i++) {
                     int index = 0;
                     float wavelength = 0;
                     float abs = 0.0f;
@@ -188,7 +206,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     int energy = 0;
                     long date = 0;
 
-                    HashMap<String, String> map = mData.get(i);
+                    HashMap<String, String> map = mData[mCurDataIndex].get(i);
                     index = Integer.parseInt(map.get("id"));
                     wavelength = Float.parseFloat(map.get("wavelength"));
                     abs = Float.parseFloat(map.get("abs"));
@@ -212,6 +230,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         if (loadFile) {
             loadFileById(loadFileIndex);
         }
+        setCurrentButton();
     }
 
     public void prepareLoadFile(int id) {
@@ -220,17 +239,34 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     }
 
     private void initChart() {
-        mPoints = new ArrayList<PointValue>();
+        mPoints = new List[4];
+        mPoints[0] = new ArrayList<PointValue>();
+        mPoints[1] = new ArrayList<PointValue>();
+        mPoints[2] = new ArrayList<PointValue>();
+        mPoints[3] = new ArrayList<PointValue>();
         mPeakPoints = new ArrayList<PointValue>();
         mLines = new ArrayList<Line>();
-        mLine = new Line(mPoints).setColor(Color.WHITE).setCubic(true);
-        mPeakLine = new Line(mPeakPoints).setColor(Color.GREEN).setCubic(true);
-        mLine.setPointRadius(1);
-        mLine.setStrokeWidth(1);
-        mLine.setCubic(false);
+
+        mLine = new Line[4];
+
+        mLine[0] = new Line(mPoints[0]).setColor(COLORS[0]).setCubic(true);
+        mLine[1] = new Line(mPoints[1]).setColor(COLORS[1]).setCubic(true);
+        mLine[2] = new Line(mPoints[2]).setColor(COLORS[2]).setCubic(true);
+        mLine[3] = new Line(mPoints[3]).setColor(COLORS[3]).setCubic(true);
+
+        mPeakLine = new Line(mPeakPoints).setColor(ChartUtils.COLOR_GREEN).setCubic(true);
+
+        for (int i = 0; i < mLine.length; i++) {
+            mLine[i].setPointRadius(1);
+            mLine[i].setStrokeWidth(1);
+            mLine[i].setCubic(false);
+        }
+
         mPeakLine.setPointRadius(3);
         mPeakLine.setStrokeWidth(1);
-        mLines.add(mLine);
+        for (int i = 0; i < mLine.length; i++) {
+            mLines.add(mLine[i]);
+        }
         mLines.add(mPeakLine);
 
         mChartData = new LineChartData();
@@ -293,9 +329,9 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartData.setAxisYLeft(axisY);
     }
 
-    private void addItem(WavelengthScanRecord record) {
+    private void addItem(int index, WavelengthScanRecord record) {
         HashMap<String, String> item = new HashMap<String, String>();
-        int no = mData.size() + 1;
+        int no = mData[index].size() + 1;
         record.setIndex(no);
 
         item.put("id", "" + no);
@@ -304,22 +340,23 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         item.put("trans", Utils.formatTrans(record.getTrans()));
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
-        mData.add(item);
+        mData[index].add(item);
         mAdapter.add();
         mAdapter.notifyDataSetChanged();
-        if (mData.size() > 0) {
-            mListView.setSelection(mData.size() - 1);
+
+        if (mData[index].size() > 0) {
+            mListView.setSelection(mData[index].size() - 1);
         }
     }
 
-    private void updateChart(WavelengthScanRecord record) {
+    private void updateChart(int index, WavelengthScanRecord record) {
         int mode = DeviceApplication.getInstance().getSpUtils().getWavelengthscanTestMode();
         if (mode == WavelengthSettingActivity.TEST_MODE_ABS) {
-            mPoints.add(new PointValue(record.getWavelength(), record.getAbs()));
+            mPoints[index].add(new PointValue(record.getWavelength(), record.getAbs()));
         } else if (mode == WavelengthSettingActivity.TEST_MODE_TRANS) {
-            mPoints.add(new PointValue(record.getWavelength(), record.getTrans()));
+            mPoints[index].add(new PointValue(record.getWavelength(), record.getTrans()));
         } else if (mode == WavelengthSettingActivity.TEST_MODE_ENERGY) {
-            mPoints.add(new PointValue(record.getWavelength(), record.getEnergy()));
+            mPoints[index].add(new PointValue(record.getWavelength(), record.getEnergy()));
         }
         mChartData.setLines(mLines);
         mChartView.setLineChartData(mChartData);
@@ -343,10 +380,10 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartView.setLineChartData(mChartData);
     }
 
-    private void clearData() {
-        mData.clear();
+    private void clearData(int index) {
+        mData[index].clear();
         mAdapter.notifyDataSetChanged();
-        mPoints.clear();
+        mPoints[index].clear();
         mChartData.setLines(mLines);
         mChartView.setLineChartData(mChartData);
     }
@@ -399,38 +436,38 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
     @Subscribe
     public void onFileOperateEvent(FileOperateEvent event) {
-        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
-            List<String> saveFileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
-
-            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
-                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            loadFileById(which);
-                        }
-                    });
-
-        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
-            if (mData.size() < 1) {
-                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
-                return;
-            }
-            mSaveDialog.show(getFragmentManager(), "save");
-        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
-
-        }
+//        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
+//            List<String> saveFileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+//
+//            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
+//                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            loadFileById(which);
+//                        }
+//                    });
+//
+//        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+//            if (mData[mCurDataIndex].size() < 1) {
+//                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//            mSaveDialog.show(getFragmentManager(), "save");
+//        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+//
+//        }
     }
 
     private void loadFileById(int id) {
-        List<String> fileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
-        String fileName = fileList.get(id);
-        List<WavelengthScanRecord> lists = DeviceApplication.getInstance().getWavelengthScanDb().getRecords(fileName);
-        clearData();
-        for (int i = 0; i < lists.size(); i++) {
-            addItem(lists.get(i));
-            updateChart(lists.get(i));
-        }
-        Utils.needToSave = false;
+//        List<String> fileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+//        String fileName = fileList.get(id);
+//        List<WavelengthScanRecord> lists = DeviceApplication.getInstance().getWavelengthScanDb().getRecords(fileName);
+//        clearData();
+//        for (int i = 0; i < lists.size(); i++) {
+//            addItem(lists.get(i));
+//            updateChart(lists.get(i));
+//        }
+//        Utils.needToSave = false;
 
     }
 
@@ -443,8 +480,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             WavelengthScanRecord record = new WavelengthScanRecord(-1,
                     event.wavelength, event.abs, event.trans, event.energy,
                     System.currentTimeMillis());
-            addItem(record);
-            updateChart(record);
+            addItem(mCurDataIndex, record);
+            updateChart(mCurDataIndex, record);
         } else if (event.event_type == WavelengthScanCallbackEvent.EVENT_TYPE_WORK_DONE) {
             mStartButton.setEnabled(true);
             mStopButton.setEnabled(false);
@@ -454,27 +491,47 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.bt_wavelength_scan_current:
+                break;
             case R.id.bt_wavelength_scan_start:
                 if (isFake) {
-                    SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
 
-                    float start = sp.getWavelengthscanStart();
-                    float end = sp.getWavelengthscanEnd();
-                    int speed = sp.getWavelengthscanSpeed();
-                    float interval = sp.getWavelengthscanInterval();
+                    for (int i = 3; i >= 0; i--) {
+                        if (mData[i].size() == 0) {
+                            mCurDataIndex = i;
+                        }
+                    }
+                    setCurrentButton();
+                    //set adapter data
+                    mAdapter.setData(mData[mCurDataIndex]);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
 
-                    int energy = (int) (Math.random() * 1000.0f);
-                    float wavelength = end - mData.size() * interval;
-                    float abs = (float) (Math.random() * 2);
-                    float trans = (float) (Math.random() * 100);
+                            float start = sp.getWavelengthscanStart();
+                            float end = sp.getWavelengthscanEnd();
+                            int speed = sp.getWavelengthscanSpeed();
+                            float interval = sp.getWavelengthscanInterval();
+                            int count = (int) ((end - start) / interval);
+                            while (count > mData[mCurDataIndex].size()) {
+                                int energy = (int) (Math.random() * 1000.0f);
+                                float wavelength = end - mData[mCurDataIndex].size() * interval;
+                                float abs = (float) (Math.random() * 2);
+                                float trans = (float) (Math.random() * 100);
 
-                    WavelengthScanRecord record = new WavelengthScanRecord(-1,
-                            wavelength, abs, trans, energy,
-                            System.currentTimeMillis());
-                    addItem(record);
-                    updateChart(record);
+                                WavelengthScanRecord record = new WavelengthScanRecord(-1,
+                                        wavelength, abs, trans, energy,
+                                        System.currentTimeMillis());
+                                addItem(mCurDataIndex, record);
+                                updateChart(mCurDataIndex, record);
+                            }
+                        }
+
+                    });
+
                 } else {
-                    clearData();
+                    clearData(mCurDataIndex);
                     SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
 
                     float start = sp.getWavelengthscanStart();
@@ -502,31 +559,6 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 BusProvider.getInstance().post(new RezeroEvent(start, end, speed, interval));
                 break;
             case R.id.bt_wavelength_scan_process:
-//                Utils.showItemSelectDialog(getActivity(), getString(R.string.process),
-//                        getResources().getStringArray(R.array.processings),
-//                        new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                if (which == 0) {
-//                                    makeNormal();
-//                                } else if (which == 1) {
-//                                    mPeakDialog.init(-1, getString(R.string.peak_setting),
-//                                            getString(R.string.peak_distance),
-//                                            new SettingEditDialog.SettingInputListern() {
-//                                                @Override
-//                                                public void onSettingInputComplete(int index, String distance) {
-//                                                    if (distance.length() > 0) {
-//                                                        makePeak(Float.parseFloat(distance));
-//                                                    } else {
-//                                                        Toast.makeText(getActivity(),
-//                                                                getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
-//                                                    }
-//                                                }
-//                                            });
-//                                    mPeakDialog.show(getFragmentManager(), "peak");
-//                                }
-//                            }
-//                        });
                 showProcessDialog();
                 break;
             default:
@@ -534,15 +566,23 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         }
     }
 
+    private void setCurrentButton() {
+        mCurrentButton.setText(getString(R.string.current) +
+                ": " + getString(R.string.line) + "" + (mCurDataIndex + 1));
+        mCurrentButton.setTextColor(COLORS[mCurDataIndex]);
+    }
+
     private final int PROCESS_ITEM_CUBIC = 0;
     private final int PROCESS_ITEM_PEAK = 1;
+    private final int PROCESS_ITEM_DERIVATIVE = 2;
+    private final int PROCESS_ITEM_OPERATION = 3;
 
     private void showProcessDialog() {
         String[] items = getResources().getStringArray(R.array.processings);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         int count = items.length;
         boolean[] select = new boolean[count];
-        if(mLine.isCubic()) {
+        if (mLine[mCurDataIndex].isCubic()) {
             select[PROCESS_ITEM_CUBIC] = true;
         }
         if (mPeakPoints.size() > 0) {
@@ -556,16 +596,91 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 switch (which) {
                     case PROCESS_ITEM_CUBIC:
-                        mLine.setCubic(isChecked);
+                        mLine[mCurDataIndex].setCubic(isChecked);
                         mChartData.setLines(mLines);
                         mChartView.setLineChartData(mChartData);
                         break;
                     case PROCESS_ITEM_PEAK:
                         if (isChecked) {
-                            makePeak(1);
+                            makePeak(mCurDataIndex, 1);
                         } else {
                             removePeak();
-                            makeNormal();
+                            makeNormal(mCurDataIndex);
+                        }
+                        break;
+                    case PROCESS_ITEM_DERIVATIVE:
+                        break;
+                    case PROCESS_ITEM_OPERATION:
+                        if (isChecked) {
+                            dialog.dismiss();
+                            //do operation
+                            //select lines
+                            int avaliables = 0;
+                            List<String> lineItems = new ArrayList<String>();
+                            for (int i = 0; i < 4; i++) {
+                                if (mData[i].size() > 0) {
+                                    avaliables++;
+                                    lineItems.add(getString(R.string.line) + (i + 1));
+                                }
+                            }
+                            if (avaliables >= 2) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                builder.setTitle(getString(R.string.select_lines));
+                                builder.setIcon(R.mipmap.ic_launcher);
+                                final boolean[] select = new boolean[avaliables];
+                                String[] avaItems = new String[avaliables];
+                                for (int i = 0; i < avaliables; i++) {
+                                    avaItems[i] = (String) (lineItems.toArray()[i]);
+                                }
+                                builder.setMultiChoiceItems(avaItems, select, new DialogInterface.OnMultiChoiceClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                        select[which] = isChecked;
+                                    }
+                                });
+                                builder.setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        int selectCount = 0;
+                                        for (int i = 0; i < select.length; i++) {
+                                            if (select[i]) {
+                                                selectCount++;
+                                            }
+                                        }
+
+                                        Log.d(TAG, "selectCount = " + selectCount);
+                                        if (selectCount != 2) {
+                                            Toast.makeText(getActivity(), getString(R.string.notice_select_2), Toast.LENGTH_SHORT).show();
+                                            return;
+                                        } else {
+                                            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                            builder.setTitle(getString(R.string.select_operation));
+                                            builder.setIcon(R.mipmap.ic_launcher);
+                                            builder.setSingleChoiceItems(getResources().getStringArray(R.array.operations), 0, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    Toast.makeText(getActivity(), getResources().getStringArray(R.array.operations)[which],
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            builder.setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                            builder.create().show();
+                                        }
+                                        //do operation
+                                    }
+                                });
+
+                                builder.create().show();
+                            } else {
+                                Toast.makeText(getActivity(), getString(R.string.lines_less_than_2), Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            //cancel operation
                         }
                         break;
 
@@ -584,8 +699,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartView.setLineChartData(mChartData);
     }
 
-    private void makePeak(float distance) {
-        int totalSize = mData.size();
+    private void makePeak(int id, float distance) {
+        int totalSize = mData[id].size();
         if (totalSize == 0) {
             return;
         }
@@ -596,14 +711,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         int ind_count2 = 0;
         int ind_count = 0;
 
-        for (int i = 0; i < mData.size(); i++) {
+        for (int i = 0; i < mData[id].size(); i++) {
             int index = 0;
             int energy = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
 
-            HashMap<String, String> map = mData.get(i);
+            HashMap<String, String> map = mData[id].get(i);
             index = Integer.parseInt(map.get("id"));
             energy = Integer.parseInt(map.get("energy"));
             abs = Float.parseFloat(map.get("abs"));
@@ -648,19 +763,9 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartData.setLines(mLines);
         mChartView.setLineChartData(mChartData);
         for (int i = 0; i < ind_count; i++) {
-            mPeakData.add(mData.get(ind[i]));
+            mPeakData.add(mData[id].get(ind[i]));
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mAdapter = new MultiSelectionAdapter(getContext(), mPeakData,
-                    R.layout.item_wavelength_scan,
-                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
-                    new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
-        } else {
-            mAdapter = new MultiSelectionAdapter(getActivity(), mPeakData,
-                    R.layout.item_wavelength_scan,
-                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
-                    new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
-        }
+        mAdapter.setData(mPeakData);
         mListView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
         for (int i = 0; i < mPeakData.size(); i++) {
@@ -681,37 +786,27 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         }
     }
 
-    private void makeNormal() {
-        mPoints.clear();
+    private void makeNormal(int id) {
+        mPoints[id].clear();
         mChartData.setLines(mLines);
         mChartView.setLineChartData(mChartData);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mAdapter = new MultiSelectionAdapter(getContext(), mData,
-                    R.layout.item_wavelength_scan,
-                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
-                    new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
-        } else {
-            mAdapter = new MultiSelectionAdapter(getActivity(), mData,
-                    R.layout.item_wavelength_scan,
-                    new String[]{"id", "wavelength", "abs", "trans", "energy"},
-                    new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
-        }
+        mAdapter.setData(mData[id]);
         mListView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
-        for (int i = 0; i < mData.size(); i++) {
+        for (int i = 0; i < mData[id].size(); i++) {
             int index = 0;
             int energy = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
 
-            HashMap<String, String> map = mData.get(i);
+            HashMap<String, String> map = mData[id].get(i);
             index = Integer.parseInt(map.get("id"));
             energy = Integer.parseInt(map.get("energy"));
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             wavelength = Float.parseFloat(map.get("wavelength"));
-            updateChart(new WavelengthScanRecord(index, wavelength, abs, trans,
+            updateChart(id, new WavelengthScanRecord(index, wavelength, abs, trans,
                     energy, System.currentTimeMillis()));
         }
     }

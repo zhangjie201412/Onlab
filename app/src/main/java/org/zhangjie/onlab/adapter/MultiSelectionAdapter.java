@@ -120,6 +120,10 @@ public class MultiSelectionAdapter extends BaseAdapter {
         return convertView;
     }
 
+    public void setData(List<HashMap<String, String>> data) {
+        mData = data;
+    }
+
     public void setSelectMode(boolean enable) {
         mSelectMode = enable;
         notifyDataSetChanged();
