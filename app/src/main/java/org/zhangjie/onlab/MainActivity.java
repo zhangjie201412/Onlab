@@ -37,6 +37,7 @@ import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.BaselineDialog;
 import org.zhangjie.onlab.dialog.BaselineDialog.BaselineOperateListener;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
+import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.fragment.FragmentCallbackListener;
 import org.zhangjie.onlab.fragment.HelloChartFragment;
@@ -89,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     private WavelengthDialog mWavelengthDialog;
     private DevicesSelectDialog mDeviceSelectDialog;
+    private SettingEditDialog mPeakDialog;
+
     private DeviceManager mDeviceManager;
 
     private Toast mToast;
@@ -776,6 +779,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mWavelengthDialog = new WavelengthDialog();
         mWavelengthDialog.setListener(this);
 
+        mPeakDialog = new SettingEditDialog();
+        mPeakDialog.init(-1, getString(R.string.peak_setting), getString(R.string.peak_distance), new SettingEditDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(int index, String distance) {
+                if (distance.length() < 1) {
+                    toastShow(getString(R.string.notice_edit_null));
+                } else {
+                    //save distance
+                    DeviceApplication.getInstance().getSpUtils().setPeakDistance(Float.parseFloat(distance));
+                }
+            }
+        });
+
         mDeviceSelectDialog = new DevicesSelectDialog();
         mDeviceSelectDialog.setDialog(mWaitDialog);
         mDeviceSelectDialog.setContext(this);
@@ -963,6 +979,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     return super.onOptionsItemSelected(item);
                 }
                 mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
+                break;
+            case R.id.action_peak_distance:
+                mPeakDialog.show(getFragmentManager(), "peak");
                 break;
             case R.id.action_baseline:
                 if (!checkConnected()) {

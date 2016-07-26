@@ -47,4 +47,9 @@
         android:orderInCategory="140"
         android:title="@string/action_baseline"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_peak_distance"
+        android:orderInCategory="140"
+        android:title="@string/action_peak_distance"
+        app:showAsAction="never" />
 </menu>

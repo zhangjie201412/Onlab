@@ -60,6 +60,10 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 public class WavelengthScanFragment extends Fragment implements View.OnClickListener {
 
+    private static final int OPERATE_TYPE_ADD = 0;
+    private static final int OPERATE_TYPE_SUB = 1;
+    private static final int OPERATE_TYPE_MUL = 2;
+    private static final int OPERATE_TYPE_DIV = 3;
     private boolean isFake = true;
     private static final String TAG = "Onlab.WavelengthScan";
     private static final int[] COLORS = {ChartUtils.DEFAULT_COLOR, ChartUtils.COLOR_ORANGE,
@@ -69,6 +73,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private MultiSelectionAdapter mAdapter;
     private List<HashMap<String, String>>[] mData;
     private List<HashMap<String, String>> mPeakData;
+    private List<HashMap<String, String>> mOperateData;
 
     private float mInterval;
     private float mStart;
@@ -91,18 +96,19 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private List<Line> mLines;
     private Line[] mLine;
     private Line mPeakLine;
+    private Line mOperateLine;
     private List<PointValue>[] mPoints;
     //    private List<PointValue> mPoints;
 //    private List<PointValue> mPoints;
 //    private List<PointValue> mPoints;
     private List<PointValue> mPeakPoints;
+    private List<PointValue> mOperatePoints;
     //----
     private SaveNameDialog mSaveDialog;
 
     private int loadFileIndex = -1;
     private boolean loadFile = false;
 
-    private SettingEditDialog mPeakDialog;
     private int mCurDataIndex = 0;
 
 
@@ -113,7 +119,6 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         Utils.needToSave = false;
         mCurDataIndex = 0;
         initUi(view);
-        mPeakDialog = new SettingEditDialog();
         return view;
     }
 
@@ -138,6 +143,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mData[2] = new ArrayList<HashMap<String, String>>();
         mData[3] = new ArrayList<HashMap<String, String>>();
         mPeakData = new ArrayList<HashMap<String, String>>();
+        mOperateData = new ArrayList<HashMap<String, String>>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mAdapter = new MultiSelectionAdapter(getContext(), mData[mCurDataIndex],
                     R.layout.item_wavelength_scan,
@@ -246,6 +252,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mPoints[2] = new ArrayList<PointValue>();
         mPoints[3] = new ArrayList<PointValue>();
         mPeakPoints = new ArrayList<PointValue>();
+        mOperatePoints = new ArrayList<PointValue>();
         mLines = new ArrayList<Line>();
 
         mLine = new Line[4];
@@ -256,6 +263,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mLine[3] = new Line(mPoints[3]).setColor(COLORS[3]).setCubic(true);
 
         mPeakLine = new Line(mPeakPoints).setColor(ChartUtils.COLOR_GREEN).setCubic(true);
+        mOperateLine = new Line(mOperatePoints).setColor(ChartUtils.COLOR_RED).setCubic(true);
 
         for (int i = 0; i < mLine.length; i++) {
             mLine[i].setPointRadius(1);
@@ -263,12 +271,17 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             mLine[i].setCubic(false);
         }
 
+        mOperateLine.setPointRadius(2);
+        mOperateLine.setStrokeWidth(2);
+        mOperateLine.setCubic(false);
+
         mPeakLine.setPointRadius(3);
         mPeakLine.setStrokeWidth(1);
         for (int i = 0; i < mLine.length; i++) {
             mLines.add(mLine[i]);
         }
         mLines.add(mPeakLine);
+        mLines.add(mOperateLine);
 
         mChartData = new LineChartData();
         mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
@@ -363,7 +376,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartView.setLineChartData(mChartData);
     }
 
-    private void updateChart2(WavelengthScanRecord record) {
+    private void updatePeakChart(WavelengthScanRecord record) {
         int mode = DeviceApplication.getInstance().getSpUtils().getWavelengthscanTestMode();
         if (mode == WavelengthSettingActivity.TEST_MODE_ABS) {
             mPeakPoints.add(new PointValue(record.getWavelength(), record.getAbs()));
@@ -376,6 +389,24 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mPeakLine.setHasLines(false);
         if (!mLines.contains(mPeakLine)) {
             mLines.add(mPeakLine);
+        }
+        mChartData.setLines(mLines);
+        mChartView.setLineChartData(mChartData);
+    }
+
+    private void updateOperateChart(WavelengthScanRecord record) {
+        int mode = DeviceApplication.getInstance().getSpUtils().getWavelengthscanTestMode();
+        if (mode == WavelengthSettingActivity.TEST_MODE_ABS) {
+            mOperatePoints.add(new PointValue(record.getWavelength(), record.getAbs()));
+        } else if (mode == WavelengthSettingActivity.TEST_MODE_TRANS) {
+            mOperatePoints.add(new PointValue(record.getWavelength(), record.getTrans()));
+        } else if (mode == WavelengthSettingActivity.TEST_MODE_ENERGY) {
+            mOperatePoints.add(new PointValue(record.getWavelength(), record.getEnergy()));
+        }
+        mOperateLine.setHasPoints(true);
+        mOperateLine.setHasLines(true);
+        if (!mLines.contains(mOperateLine)) {
+            mLines.add(mOperateLine);
         }
         mChartData.setLines(mLines);
         mChartView.setLineChartData(mChartData);
@@ -598,6 +629,12 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 mAdapter.notifyDataSetChanged();
             }
         });
+        builder.setNeutralButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getActivity(), "delete " + mCurDataIndex, Toast.LENGTH_SHORT).show();
+            }
+        });
         builder.create().show();
     }
 
@@ -612,6 +649,9 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private final int PROCESS_ITEM_DERIVATIVE = 2;
     private final int PROCESS_ITEM_OPERATION = 3;
 
+    private int mOperateType = 0;
+    private boolean mOperateSelect = false;
+
     private void showProcessDialog() {
         String[] items = getResources().getStringArray(R.array.processings);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -623,6 +663,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         if (mPeakPoints.size() > 0) {
             select[PROCESS_ITEM_PEAK] = true;
         }
+        select[PROCESS_ITEM_OPERATION] = mOperateSelect;
 
         builder.setTitle(R.string.process);
         builder.setIcon(R.mipmap.ic_launcher);
@@ -637,9 +678,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                         break;
                     case PROCESS_ITEM_PEAK:
                         if (isChecked) {
-                            makePeak(mCurDataIndex, 1);
+                            makePeak(mCurDataIndex, DeviceApplication.getInstance().getSpUtils().getPeakDistance());
                         } else {
-                            removePeak();
                             makeNormal(mCurDataIndex);
                         }
                         break;
@@ -684,24 +724,33 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                                         }
 
                                         Log.d(TAG, "selectCount = " + selectCount);
+                                        final int[] ids = new int[2];
+                                        int index = 0;
                                         if (selectCount != 2) {
                                             Toast.makeText(getActivity(), getString(R.string.notice_select_2), Toast.LENGTH_SHORT).show();
                                             return;
                                         } else {
+                                            for (int i = 0; i < select.length; i++) {
+                                                if (select[i]) {
+                                                    ids[index++] = i;
+                                                }
+                                            }
+
                                             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                             builder.setTitle(getString(R.string.select_operation));
                                             builder.setIcon(R.mipmap.ic_launcher);
                                             builder.setSingleChoiceItems(getResources().getStringArray(R.array.operations), 0, new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
-                                                    Toast.makeText(getActivity(), getResources().getStringArray(R.array.operations)[which],
-                                                            Toast.LENGTH_SHORT).show();
+                                                    mOperateType = which;
                                                 }
                                             });
                                             builder.setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
                                                     dialog.dismiss();
+                                                    makeOperate(ids[0], ids[1], mOperateType);
+                                                    mOperateSelect = true;
                                                 }
                                             });
                                             builder.create().show();
@@ -716,6 +765,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                             }
                         } else {
                             //cancel operation
+                            makeNormal(mCurDataIndex);
+                            mOperateSelect = false;
                         }
                         break;
 
@@ -728,10 +779,75 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         builder.create().show();
     }
 
-    private void removePeak() {
-        mPeakPoints.clear();
-        mChartData.setLines(mLines);
-        mChartView.setLineChartData(mChartData);
+    private void makeOperate(int id1, int id2, int operateType) {
+        Log.d(TAG, "id1 = " + id1 + ", id2 = " + id2 + ", operateType = " + operateType);
+        int count = 0;
+        mOperateData.clear();
+        mOperatePoints.clear();
+        //get the less count item
+        if (mData[id1].size() > mData[id2].size()) {
+            count = mData[id2].size();
+        } else {
+            count = mData[id1].size();
+        }
+
+        for (int i = 0; i < count; i++) {
+            HashMap<String, String> item = new HashMap<String, String>();
+            HashMap<String, String> map1 = mData[id1].get(i);
+            HashMap<String, String> map2 = mData[id2].get(i);
+
+            int no = mOperateData.size() + 1;
+
+            int energy = 0;
+            float abs = 0.0f;
+            float trans = 0.0f;
+            float wavelength = 0.0f;
+
+            if (operateType == OPERATE_TYPE_ADD) {
+                energy = Integer.parseInt(map1.get("energy")) + Integer.parseInt(map1.get("energy"));
+                abs = Float.parseFloat(map1.get("abs")) + Float.parseFloat(map2.get("abs"));
+                trans = Float.parseFloat(map1.get("trans")) + Float.parseFloat(map2.get("trans"));
+            } else if (operateType == OPERATE_TYPE_SUB) {
+                energy = Integer.parseInt(map1.get("energy")) - Integer.parseInt(map1.get("energy"));
+                abs = Float.parseFloat(map1.get("abs")) - Float.parseFloat(map2.get("abs"));
+                trans = Float.parseFloat(map1.get("trans")) - Float.parseFloat(map2.get("trans"));
+            } else if (operateType == OPERATE_TYPE_MUL) {
+                energy = Integer.parseInt(map1.get("energy")) * Integer.parseInt(map1.get("energy"));
+                abs = Float.parseFloat(map1.get("abs")) * Float.parseFloat(map2.get("abs"));
+                trans = Float.parseFloat(map1.get("trans")) * Float.parseFloat(map2.get("trans"));
+            } else if (operateType == OPERATE_TYPE_DIV) {
+                energy = Integer.parseInt(map1.get("energy")) / Integer.parseInt(map1.get("energy"));
+                abs = Float.parseFloat(map1.get("abs")) / Float.parseFloat(map2.get("abs"));
+                trans = Float.parseFloat(map1.get("trans")) / Float.parseFloat(map2.get("trans"));
+            }
+
+            wavelength = Float.parseFloat(map1.get("wavelength"));
+
+            item.put("id", "" + no);
+            item.put("wavelength", String.format("%.1f", wavelength));
+            item.put("abs", Utils.formatAbs(abs));
+            item.put("trans", Utils.formatTrans(trans));
+            item.put("energy", "" + energy);
+            mOperateData.add(item);
+        }
+        mAdapter.setData(mOperateData);
+        mAdapter.notifyDataSetChanged();
+        for (int i = 0; i < mOperateData.size(); i++) {
+            int index = 0;
+            int energy = 0;
+            float abs = 0.0f;
+            float trans = 0.0f;
+            float wavelength = 0.0f;
+
+            HashMap<String, String> map = mOperateData.get(i);
+            index = Integer.parseInt(map.get("id"));
+            energy = Integer.parseInt(map.get("energy"));
+            abs = Float.parseFloat(map.get("abs"));
+            trans = Float.parseFloat(map.get("trans"));
+            wavelength = Float.parseFloat(map.get("wavelength"));
+            updateOperateChart(new WavelengthScanRecord(index, wavelength, abs, trans,
+                    energy, System.currentTimeMillis()));
+        }
     }
 
     private void makePeak(int id, float distance) {
@@ -816,12 +932,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             wavelength = Float.parseFloat(map.get("wavelength"));
-            updateChart2(new WavelengthScanRecord(index, wavelength, abs, trans,
+            updatePeakChart(new WavelengthScanRecord(index, wavelength, abs, trans,
                     energy, System.currentTimeMillis()));
         }
     }
 
     private void makeNormal(int id) {
+        mPeakPoints.clear();
+        mOperatePoints.clear();
         mPoints[id].clear();
         mChartData.setLines(mLines);
         mChartView.setLineChartData(mChartData);

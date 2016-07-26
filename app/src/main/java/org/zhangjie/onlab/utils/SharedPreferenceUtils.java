@@ -55,6 +55,7 @@ public class SharedPreferenceUtils {
 
     public static final String KEY_ACC = "key_acc";
     public static final String KEY_BASELINE_AVAILABLE = "key_baseline_available";
+    public static final String KEY_PEAK_DISTANCE = "key_peak_distance";
 
     private SharedPreferences mSp;
     private SharedPreferences.Editor mEditor;
@@ -175,6 +176,10 @@ public class SharedPreferenceUtils {
 
     public int getAcc() {
         return mSp.getInt(KEY_ACC, MainActivity.ACC_LOW);
+    }
+
+    public float getPeakDistance() {
+        return mSp.getFloat(KEY_PEAK_DISTANCE, 1.0f);
     }
 
     public int getMultipleWavelengthLength() {
@@ -312,6 +317,11 @@ public class SharedPreferenceUtils {
 
     public void setKeyAcc(int acc) {
         mEditor.putInt(KEY_ACC, acc);
+        mEditor.commit();
+    }
+
+    public void setPeakDistance(float distance) {
+        mEditor.putFloat(KEY_PEAK_DISTANCE, distance);
         mEditor.commit();
     }
 
