@@ -123,6 +123,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mStopButton = (Button) view.findViewById(R.id.bt_wavelength_scan_stop);
         mRezeroButton = (Button) view.findViewById(R.id.bt_wavelength_scan_rezero);
         mProcessButton = (Button) view.findViewById(R.id.bt_wavelength_scan_process);
+        mCurrentButton.setOnClickListener(this);
         mStartButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
         mRezeroButton.setOnClickListener(this);
@@ -492,6 +493,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_wavelength_scan_current:
+                Log.d(TAG, "show current lines");
+                showCurrentLines();
                 break;
             case R.id.bt_wavelength_scan_start:
                 if (isFake) {
@@ -564,6 +567,38 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             default:
                 break;
         }
+    }
+
+    private void showCurrentLines() {
+        int avaliables = 0;
+        List<String> lineItems = new ArrayList<String>();
+        final int[] indicates = new int[4];
+        int index = 0;
+        for (int i = 0; i < 4; i++) {
+            if (mData[i].size() > 0) {
+                avaliables++;
+                lineItems.add(getString(R.string.line) + (i + 1));
+                indicates[index++] = i;
+            }
+        }
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(getString(R.string.select_lines));
+        builder.setIcon(R.mipmap.ic_launcher);
+        String[] avaItems = new String[avaliables];
+        for (int i = 0; i < avaliables; i++) {
+            avaItems[i] = (String) (lineItems.toArray()[i]);
+        }
+        builder.setSingleChoiceItems(avaItems, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d(TAG, "select line " + (indicates[which] + 1));
+                mCurDataIndex = indicates[which];
+                setCurrentButton();
+                mAdapter.setData(mData[mCurDataIndex]);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+        builder.create().show();
     }
 
     private void setCurrentButton() {
