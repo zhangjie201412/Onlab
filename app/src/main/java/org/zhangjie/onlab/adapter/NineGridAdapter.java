@@ -18,10 +18,10 @@ public class NineGridAdapter extends BaseAdapter {
             R.string.wavelength_scan, R.string.time_scan, R.string.multi_wavelength,
             R.string.hesuan, R.string.system_setting, R.string.about
     };
-    public int[] imgs = {R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan,
-            R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan,
-            R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan,
-            R.mipmap.ic_wavelength_scan, R.mipmap.ic_wavelength_scan
+    public int[] imgs = {R.mipmap.icon_guangduceliang, R.mipmap.icon_dingliangfenxi,
+            R.mipmap.icon_bochangsaomiao, R.mipmap.icon_shijiansaomiao,
+            R.mipmap.icon_duobochang, R.mipmap.icon_hesuandanbai,
+            R.mipmap.icon_system_application, R.mipmap.icon_about
     };
 
     public NineGridAdapter(Context mContext) {

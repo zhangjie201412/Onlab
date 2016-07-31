@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Onlab</string>
+    <string name="app_name">分光光度计</string>
 
     <string name="bluetooth_disconnected">未连接</string>
     <string name="bluetooth_connected">已连接</string>
@@ -37,7 +37,7 @@
     <string name="action_selectall">全选</string>
     <string name="ble_not_support">手机不支持BLE功能</string>
     <string name="select_devices">选择连接的设备</string>
-    <string name="attempt_connecting_device">正在连接昂拉设备</string>
+    <string name="attempt_connecting_device">正在连接设备</string>
     <string name="interval">间隔</string>
     <string name="mode">模式</string>
     <string name="ratio">斜率</string>
@@ -149,6 +149,19 @@
     <string name="lines_less_than_2">当前曲线少于2条</string>
     <string name="notice_select_2">只能选择两条曲线</string>
     <string name="select_operation">选择运算方式</string>
+    <string name="self_checking">设备自检中请稍后...</string>
+    <string name="lamp">灯切换</string>
+    <string name="ad">检测器</string>
+    <string name="deuterium">氘灯</string>
+    <string name="tungsten">钨灯</string>
+    <string name="wave">波长校正</string>
+    <string name="para">系统参数</string>
+    <string name="dark">暗电流</string>
+    <string name="warm">系统预热</string>
+    <string name="ing">...</string>
+    <string name="done">完成</string>
+    <string name="skip_warm">跳过系统预热</string>
+    <string name="device_selfcheck">设备自检</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

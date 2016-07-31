@@ -54,7 +54,7 @@ public class DeviceManager implements BtleListener {
     public static final int DEVICE_CMD_LIST_SET_WAVELENGTH = 0x1009;
     public static final int DEVICE_CMD_LIST_SET_A = 0x100A;
     public static final int DEVICE_CMD_LIST_SET_QUIT = 0x100B;
-    public static final int DEVICE_CMD_LIST_END = 0x100C;
+    public static final int DEVICE_CMD_LIST_END = 0x100D;
     public static String[] CMD_LIST;
     //----cmd list
 
@@ -67,6 +67,23 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_SET_WAVELENGTH = "swl";
     public static final String TAG_SET_A = "sa";
     public static final String TAG_REZERO = "rezero";
+    public static final String TAG_CHECK_LAMP_START = "lamp start";
+    public static final String TAG_CHECK_LAMP_DONE = "lamp ok";
+    public static final String TAG_CHECK_AD_START = "ad start";
+    public static final String TAG_CHECK_AD_DONE = "ad ok";
+    public static final String TAG_CHECK_DEUTERIUM_START = "deuterium start";
+    public static final String TAG_CHECK_DEUTERIUM_DONE = "deuterium ok";
+    public static final String TAG_CHECK_TUNGSTEN_START = "tungsten start";
+    public static final String TAG_CHECK_TUNGSTEN_OK = "tungsten ok";
+    public static final String TAG_CHECK_WAVE_START = "wave staart";
+    public static final String TAG_CHECK_WAVE_DONE = "wave ok";
+    public static final String TAG_CHECK_PARA_START = "para start";
+    public static final String TAG_CHECK_PARA_DONE = "para ok";
+    public static final String TAG_CHECK_DARK_START = "dark start";
+    public static final String TAG_CHECK_DARK_DONE = "dark ok";
+    public static final String TAG_WARM = "warm";
+    public static final String TAG_READY = "ready";
+    public static final String TAG_ONLINE = "online";
 
     public static final float BASELINE_END = 1100;//1100;
     public static final float BASELINE_START = 190;//190;
@@ -108,17 +125,6 @@ public class DeviceManager implements BtleListener {
         mUiHandler.obtainMessage(UI_MSG_DEVICE_CONNECTED).sendToTarget();
 //        Toast.makeText(mContext, "Connected", Toast.LENGTH_SHORT).show();
         mIsConnected = true;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                    initializeWork();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     @Override
@@ -364,9 +370,25 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_REZERO = 1 << 9;
     public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_TEST = 1 << 10;
     public static final int WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS = 1 << 11;
+    public static final int WORK_ENTRY_FLAG_GET_STATUS = 1 << 12;
     public static final int WORK_ENTRY_FLAG_SINGLE_COMMAND = 1 << 31;
 
     private int mEntryFlag = 0x00000000;
+
+    //do getstatus
+    //do self check
+    public synchronized void getStatus() {
+        Log.d(TAG, "do get status");
+        //clear entry flag
+        mEntryFlag &= 0x00000000;
+        //set init flag
+        mEntryFlag |= WORK_ENTRY_FLAG_GET_STATUS;
+        Log.d(TAG, "GET STATUS FLAG = " + mEntryFlag);
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_STATUS, -1);
+        doWork(cmdList);
+    }
 
     /*1. Connect
       2. get dark
@@ -386,6 +408,18 @@ public class DeviceManager implements BtleListener {
         addCmd(cmdList, DEVICE_CMD_LIST_GET_DARK, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_A, -1);
+        doWork(cmdList);
+    }
+
+    //send rezero \r
+    public synchronized void skip() {
+//        mEntryFlag = 0x00000000;
+//        //set rezero flag
+//        mEntryFlag |= WORK_ENTRY_FLAG_REZERO;
+        Log.d(TAG, "SKIP!!");
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_QUIT, -1);
         doWork(cmdList);
     }
 
@@ -546,7 +580,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public synchronized void doSingleCommand(int cmdType) {
-        setLoopThreadPause();
+//        setLoopThreadPause();
         mEntryFlag = 0x00000000;
         mEntryFlag |= WORK_ENTRY_FLAG_SINGLE_COMMAND;
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();

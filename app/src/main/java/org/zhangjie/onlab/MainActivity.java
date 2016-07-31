@@ -36,6 +36,7 @@ import org.zhangjie.onlab.ble.BtleManager;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.BaselineDialog;
 import org.zhangjie.onlab.dialog.BaselineDialog.BaselineOperateListener;
+import org.zhangjie.onlab.dialog.DeviceCheckDialog;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     private WavelengthDialog mWavelengthDialog;
     private DevicesSelectDialog mDeviceSelectDialog;
+    private DeviceCheckDialog mDeviceCheckDialog;
     private SettingEditDialog mPeakDialog;
 
     private DeviceManager mDeviceManager;
@@ -119,6 +121,36 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 case DeviceManager.UI_MSG_DEVICE_CONNECTED:
                     mIsBluetoothConnected = true;
                     setBluetoothConnected(true);
+                    dismissDialog();
+                    mDeviceSelectDialog.dismiss();
+                    //device self check
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(50);
+                                //show check self dialog
+                                mDeviceCheckDialog.show(getFragmentManager(), "DeviceCheck");
+                                Thread.sleep(1500);
+                                mDeviceManager.getStatus();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            try {
+//                                Thread.sleep(2000);
+//                                //
+//                                mDeviceManager.initializeWork();
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }).start();
                     break;
                 case DeviceManager.UI_MSG_DEVICE_DISCONNECTED:
                     mIsBluetoothConnected = false;
@@ -144,7 +176,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     };
 
     private void process(int flag, String[] msg) {
-
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_GET_STATUS) != 0) {
+            //getstatus ertry
+            Log.d(TAG, "GET STATUS ENTRY");
+            work_entry_getstatus(msg);
+//            mDeviceManager.start();
+        }
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_INITIALIZE) != 0) {
             //initialzation ertry
             Log.d(TAG, "INITIALZE ENTRY");
@@ -216,6 +253,97 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    private void work_entry_getstatus(String[] msg) {
+        String tag = msg[0];
+        Log.d(TAG, "getstatustag = " + tag);
+        for (int i = 0; i < msg.length; i++) {
+            Log.d(TAG, "-> " + msg[i]);
+        }
+        if(tag.startsWith(DeviceManager.TAG_GET_STATUS)) {
+        }
+        if(tag.startsWith(DeviceManager.TAG_ONLINE)) {
+            mDeviceCheckDialog.dismiss();
+            if(!mIsInitialized) {
+                initDialog();
+                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+                mDeviceManager.initializeWork();
+            }
+        }
+        if(tag.startsWith(DeviceManager.TAG_READY)) {
+            mDeviceCheckDialog.dismiss();
+            if(!mIsInitialized) {
+                initDialog();
+                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+                mDeviceManager.initializeWork();
+            }
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_LAMP_START)) {
+//            mDeviceCheckDialog.addItem(getString(R.string.lamp) + getString(R.string.ing));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_LAMP_DONE)) {
+            mDeviceCheckDialog.addItem(getString(R.string.lamp) + getString(R.string.done));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_AD_START)) {
+//            mDeviceCheckDialog.addItem(getString(R.string.ad) + getString(R.string.ing));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_AD_DONE)) {
+            mDeviceCheckDialog.addItem(getString(R.string.ad) + getString(R.string.done));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_DEUTERIUM_START)) {
+//            mDeviceCheckDialog.addItem(getString(R.string.deuterium) + getString(R.string.ing));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_DEUTERIUM_DONE)) {
+            mDeviceCheckDialog.addItem(getString(R.string.deuterium) + getString(R.string.done));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_TUNGSTEN_START)) {
+//            mDeviceCheckDialog.addItem(getString(R.string.tungsten) + getString(R.string.ing));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_TUNGSTEN_OK)) {
+            mDeviceCheckDialog.addItem(getString(R.string.tungsten) + getString(R.string.done));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_WAVE_START)) {
+//            mDeviceCheckDialog.addItem(getString(R.string.wave) + getString(R.string.ing));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_WAVE_DONE)) {
+            Log.d(TAG, "####WAVE DONE");
+            mDeviceCheckDialog.addItem(getString(R.string.wave) + getString(R.string.done));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_PARA_START)) {
+//            mDeviceCheckDialog.addItem(getString(R.string.para) + getString(R.string.ing));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_PARA_DONE)) {
+            Log.d(TAG, "####PARA DONE");
+            mDeviceCheckDialog.addItem(getString(R.string.para) + getString(R.string.done));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_DARK_START)) {
+//            mDeviceCheckDialog.addItem(getString(R.string.dark) + getString(R.string.ing));
+        }
+        if(tag.startsWith(DeviceManager.TAG_CHECK_DARK_DONE)) {
+            Log.d(TAG, "####DARK DONE");
+            mDeviceCheckDialog.addItem(getString(R.string.dark) + getString(R.string.done));
+        }
+        if(tag.startsWith(DeviceManager.TAG_WARM)) {
+            mDeviceCheckDialog.addItem(getString(R.string.warm));
+//            mDeviceCheckDialog.warm();
+            Utils.showAlertDialog(this, getString(R.string.warm), getString(R.string.skip_warm), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mDeviceManager.skip();
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(!mIsInitialized) {
+                        initDialog();
+                        mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+                        mDeviceManager.initializeWork();
+                    }
+                }
+            });
+        }
+    }
+
     private void work_entry_initialize(String[] msg) {
         String tag = msg[0];
 
@@ -229,6 +357,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 mIsInitialized = true;
                 toastShow(getString(R.string.connect_done));
                 mDeviceSelectDialog.dismiss();
+                mDeviceCheckDialog.dismiss();
             }
         } else if (tag.startsWith(DeviceManager.TAG_GET_WAVELENGTH)) {
             //get wavelength
@@ -255,6 +384,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             int I1 = 0;
             float trans = 0;
             float abs = 0;
+
+//            if(!mIsInitialized) {
+//                dismissDialog();
+//                mIsInitialized = true;
+//                toastShow(getString(R.string.connect_done));
+//                mDeviceSelectDialog.dismiss();
+//                mDeviceCheckDialog.dismiss();
+//            }
 
             for (int i = 0; i < 10; i++) {
                 msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
@@ -384,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         Log.d(TAG, "do baseline work done!");
         mDeviceManager.setLoopThreadRestart();
         dismissDialog();
-        if(!stopBaseline) {
+        if (!stopBaseline) {
             mDeviceManager.saveBaseline();
             mBaselineDialog.doneCallback();
             toastShow(getString(R.string.baseline_done));
@@ -395,7 +532,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         String tag = msgs[0];
         int energy;
 
-        if(stopBaseline) {
+        if (stopBaseline) {
             baselineDoneCallback();
             return;
         }
@@ -795,6 +932,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mDeviceSelectDialog = new DevicesSelectDialog();
         mDeviceSelectDialog.setDialog(mWaitDialog);
         mDeviceSelectDialog.setContext(this);
+
+        mDeviceCheckDialog = new DeviceCheckDialog();
 
         mBaselineDialog = new BaselineDialog();
         mBaselineDialog.setListener(new BaselineOperateListener() {
@@ -1208,6 +1347,33 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     + getString(R.string.wavelength) + ": " + wavelength + " " + getString(R.string.nm)
                     + "  " + getString(R.string.gain) + ": " + gain);
 //            mWaitDialog.show();
+        }
+    }
+
+    private void initDialog() {
+        final Runnable mCallback = new Runnable() {
+            @Override
+            public void run() {
+                if (mWaitDialog.isShowing()) {
+                    mWaitDialog.dismiss();
+                    //timeout
+//                    BtleManager.getInstance().disconnect();
+//                    Toast.makeText(MainActivity.this, getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
+                    mDeviceManager.initializeWork();
+                    initDialog();
+                }
+            }
+        };
+        if (mWaitDialog != null && (!mWaitDialog.isShowing())) {
+            mWaitDialog.setMessage(getString(R.string.attempt_connecting_device));
+            mWaitDialog.show();
+            mHandler.postDelayed(mCallback, 10000);
+            mWaitDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    mHandler.removeCallbacks(mCallback);
+                }
+            });
         }
     }
 

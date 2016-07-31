@@ -64,7 +64,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private static final int OPERATE_TYPE_SUB = 1;
     private static final int OPERATE_TYPE_MUL = 2;
     private static final int OPERATE_TYPE_DIV = 3;
-    private boolean isFake = true;
+    private boolean isFake = false;
     private static final String TAG = "Onlab.WavelengthScan";
     private static final int[] COLORS = {ChartUtils.DEFAULT_COLOR, ChartUtils.COLOR_ORANGE,
             ChartUtils.COLOR_BLUE, ChartUtils.COLOR_VIOLET};

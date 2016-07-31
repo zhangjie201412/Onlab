@@ -37,7 +37,7 @@ public class DevicesSelectDialog extends DialogFragment {
     private List<HashMap<String, String>> mData;
     private ProgressDialog mDialog = null;
     private Context mContext;
-    private final int CONNECT_TIMEOUT = 10000; //10s
+    private final int CONNECT_TIMEOUT = 40000; //40s
     private Handler mHandler;
 
 
