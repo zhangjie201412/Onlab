@@ -684,6 +684,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             String wl = msgs[0].substring(3);
             wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mWavelengthScanWavelength = Float.parseFloat(wl);
+            dismissDialog();
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
         } else if (tag.startsWith("ge 1")) {
@@ -706,12 +707,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             BusProvider.getInstance().post(new WavelengthScanCallbackEvent(WavelengthScanCallbackEvent.EVENT_TYPE_WORKING,
                     mWavelengthScanWavelength, abs, trans, I1));
             float start = DeviceApplication.getInstance().getSpUtils().getWavelengthscanStart();
+            float end = DeviceApplication.getInstance().getSpUtils().getWavelengthscanEnd();
             float interval = DeviceApplication.getInstance().getSpUtils().getWavelengthscanInterval();
             if (mWavelengthScanWavelength - interval < start) {
                 Log.d(TAG, "do wavelength scan done!");
                 mWavelengthScanWavelength = 0;
                 BusProvider.getInstance().post(new WavelengthScanCallbackEvent(WavelengthScanCallbackEvent.EVENT_TYPE_WORK_DONE));
                 mDeviceManager.setLoopThreadRestart();
+                //reset the wavelength to the end wavelength
+                loadWavelengthDialog(end);
             }
         }
     }

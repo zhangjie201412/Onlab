@@ -3,7 +3,10 @@ package org.zhangjie.onlab;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
@@ -14,6 +17,8 @@ public class SplashActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         final View view = View.inflate(this, R.layout.activity_splash, null);
         setContentView(view);
@@ -44,5 +49,10 @@ public class SplashActivity extends Activity {
                 finish();
             }
         });
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int densityDpi = dm.densityDpi;
+        Log.d("####", "" + densityDpi);
     }
 }

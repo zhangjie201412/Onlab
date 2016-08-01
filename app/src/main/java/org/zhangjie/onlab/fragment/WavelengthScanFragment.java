@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.squareup.otto.Subscribe;
 
 import org.zhangjie.onlab.DeviceApplication;
+import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
@@ -412,6 +413,11 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartView.setLineChartData(mChartData);
     }
 
+    private void clearTable(int index) {
+        mData[index].clear();
+        mAdapter.notifyDataSetChanged();
+    }
+
     private void clearData(int index) {
         mData[index].clear();
         mAdapter.notifyDataSetChanged();
@@ -529,7 +535,6 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 break;
             case R.id.bt_wavelength_scan_start:
                 if (isFake) {
-
                     for (int i = 3; i >= 0; i--) {
                         if (mData[i].size() == 0) {
                             mCurDataIndex = i;
@@ -565,13 +570,28 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     });
 
                 } else {
-                    clearData(mCurDataIndex);
+                    int availables = 0;
+                    for (int i = 3; i >= 0; i--) {
+                        if (mData[i].size() == 0) {
+                            mCurDataIndex = i;
+                        } else {
+                            availables ++;
+                        }
+                    }
+                    if(availables == 4) {
+                        clearData(mCurDataIndex);
+                    }
+                    setCurrentButton();
+                    //set adapter data
+                    mAdapter.setData(mData[mCurDataIndex]);
                     SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
 
                     float start = sp.getWavelengthscanStart();
                     float end = sp.getWavelengthscanEnd();
                     int speed = sp.getWavelengthscanSpeed();
                     float interval = sp.getWavelengthscanInterval();
+
+                    ((MainActivity)(getActivity())).loadWavelengthDialog(end);
 
                     DeviceManager.getInstance().doWavelengthScan(start, end, interval);
                     mStartButton.setEnabled(false);
