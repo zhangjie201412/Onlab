@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_margin="@dimen/dialog_margin"
+        android:layout_marginLeft="@dimen/dialog_margin_left"
+        android:layout_marginRight="@dimen/dialog_margin_right"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:textColor="@color/colorDialogText"
+            android:textSize="@dimen/dialog_textsize"
+            android:layout_marginLeft="@dimen/dialog_margin"
+            android:layout_centerVertical="true"
+            android:text="@string/deuterium_switch"
+            android:layout_height="wrap_content" />
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_deuterium"
+            android:layout_marginRight="@dimen/dialog_margin"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_divide_line" />
+    <RelativeLayout
+        android:id="@+id/layout_deuteruim_clear_time"
+        android:layout_margin="@dimen/dialog_margin"
+        android:layout_marginLeft="@dimen/dialog_margin_left"
+        android:layout_marginRight="@dimen/dialog_margin_right"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:textColor="@color/colorDialogText"
+            android:textSize="@dimen/dialog_textsize"
+            android:layout_marginLeft="@dimen/dialog_margin"
+            android:layout_centerVertical="true"
+            android:text="@string/deuteruim_clear_time"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_divide_line" />
+    <RelativeLayout
+        android:layout_margin="@dimen/dialog_margin"
+        android:layout_marginLeft="@dimen/dialog_margin_left"
+        android:layout_marginRight="@dimen/dialog_margin_right"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:textColor="@color/colorDialogText"
+            android:textSize="@dimen/dialog_textsize"
+            android:layout_marginLeft="@dimen/dialog_margin"
+            android:layout_centerVertical="true"
+            android:text="@string/tungsten_switch"
+            android:layout_height="wrap_content" />
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_tungsten"
+            android:layout_marginRight="@dimen/dialog_margin"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_divide_line" />
+    <RelativeLayout
+        android:id="@+id/layout_tungsten_clear_time"
+        android:layout_margin="@dimen/dialog_margin"
+        android:layout_marginLeft="@dimen/dialog_margin_left"
+        android:layout_marginRight="@dimen/dialog_margin_right"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:textColor="@color/colorDialogText"
+            android:textSize="@dimen/dialog_textsize"
+            android:layout_marginLeft="@dimen/dialog_margin"
+            android:layout_centerVertical="true"
+            android:text="@string/tungsten_clear_time"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_divide_line" />
+    <RelativeLayout
+        android:id="@+id/layout_switch_wavelength"
+        android:layout_margin="@dimen/dialog_margin"
+        android:layout_marginLeft="@dimen/dialog_margin_left"
+        android:layout_marginRight="@dimen/dialog_margin_right"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:textColor="@color/colorDialogText"
+            android:textSize="@dimen/dialog_textsize"
+            android:layout_marginLeft="@dimen/dialog_margin"
+            android:layout_centerVertical="true"
+            android:text="@string/set_switch_wavelength"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+</LinearLayout>

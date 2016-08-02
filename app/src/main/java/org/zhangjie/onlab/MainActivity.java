@@ -38,6 +38,7 @@ import org.zhangjie.onlab.dialog.BaselineDialog;
 import org.zhangjie.onlab.dialog.BaselineDialog.BaselineOperateListener;
 import org.zhangjie.onlab.dialog.DeviceCheckDialog;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
+import org.zhangjie.onlab.dialog.LightMgrDialog;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.fragment.AboutFragment;
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private Handler mHandler = new Handler();
 
     private BaselineDialog mBaselineDialog;
+    private LightMgrDialog mLightMgrDialog;
 
     private Handler mUiHandler = new Handler() {
         @Override
@@ -956,6 +958,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
         });
 
+        mLightMgrDialog = new LightMgrDialog();
+
         mDeviceManager = DeviceManager.getInstance();
         mDeviceManager.init(this, mUiHandler);
 
@@ -1522,6 +1526,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             case SYSTEM_SETTING_ITEM_DARK_CURRENT_ADJUST:
                 break;
             case SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT:
+                mLightMgrDialog.show(getFragmentManager(), "light_mgr");
                 break;
             case SYSTEM_SETTING_FILE_MANAGERMENT:
                 fileManagerment();

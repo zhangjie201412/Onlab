@@ -167,6 +167,11 @@
     <string name="calc_ratio">计算因子</string>
     <string name="calc_speed_title">计算反应速率</string>
     <string name="calc_speed_result">反应速率: </string>
+    <string name="deuterium_switch">开关氘灯</string>
+    <string name="deuteruim_clear_time">氘灯时间清零</string>
+    <string name="tungsten_switch">开关钨灯</string>
+    <string name="tungsten_clear_time">钨灯时间清零</string>
+    <string name="set_switch_wavelength">设置切换波长</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
