@@ -40,6 +40,7 @@ import org.zhangjie.onlab.dialog.DeviceCheckDialog;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
+import org.zhangjie.onlab.fragment.AboutFragment;
 import org.zhangjie.onlab.fragment.FragmentCallbackListener;
 import org.zhangjie.onlab.fragment.HelloChartFragment;
 import org.zhangjie.onlab.fragment.MainFragment;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private WavelengthScanFragment mWavelengthScanFragment;
     private QuantitativeAnalysisFragment mQuantitativeAnalysisFragment;
     private MultipleWavelengthFragment mMultipleWavelengthFragment;
+    private AboutFragment mAboutFragment;
     private HelloChartFragment mHelloChart;
     private TextView mTitleTextView;
     private TextView mBottomWavelength;
@@ -1064,6 +1066,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 showSystemSettingDialog();
                 break;
             case MainFragment.ITEM_ABOUT:
+                addContentFragment(mAboutFragment);
                 break;
             default:
                 break;
@@ -1202,7 +1205,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mWavelengthScanFragment = new WavelengthScanFragment();
         mQuantitativeAnalysisFragment = new QuantitativeAnalysisFragment();
         mMultipleWavelengthFragment = new MultipleWavelengthFragment();
-
+        mAboutFragment = new AboutFragment();
         mHelloChart = new HelloChartFragment();
 
         mWaitDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);

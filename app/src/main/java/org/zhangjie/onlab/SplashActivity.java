@@ -53,6 +53,6 @@ public class SplashActivity extends Activity {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int densityDpi = dm.densityDpi;
-        Log.d("####", "" + densityDpi);
+        Log.d("####", "" + densityDpi + ", " + dm.widthPixels + "x" + dm.heightPixels);
     }
 }

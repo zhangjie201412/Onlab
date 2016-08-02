@@ -12,10 +12,20 @@ import org.zhangjie.onlab.R;
 
 import java.util.regex.Pattern;
 
+import lecho.lib.hellocharts.util.ChartUtils;
+
 /**
  * Created by H151136 on 6/15/2016.
  */
 public class Utils {
+
+    public static final int OPERATE_TYPE_ADD = 0;
+    public static final int OPERATE_TYPE_SUB = 1;
+    public static final int OPERATE_TYPE_MUL = 2;
+    public static final int OPERATE_TYPE_DIV = 3;
+
+    public static final int[] COLORS = {ChartUtils.DEFAULT_COLOR, ChartUtils.COLOR_ORANGE,
+            ChartUtils.COLOR_BLUE, ChartUtils.COLOR_VIOLET};
 
     public static final float DEFAULT_ABS_VALUE = 3.0f;
     public static final float DEFAULT_TRANS_VALUE = 100.0f;
@@ -82,6 +92,14 @@ public class Utils {
             valid = 0.0f;
 
         return valid;
+    }
+
+    public static void showMessageDialog(Context context, String title, String msg) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setMessage(msg);
+        builder.create().show();
     }
 
     public static void showItemSelectDialog(Context context, String title, final String[] items, DialogInterface.OnClickListener listener) {

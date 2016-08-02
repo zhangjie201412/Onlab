@@ -60,15 +60,8 @@ import lecho.lib.hellocharts.view.LineChartView;
  * Created by H151136 on 5/24/2016.
  */
 public class WavelengthScanFragment extends Fragment implements View.OnClickListener {
-
-    private static final int OPERATE_TYPE_ADD = 0;
-    private static final int OPERATE_TYPE_SUB = 1;
-    private static final int OPERATE_TYPE_MUL = 2;
-    private static final int OPERATE_TYPE_DIV = 3;
-    private boolean isFake = false;
+    private boolean isFake = true;
     private static final String TAG = "Onlab.WavelengthScan";
-    private static final int[] COLORS = {ChartUtils.DEFAULT_COLOR, ChartUtils.COLOR_ORANGE,
-            ChartUtils.COLOR_BLUE, ChartUtils.COLOR_VIOLET};
 
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
@@ -258,10 +251,10 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         mLine = new Line[4];
 
-        mLine[0] = new Line(mPoints[0]).setColor(COLORS[0]).setCubic(true);
-        mLine[1] = new Line(mPoints[1]).setColor(COLORS[1]).setCubic(true);
-        mLine[2] = new Line(mPoints[2]).setColor(COLORS[2]).setCubic(true);
-        mLine[3] = new Line(mPoints[3]).setColor(COLORS[3]).setCubic(true);
+        mLine[0] = new Line(mPoints[0]).setColor(Utils.COLORS[0]).setCubic(true);
+        mLine[1] = new Line(mPoints[1]).setColor(Utils.COLORS[1]).setCubic(true);
+        mLine[2] = new Line(mPoints[2]).setColor(Utils.COLORS[2]).setCubic(true);
+        mLine[3] = new Line(mPoints[3]).setColor(Utils.COLORS[3]).setCubic(true);
 
         mPeakLine = new Line(mPeakPoints).setColor(ChartUtils.COLOR_GREEN).setCubic(true);
         mOperateLine = new Line(mOperatePoints).setColor(ChartUtils.COLOR_RED).setCubic(true);
@@ -639,7 +632,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         for (int i = 0; i < avaliables; i++) {
             avaItems[i] = (String) (lineItems.toArray()[i]);
         }
-        builder.setSingleChoiceItems(avaItems, 0, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(avaItems, mCurDataIndex, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(TAG, "select line " + (indicates[which] + 1));
@@ -661,7 +654,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private void setCurrentButton() {
         mCurrentButton.setText(getString(R.string.current) +
                 ": " + getString(R.string.line) + "" + (mCurDataIndex + 1));
-        mCurrentButton.setTextColor(COLORS[mCurDataIndex]);
+        mCurrentButton.setTextColor(Utils.COLORS[mCurDataIndex]);
     }
 
     private final int PROCESS_ITEM_CUBIC = 0;
@@ -759,7 +752,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                                             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                             builder.setTitle(getString(R.string.select_operation));
                                             builder.setIcon(R.mipmap.ic_launcher);
-                                            builder.setSingleChoiceItems(getResources().getStringArray(R.array.operations), 0, new DialogInterface.OnClickListener() {
+                                            builder.setSingleChoiceItems(getResources().getStringArray(R.array.operations), -1, new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
                                                     mOperateType = which;
@@ -823,19 +816,19 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             float trans = 0.0f;
             float wavelength = 0.0f;
 
-            if (operateType == OPERATE_TYPE_ADD) {
+            if (operateType == Utils.OPERATE_TYPE_ADD) {
                 energy = Integer.parseInt(map1.get("energy")) + Integer.parseInt(map1.get("energy"));
                 abs = Float.parseFloat(map1.get("abs")) + Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) + Float.parseFloat(map2.get("trans"));
-            } else if (operateType == OPERATE_TYPE_SUB) {
+            } else if (operateType == Utils.OPERATE_TYPE_SUB) {
                 energy = Integer.parseInt(map1.get("energy")) - Integer.parseInt(map1.get("energy"));
                 abs = Float.parseFloat(map1.get("abs")) - Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) - Float.parseFloat(map2.get("trans"));
-            } else if (operateType == OPERATE_TYPE_MUL) {
+            } else if (operateType == Utils.OPERATE_TYPE_MUL) {
                 energy = Integer.parseInt(map1.get("energy")) * Integer.parseInt(map1.get("energy"));
                 abs = Float.parseFloat(map1.get("abs")) * Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) * Float.parseFloat(map2.get("trans"));
-            } else if (operateType == OPERATE_TYPE_DIV) {
+            } else if (operateType == Utils.OPERATE_TYPE_DIV) {
                 energy = Integer.parseInt(map1.get("energy")) / Integer.parseInt(map1.get("energy"));
                 abs = Float.parseFloat(map1.get("abs")) / Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) / Float.parseFloat(map2.get("trans"));
