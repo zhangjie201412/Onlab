@@ -59,10 +59,15 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
     public static float[] mWavelengths;
     public static float[] mOrderWavelengths;
 
+    private int mMainIndex = 1;
+    private int mSubIndex = 1;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_multiple_wavelength, container, false);
+        mMainIndex = 1;
+        mSubIndex = 1;
         initUi(view);
         mSettingDialog = new MultipleWavelengthSettingDialog();
         mSettingDialog.init(this);
@@ -134,7 +139,7 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         int no = mData.size() + 1;
         record.setIndex(no);
 
-        item.put("id", "" + no);
+        item.put("id", "" + "" + mMainIndex + "-" + mSubIndex);
         item.put("wavelength", "" + record.getWavelength());
         item.put("abs", Utils.formatAbs(record.getAbs()));
         item.put("trans", Utils.formatTrans(record.getTrans()));
@@ -173,10 +178,12 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
     public void OnUpdateEvent(MultipleWavelengthCallbackEvent event) {
         if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_UPDATE) {
             addItem(new MultipleWavelengthRecord(-1, event.wavelength, event.abs, event.trans, event.energy, System.currentTimeMillis()));
+            mSubIndex ++;
         } else if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_REZERO_DONE) {
             mStart.setEnabled(true);
         } else if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_TEST_DONE) {
-
+            mMainIndex ++;
+            mSubIndex = 1;
         }
     }
 

@@ -826,6 +826,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 dismissDialog();
                 BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_TEST_DONE));
                 mDeviceManager.setLoopThreadRestart();
+                loadWavelengthDialog(MultipleWavelengthFragment.mOrderWavelengths[0]);
+//                mI0 = mDeviceManager.getDarkFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
+//                mA = mDeviceManager.getGainFromBaseline((int)MultipleWavelengthFragment.mOrderWavelengths[0]);
             }
         }
     }

@@ -60,7 +60,7 @@ import lecho.lib.hellocharts.view.LineChartView;
  * Created by H151136 on 5/24/2016.
  */
 public class WavelengthScanFragment extends Fragment implements View.OnClickListener {
-    private boolean isFake = true;
+    private boolean isFake = false;
     private static final String TAG = "Onlab.WavelengthScan";
 
     private ListView mListView;
@@ -91,12 +91,15 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private Line[] mLine;
     private Line mPeakLine;
     private Line mOperateLine;
+    private Line mDerivativeLine;
     private List<PointValue>[] mPoints;
     //    private List<PointValue> mPoints;
 //    private List<PointValue> mPoints;
 //    private List<PointValue> mPoints;
     private List<PointValue> mPeakPoints;
     private List<PointValue> mOperatePoints;
+    private List<PointValue> mDerivativePoints;
+
     //----
     private SaveNameDialog mSaveDialog;
 
@@ -150,28 +153,19 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_abs, R.id.item_trans, R.id.item_energy});
         }
         mListView.setAdapter(mAdapter);
-//        mAdapter.registerDataSetObserver(new DataSetObserver() {
-//            @Override
-//            public void onChanged() {
-//                super.onChanged();
-//                if (mData.size() > 0) {
-//                    Utils.needToSave = true;
-//                } else {
-//                    Utils.needToSave = false;
-//                }
-//            }
-//        });
+        mAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                if (mData[mCurDataIndex].size() > 0) {
+                    Utils.needToSave = true;
+                } else {
+                    Utils.needToSave = false;
+                }
+            }
+        });
 
         mTestModeTextView = (TextView) view.findViewById(R.id.tv_wavelength_scan_test_mode);
-//        mSmoothCheckBox = (CheckBox) view.findViewById(R.id.check_smooth);
-//        mSmoothCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                mLine.setCubic(isChecked);
-//                mChartData.setLines(mLines);
-//                mChartView.setLineChartData(mChartData);
-//            }
-//        });
 
         mChartView = (LineChartView) view.findViewById(R.id.hello_wavelength_scan);
         initChart();
@@ -247,6 +241,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mPoints[3] = new ArrayList<PointValue>();
         mPeakPoints = new ArrayList<PointValue>();
         mOperatePoints = new ArrayList<PointValue>();
+        mDerivativePoints = new ArrayList<PointValue>();
+
         mLines = new ArrayList<Line>();
 
         mLine = new Line[4];
@@ -258,6 +254,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         mPeakLine = new Line(mPeakPoints).setColor(ChartUtils.COLOR_GREEN).setCubic(true);
         mOperateLine = new Line(mOperatePoints).setColor(ChartUtils.COLOR_RED).setCubic(true);
+        mDerivativeLine = new Line(mDerivativePoints).setColor(Color.YELLOW).setCubic(false);
 
         for (int i = 0; i < mLine.length; i++) {
             mLine[i].setPointRadius(1);
@@ -271,11 +268,16 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         mPeakLine.setPointRadius(3);
         mPeakLine.setStrokeWidth(1);
+
+        mDerivativeLine.setPointRadius(1);
+        mDerivativeLine.setStrokeWidth(1);
+        mDerivativeLine.setCubic(false);
         for (int i = 0; i < mLine.length; i++) {
             mLines.add(mLine[i]);
         }
         mLines.add(mPeakLine);
         mLines.add(mOperateLine);
+        mLines.add(mDerivativeLine);
 
         mChartData = new LineChartData();
         mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
@@ -323,7 +325,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
-        mChartView.setViewportCalculationEnabled(false);
+        mChartView.setViewportCalculationEnabled(true);
 
         Axis axisX = new Axis();
         Axis axisY = new Axis();
@@ -406,6 +408,23 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mChartView.setLineChartData(mChartData);
     }
 
+    private void updateDerivativeChart(float x, float y) {
+        mDerivativePoints.add(new PointValue(x, y));
+        mDerivativeLine.setHasPoints(true);
+        mDerivativeLine.setHasLines(true);
+        if (!mLines.contains(mDerivativeLine)) {
+            mLines.add(mDerivativeLine);
+        }
+        mChartData.setLines(mLines);
+        mChartView.setLineChartData(mChartData);
+    }
+
+    private void clearDerivativeChart() {
+        mDerivativePoints.clear();
+        mChartData.setLines(mLines);
+        mChartView.setLineChartData(mChartData);
+    }
+
     private void clearTable(int index) {
         mData[index].clear();
         mAdapter.notifyDataSetChanged();
@@ -467,38 +486,38 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
     @Subscribe
     public void onFileOperateEvent(FileOperateEvent event) {
-//        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
-//            List<String> saveFileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
-//
-//            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
-//                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            loadFileById(which);
-//                        }
-//                    });
-//
-//        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
-//            if (mData[mCurDataIndex].size() < 1) {
-//                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//            mSaveDialog.show(getFragmentManager(), "save");
-//        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
-//
-//        }
+        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
+            List<String> saveFileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+
+            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
+                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            loadFileById(which);
+                        }
+                    });
+
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+            if (mData[mCurDataIndex].size() < 1) {
+                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mSaveDialog.show(getFragmentManager(), "save");
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+
+        }
     }
 
     private void loadFileById(int id) {
-//        List<String> fileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
-//        String fileName = fileList.get(id);
-//        List<WavelengthScanRecord> lists = DeviceApplication.getInstance().getWavelengthScanDb().getRecords(fileName);
-//        clearData();
-//        for (int i = 0; i < lists.size(); i++) {
-//            addItem(lists.get(i));
-//            updateChart(lists.get(i));
-//        }
-//        Utils.needToSave = false;
+        List<String> fileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
+        String fileName = fileList.get(id);
+        List<WavelengthScanRecord> lists = DeviceApplication.getInstance().getWavelengthScanDb().getRecords(fileName);
+        clearData(mCurDataIndex);
+        for (int i = 0; i < lists.size(); i++) {
+            addItem(mCurDataIndex, lists.get(i));
+            updateChart(mCurDataIndex, lists.get(i));
+        }
+        Utils.needToSave = false;
 
     }
 
@@ -568,10 +587,10 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                         if (mData[i].size() == 0) {
                             mCurDataIndex = i;
                         } else {
-                            availables ++;
+                            availables++;
                         }
                     }
-                    if(availables == 4) {
+                    if (availables == 4) {
                         clearData(mCurDataIndex);
                     }
                     setCurrentButton();
@@ -584,7 +603,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     int speed = sp.getWavelengthscanSpeed();
                     float interval = sp.getWavelengthscanInterval();
 
-                    ((MainActivity)(getActivity())).loadWavelengthDialog(end);
+                    ((MainActivity) (getActivity())).loadWavelengthDialog(end);
 
                     DeviceManager.getInstance().doWavelengthScan(start, end, interval);
                     mStartButton.setEnabled(false);
@@ -676,6 +695,9 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         if (mPeakPoints.size() > 0) {
             select[PROCESS_ITEM_PEAK] = true;
         }
+        if (mDerivativePoints.size() > 0) {
+            select[PROCESS_ITEM_DERIVATIVE] = true;
+        }
         select[PROCESS_ITEM_OPERATION] = mOperateSelect;
 
         builder.setTitle(R.string.process);
@@ -697,6 +719,11 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                         }
                         break;
                     case PROCESS_ITEM_DERIVATIVE:
+                        if (isChecked) {
+                            makeDerivative(mCurDataIndex);
+                        } else {
+                            clearDerivativeChart();
+                        }
                         break;
                     case PROCESS_ITEM_OPERATION:
                         if (isChecked) {
@@ -790,6 +817,61 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         });
 
         builder.create().show();
+    }
+
+
+    private void makeDerivative(int id) {
+        int total = mData[id].size();
+
+        if (total == 0) {
+            return;
+        }
+
+        float[] yy = new float[total];
+        float[] x = new float[total];
+
+        for (int i = 0; i < total; i++) {
+            int energy = 0;
+            float abs = 0.0f;
+            float trans = 0.0f;
+            float wavelength = 0.0f;
+
+            HashMap<String, String> map = mData[id].get(i);
+            energy = Integer.parseInt(map.get("energy"));
+            abs = Float.parseFloat(map.get("abs"));
+            trans = Float.parseFloat(map.get("trans"));
+            wavelength = Float.parseFloat(map.get("wavelength"));
+            int mode = DeviceApplication.getInstance().getSpUtils().getWavelengthscanTestMode();
+            if (mode == WavelengthSettingActivity.TEST_MODE_ABS) {
+                yy[i] = abs;
+            } else if (mode == WavelengthSettingActivity.TEST_MODE_TRANS) {
+                yy[i] = trans;
+            } else if (mode == WavelengthSettingActivity.TEST_MODE_ENERGY) {
+                yy[i] = energy;
+            }
+
+            x[i] = wavelength;
+        }
+        mDerivativePoints.clear();
+
+        for (int i = 0; i < total; i++) {
+            float y = 0.0f;
+            //first one
+            if (i == 0) {
+                y = (yy[1] - yy[0]) / (x[1] - x[0]);
+            }
+            //last one
+            else if (i == total - 1) {
+                //skip
+            }
+            //others
+            else {
+                y = (yy[i + 1] - yy[i - 1]) / (x[i + 1] - x[i - 1]);
+            }
+            updateDerivativeChart(x[i], y);
+        }
+        //autoUpdateChart();
+
     }
 
     private void makeOperate(int id1, int id2, int operateType) {

@@ -63,7 +63,7 @@ import lecho.lib.hellocharts.view.LineChartView;
 public class TimeScanFragment extends Fragment implements View.OnClickListener, CalcSpeedDialog.CalcSpeedListener {
 
     private static final String TAG = "Onlab.TimeScanFragment";
-    private boolean isFake = true;
+    private boolean isFake = false;
     private TextView mWavelengthTextView;
     private TextView mRatioTextView;
     private TextView mIntervalTextView;
@@ -111,6 +111,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_time_scan, container, false);
         Utils.needToSave = false;
+        mCurDataIndex = 0;
         initUi(view);
         return view;
     }
@@ -160,6 +161,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         mRezeroButton.setOnClickListener(this);
         mCurrentButton.setOnClickListener(this);
         mProcessButton.setOnClickListener(this);
+        mRatioTextView.setVisibility(View.INVISIBLE);
 
         mListView = (ListView) view.findViewById(R.id.lv_time_scan);
         mData = new List[4];
@@ -278,7 +280,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
         mPeakLine = new Line(mPeakPoints).setColor(ChartUtils.COLOR_GREEN).setCubic(false);
         mOperateLine = new Line(mOperatePoints).setColor(ChartUtils.COLOR_RED).setCubic(false);
-        mDerivativeLine = new Line(mDerivativePoints).setColor(ChartUtils.COLOR_VIOLET).setCubic(false);
+        mDerivativeLine = new Line(mDerivativePoints).setColor(Color.YELLOW).setCubic(false);
         mOperateLine.setPointRadius(2);
         mOperateLine.setStrokeWidth(2);
         mOperateLine.setCubic(false);
@@ -338,7 +340,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
         mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
-        mChartView.setViewportCalculationEnabled(false);
+        mChartView.setViewportCalculationEnabled(true);
 
         Axis axisX = new Axis();
         Axis axisY = new Axis();
@@ -350,6 +352,12 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 //        axisY.setHasLines(true);
         mChartData.setAxisXBottom(axisX);
         mChartData.setAxisYLeft(axisY);
+    }
+
+    void autoUpdateChart() {
+//        mChartView.setViewportCalculationEnabled(true);
+//        mChartData.setLines(mLines);
+//        mChartView.setLineChartData(mChartData);
     }
 
     private void addItem(int index, TimeScanRecord record) {
@@ -807,12 +815,12 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         int [] x = new int[total];
 
         for (int i = 0; i < total; i++) {
-            int index = 0;
             float abs = 0.0f;
             float trans = 0.0f;
+            int second = 0;
 
             HashMap<String, String> map = mData[id].get(i);
-            index = Integer.parseInt(map.get("id"));
+            second = Integer.parseInt(map.get("second"));
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             int mode = DeviceApplication.getInstance().getSpUtils().getTimescanTestMode();
@@ -821,7 +829,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
             } else if (mode == TimescanSettingActivity.TEST_MODE_TRANS) {
                 yy[i] = trans;
             }
-            x[i] = index;
+            x[i] = second;
         }
         mDerivativePoints.clear();
 
@@ -841,7 +849,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
             }
             updateDerivativeChart(x[i], y);
         }
-
+        autoUpdateChart();
     }
 
     private void makePeak(int id, float distance) {
