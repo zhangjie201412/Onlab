@@ -118,7 +118,7 @@ public class BluetoothLeService extends Service {
 			if (status == BluetoothGatt.GATT_SUCCESS) {
 				writeDone = true;
 			}
-		};
+		}
 
 		@Override
 		public void onCharacteristicChanged(BluetoothGatt gatt,

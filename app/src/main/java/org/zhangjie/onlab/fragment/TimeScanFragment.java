@@ -91,8 +91,10 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     private List<PointValue>[] mPoints;
     private Line mPeakLine;
     private Line mOperateLine;
+    private Line mDerivativeLine;
     private List<PointValue> mPeakPoints;
     private List<PointValue> mOperatePoints;
+    private List<PointValue> mDerivativePoints;
     //---
     private TimescanThread mThread;
     private int mX = 0;
@@ -260,6 +262,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         mPoints[3] = new ArrayList<PointValue>();
         mPeakPoints = new ArrayList<PointValue>();
         mOperatePoints = new ArrayList<PointValue>();
+        mDerivativePoints = new ArrayList<PointValue>();
         mLines = new ArrayList<Line>();
         mLine = new Line[4];
         mLine[0] = new Line(mPoints[0]).setColor(Utils.COLORS[0]).setCubic(true);
@@ -275,17 +278,23 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
         mPeakLine = new Line(mPeakPoints).setColor(ChartUtils.COLOR_GREEN).setCubic(false);
         mOperateLine = new Line(mOperatePoints).setColor(ChartUtils.COLOR_RED).setCubic(false);
+        mDerivativeLine = new Line(mDerivativePoints).setColor(ChartUtils.COLOR_VIOLET).setCubic(false);
         mOperateLine.setPointRadius(2);
         mOperateLine.setStrokeWidth(2);
         mOperateLine.setCubic(false);
 
         mPeakLine.setPointRadius(3);
         mPeakLine.setStrokeWidth(1);
+
+        mDerivativeLine.setPointRadius(1);
+        mDerivativeLine.setStrokeWidth(1);
+        mDerivativeLine.setCubic(false);
         for (int i = 0; i < mLine.length; i++) {
             mLines.add(mLine[i]);
         }
         mLines.add(mPeakLine);
         mLines.add(mOperateLine);
+        mLines.add(mDerivativeLine);
 
         mChartData = new LineChartData();
         mChartData.setBaseValue(Float.NEGATIVE_INFINITY);
@@ -438,6 +447,23 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         mChartView.setLineChartData(mChartData);
     }
 
+    private void updateDerivativeChart(int x, float y) {
+        mDerivativePoints.add(new PointValue(x, y));
+        mDerivativeLine.setHasPoints(true);
+        mDerivativeLine.setHasLines(true);
+        if (!mLines.contains(mDerivativeLine)) {
+            mLines.add(mDerivativeLine);
+        }
+        mChartData.setLines(mLines);
+        mChartView.setLineChartData(mChartData);
+    }
+
+    private void clearDerivativeChart() {
+        mDerivativePoints.clear();
+        mChartData.setLines(mLines);
+        mChartView.setLineChartData(mChartData);
+    }
+
     private void clearData(int index) {
         mData[index].clear();
         mAdapter.notifyDataSetChanged();
@@ -570,6 +596,9 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         if (mPeakPoints.size() > 0) {
             select[PROCESS_ITEM_PEAK] = true;
         }
+        if(mDerivativePoints.size() > 0) {
+            select[PROCESS_ITEM_DERIVATIVE] = true;
+        }
         select[PROCESS_ITEM_OPERATION] = mOperateSelect;
 
         builder.setTitle(R.string.process);
@@ -591,6 +620,11 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                         }
                         break;
                     case PROCESS_ITEM_DERIVATIVE:
+                        if(isChecked) {
+                            makeDerivative(mCurDataIndex);
+                        } else {
+                            clearDerivativeChart();
+                        }
                         break;
                     case PROCESS_ITEM_OPERATION:
                         if (isChecked) {
@@ -762,6 +796,53 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
+    private void makeDerivative(int id) {
+        int total = mData[id].size();
+
+        if(total == 0) {
+            return;
+        }
+
+        float[] yy = new float[total];
+        int [] x = new int[total];
+
+        for (int i = 0; i < total; i++) {
+            int index = 0;
+            float abs = 0.0f;
+            float trans = 0.0f;
+
+            HashMap<String, String> map = mData[id].get(i);
+            index = Integer.parseInt(map.get("id"));
+            abs = Float.parseFloat(map.get("abs"));
+            trans = Float.parseFloat(map.get("trans"));
+            int mode = DeviceApplication.getInstance().getSpUtils().getTimescanTestMode();
+            if (mode == TimescanSettingActivity.TEST_MODE_ABS) {
+                yy[i] = abs;
+            } else if (mode == TimescanSettingActivity.TEST_MODE_TRANS) {
+                yy[i] = trans;
+            }
+            x[i] = index;
+        }
+        mDerivativePoints.clear();
+
+        for(int i = 0; i < total; i++) {
+            float y = 0.0f;
+            //first one
+            if(i == 0) {
+                y = (yy[1] - yy[0]) / (x[1] - x[0]);
+            }
+            //last one
+            else if(i == total - 1) {
+                //skip
+            }
+            //others
+            else {
+                y = (yy[i + 1] - yy[i - 1]) / (x[i + 1] - x[i - 1]);
+            }
+            updateDerivativeChart(x[i], y);
+        }
+
+    }
 
     private void makePeak(int id, float distance) {
         int totalSize = mData[id].size();

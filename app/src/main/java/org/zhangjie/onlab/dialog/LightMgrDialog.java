@@ -82,7 +82,6 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                             }
                         });
                 break;

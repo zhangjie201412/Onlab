@@ -54,7 +54,7 @@ public class DeviceManager implements BtleListener {
     public static final int DEVICE_CMD_LIST_SET_WAVELENGTH = 0x1009;
     public static final int DEVICE_CMD_LIST_SET_A = 0x100A;
     public static final int DEVICE_CMD_LIST_SET_QUIT = 0x100B;
-    public static final int DEVICE_CMD_LIST_END = 0x100D;
+    public static final int DEVICE_CMD_LIST_END = 0x100C;
     public static String[] CMD_LIST;
     //----cmd list
 
