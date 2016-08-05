@@ -11,20 +11,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.R;
+import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.utils.Utils;
 
 /**
  * Created by H151136 on 8/2/2016.
  */
 public class LightMgrDialog extends DialogFragment implements View.OnClickListener, WavelengthDialog.WavelengthInputListern {
+    private static final String TAG = "Onlab.LightMgr";
     private SwitchCompat mDeuteriumSwitcher;
     private SwitchCompat mTungstenSwitcher;
     private RelativeLayout mDeuteriumClear;
     private RelativeLayout mTungstenClear;
     private RelativeLayout mSwitchWavelength;
+    private TextView mLampWavelengthTextView;
     private WavelengthDialog mWavelengthDialog;
+    private float mLampWavelength = 0.0f;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -37,6 +44,7 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
         mDeuteriumClear = (RelativeLayout) view.findViewById(R.id.layout_deuteruim_clear_time);
         mTungstenClear = (RelativeLayout) view.findViewById(R.id.layout_tungsten_clear_time);
         mSwitchWavelength = (RelativeLayout) view.findViewById(R.id.layout_switch_wavelength);
+        mLampWavelengthTextView = (TextView)view.findViewById(R.id.tv_lamp_wavelength);
 
         mDeuteriumClear.setOnClickListener(this);
         mTungstenClear.setOnClickListener(this);
@@ -45,19 +53,41 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
         mDeuteriumSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("####", "mDeuteriumSwitcher = " + isChecked);
+                Log.d(TAG, "mDeuteriumSwitcher = " + isChecked);
+                if(isChecked) {
+                    //on
+                    DeviceManager.getInstance().doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_D2ON);
+                } else {
+                    //off
+                    DeviceManager.getInstance().doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_D2OFF);
+                }
+                DeviceApplication.getInstance().getSpUtils().setKeyD2Status(isChecked);
             }
         });
 
         mTungstenSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("####", "mTungstenSwitcher = " + isChecked);
+                Log.d(TAG, "mTungstenSwitcher = " + isChecked);
+                if(isChecked) {
+                    //on
+                    DeviceManager.getInstance().doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_WUON);
+                } else {
+                    //off
+                    DeviceManager.getInstance().doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_WUOFF);
+                }
+                DeviceApplication.getInstance().getSpUtils().setKeyWuStatus(isChecked);
             }
         });
 
         mWavelengthDialog = new WavelengthDialog();
         mWavelengthDialog.setListener(this);
+
+        mLampWavelength = DeviceApplication.getInstance().getSpUtils().getLampWavelength();
+        mLampWavelengthTextView.setText("" + mLampWavelength + getString(R.string.nm));
+
+        mDeuteriumSwitcher.setChecked(DeviceApplication.getInstance().getSpUtils().getD2Status());
+        mTungstenSwitcher.setChecked(DeviceApplication.getInstance().getSpUtils().getWuStatus());
 
         builder.setView(view);
         return builder.create();
@@ -67,7 +97,7 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.layout_tungsten_clear_time:
-                Log.d("####", "layout_tungsten_clear_time");
+                Log.d(TAG, "layout_tungsten_clear_time");
                 Utils.showAlertDialog(getActivity(), getString(R.string.notice), getString(R.string.tungsten_clear_time),
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -77,7 +107,7 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
                         });
                 break;
             case R.id.layout_deuteruim_clear_time:
-                Log.d("####", "layout_deuteruim_clear_time");
+                Log.d(TAG, "layout_deuteruim_clear_time");
                 Utils.showAlertDialog(getActivity(), getString(R.string.notice), getString(R.string.deuteruim_clear_time),
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -86,7 +116,7 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
                         });
                 break;
             case R.id.layout_switch_wavelength:
-                Log.d("####", "layout_deuteruim_clear_time");
+                Log.d(TAG, "layout_deuteruim_clear_time");
                 mWavelengthDialog.show(getFragmentManager(), "wavelength setting");
                 break;
         }
@@ -94,6 +124,16 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
 
     @Override
     public void onWavelengthInputComplete(String wavelength) {
-
+        //get lamp wavelength
+        if(wavelength.length() < 1) {
+            Toast.makeText(getActivity(), R.string.notice_edit_null, Toast.LENGTH_SHORT).show();
+        } else {
+            float wl = Float.parseFloat(wavelength);
+            Log.d(TAG, "set lamp wavelength = " + wl);
+            mLampWavelength = wl;
+            DeviceManager.getInstance().setLampWavelengthWork(wl);
+            DeviceApplication.getInstance().getSpUtils().setLampWavelength(wl);
+            mLampWavelengthTextView.setText("" + mLampWavelength + getString(R.string.nm));
+        }
     }
 }

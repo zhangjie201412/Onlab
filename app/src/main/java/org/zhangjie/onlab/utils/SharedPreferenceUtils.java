@@ -56,6 +56,9 @@ public class SharedPreferenceUtils {
     public static final String KEY_ACC = "key_acc";
     public static final String KEY_BASELINE_AVAILABLE = "key_baseline_available";
     public static final String KEY_PEAK_DISTANCE = "key_peak_distance";
+    public static final String KEY_LAMP_WAVELENGTH = "key_lamp_wavelength";
+    public static final String KEY_D2_STATUS = "key_d2_status";
+    public static final String KEY_WU_STATUS = "key_wu_status";
 
     private SharedPreferences mSp;
     private SharedPreferences.Editor mEditor;
@@ -182,12 +185,24 @@ public class SharedPreferenceUtils {
         return mSp.getFloat(KEY_PEAK_DISTANCE, 1.0f);
     }
 
+    public float getLampWavelength() {
+        return mSp.getFloat(KEY_LAMP_WAVELENGTH, 340.0f);
+    }
+
     public int getMultipleWavelengthLength() {
         return mSp.getInt(KEY_MULTIPLE_WAVELENGTH_LENGTH, 0);
     }
 
     public boolean getBaselineAvailable() {
         return mSp.getBoolean(KEY_BASELINE_AVAILABLE, false);
+    }
+
+    public boolean getD2Status() {
+        return mSp.getBoolean(KEY_D2_STATUS, false);
+    }
+
+    public boolean getWuStatus() {
+        return mSp.getBoolean(KEY_WU_STATUS, false);
     }
 
     public void setKeyQaFittingMethod(int method) {
@@ -325,6 +340,11 @@ public class SharedPreferenceUtils {
         mEditor.commit();
     }
 
+    public void setLampWavelength(float wavelength) {
+        mEditor.putFloat(KEY_LAMP_WAVELENGTH, wavelength);
+        mEditor.commit();
+    }
+
     public void setKeyMultipleWavelengthLength(int length) {
         mEditor.putInt(KEY_MULTIPLE_WAVELENGTH_LENGTH, length);
         mEditor.commit();
@@ -332,6 +352,16 @@ public class SharedPreferenceUtils {
 
     public void setKeyBaselineAvailable(boolean available) {
         mEditor.putBoolean(KEY_BASELINE_AVAILABLE, available);
+        mEditor.commit();
+    }
+
+    public void setKeyD2Status(boolean on) {
+        mEditor.putBoolean(KEY_D2_STATUS, on);
+        mEditor.commit();
+    }
+
+    public void setKeyWuStatus(boolean on) {
+        mEditor.putBoolean(KEY_WU_STATUS, on);
         mEditor.commit();
     }
 

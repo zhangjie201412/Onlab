@@ -203,6 +203,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             Log.d(TAG, "SET WAVELENGTH ENTRY");
             work_entry_set_wavelength(msg);
         }
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_SET_LAMP_WAVELENGTH) != 0) {
+            //set lamp wavelength entry
+            Log.d(TAG, "SET LAMP WAVELENGTH ENTRY");
+            work_entry_set_lamp_wavelength(msg);
+        }
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_REZERO) != 0) {
             //rezero entry
             Log.d(TAG, "REZERO ENTRY");
@@ -376,6 +381,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             //get a
             msg[1] = msg[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mA = Integer.parseInt(msg[1]);
+        } else if(tag.startsWith(DeviceManager.TAG_GET_LAMP_WAVELENGTH)) {
+            //get wavelength
+            Log.d(TAG, "get lamp wavelength = " + msg[1]);
+            msg[1] = msg[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            float wavelength = Float.parseFloat(msg[1]);
+            DeviceApplication.getInstance().getSpUtils().setLampWavelength(wavelength);
         }
     }
 
@@ -883,6 +894,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    private void work_entry_set_lamp_wavelength(String[] msgs) {
+        if (msgs[0].startsWith(DeviceManager.TAG_SET_LAMP_WAVELENGTH)) {
+            //TODO: need to do something?
+            mDeviceManager.setLoopThreadRestart();
+        }
+    }
+
     private void work_entry_rezero(String[] msgs) {
         if (msgs[0].startsWith(DeviceManager.TAG_REZERO)) {
             msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
@@ -895,8 +913,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onWavelengthInputComplete(String wavelength) {
         if (wavelength.length() > 0) {
-            int wl = Integer.parseInt(wavelength);
-            if (Utils.checkWavelengthInvalid(this, (float) wl)) {
+            float wl = Float.parseFloat(wavelength);
+            if (Utils.checkWavelengthInvalid(this, wl)) {
                 mDeviceManager.setWavelengthWork(wl);
                 loadSetWavelengthDialog();
             }

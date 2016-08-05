@@ -54,7 +54,15 @@ public class DeviceManager implements BtleListener {
     public static final int DEVICE_CMD_LIST_SET_WAVELENGTH = 0x1009;
     public static final int DEVICE_CMD_LIST_SET_A = 0x100A;
     public static final int DEVICE_CMD_LIST_SET_QUIT = 0x100B;
-    public static final int DEVICE_CMD_LIST_END = 0x100C;
+    public static final int DEVICE_CMD_LIST_SET_LAMP_WAVELENGTH = 0x100C;
+    public static final int DEVICE_CMD_LIST_GET_LAMP_WAVELENGTH = 0x100D;
+    public static final int DEVICE_CMD_LIST_SET_D2ON = 0x100E;
+    public static final int DEVICE_CMD_LIST_SET_D2OFF = 0x100F;
+    public static final int DEVICE_CMD_LIST_SET_WUON = 0x1010;
+    public static final int DEVICE_CMD_LIST_SET_WUOFF = 0x1011;
+    public static final int DEVICE_CMD_LIST_SET_LAMP = 0x1012;
+    public static final int DEVICE_CMD_LIST_SET_FILTER = 0x1013;
+    public static final int DEVICE_CMD_LIST_END = 0x1014;
     public static String[] CMD_LIST;
     //----cmd list
 
@@ -84,6 +92,8 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_WARM = "warm";
     public static final String TAG_READY = "ready";
     public static final String TAG_ONLINE = "online";
+    public static final String TAG_GET_LAMP_WAVELENGTH = "getlampwl";
+    public static final String TAG_SET_LAMP_WAVELENGTH = "setlampwl";
 
     public static final float BASELINE_END = 1100;//1100;
     public static final float BASELINE_START = 190;//190;
@@ -118,6 +128,14 @@ public class DeviceManager implements BtleListener {
         CMD_LIST[DEVICE_CMD_LIST_SET_WAVELENGTH - DEVICE_CMD_LIST_START] = "swl";
         CMD_LIST[DEVICE_CMD_LIST_SET_A - DEVICE_CMD_LIST_START] = "sa";
         CMD_LIST[DEVICE_CMD_LIST_SET_QUIT - DEVICE_CMD_LIST_START] = "quit";
+        CMD_LIST[DEVICE_CMD_LIST_SET_LAMP_WAVELENGTH - DEVICE_CMD_LIST_START] = "setlampwl";
+        CMD_LIST[DEVICE_CMD_LIST_GET_LAMP_WAVELENGTH - DEVICE_CMD_LIST_START] = "getlampwl";
+        CMD_LIST[DEVICE_CMD_LIST_SET_D2ON - DEVICE_CMD_LIST_START] = "d2on";
+        CMD_LIST[DEVICE_CMD_LIST_SET_D2OFF - DEVICE_CMD_LIST_START] = "d2off";
+        CMD_LIST[DEVICE_CMD_LIST_SET_WUON - DEVICE_CMD_LIST_START] = "wuon";
+        CMD_LIST[DEVICE_CMD_LIST_SET_WUOFF - DEVICE_CMD_LIST_START] = "wuoff";
+        CMD_LIST[DEVICE_CMD_LIST_SET_LAMP - DEVICE_CMD_LIST_START] = "setlamp";
+        CMD_LIST[DEVICE_CMD_LIST_SET_FILTER - DEVICE_CMD_LIST_START] = "setfilter";
     }
 
     @Override
@@ -371,6 +389,7 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_MULTIPLE_WAVELENGTH_TEST = 1 << 10;
     public static final int WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS = 1 << 11;
     public static final int WORK_ENTRY_FLAG_GET_STATUS = 1 << 12;
+    public static final int WORK_ENTRY_FLAG_SET_LAMP_WAVELENGTH = 1 << 13;
     public static final int WORK_ENTRY_FLAG_SINGLE_COMMAND = 1 << 31;
 
     private int mEntryFlag = 0x00000000;
@@ -408,6 +427,7 @@ public class DeviceManager implements BtleListener {
         addCmd(cmdList, DEVICE_CMD_LIST_GET_DARK, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_A, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_LAMP_WAVELENGTH, -1);
         doWork(cmdList);
     }
 
@@ -435,7 +455,7 @@ public class DeviceManager implements BtleListener {
         doWork(cmdList);
     }
 
-    public synchronized void setWavelengthWork(int wavelength) {
+    public synchronized void setWavelengthWork(float wavelength) {
         setLoopThreadPause();
         mEntryFlag = 0x00000000;
         //set update status flag
@@ -444,6 +464,18 @@ public class DeviceManager implements BtleListener {
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wavelength);
+        doWork(cmdList);
+    }
+
+    public synchronized void setLampWavelengthWork(float wavelength) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        //set update status flag
+        mEntryFlag |= WORK_ENTRY_FLAG_SET_LAMP_WAVELENGTH;
+        Log.d(TAG, "SETWL WORK FLAG = " + mEntryFlag);
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_LAMP_WAVELENGTH, wavelength);
         doWork(cmdList);
     }
 
