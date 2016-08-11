@@ -348,6 +348,16 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         mDeviceManager.initializeWork();
                     }
                 }
+            }, new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    mDeviceManager.skip();
+                    if (!mIsInitialized) {
+                        initDialog();
+                        mDeviceManager.initializeWork();
+                    }
+
+                }
             });
         }
     }
@@ -1007,7 +1017,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "Main onDestroy!");
         if (mDeviceManager != null) {
+            Log.d(TAG, "send quit");
             mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
         }
         try {
@@ -1055,6 +1067,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 }
             }.sendEmptyMessageDelayed(0, 2000);
         } else {
+            mDeviceManager.release();
+            mDeviceManager = null;
             finish();
             System.exit(0);
         }

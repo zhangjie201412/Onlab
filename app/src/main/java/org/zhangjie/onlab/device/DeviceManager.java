@@ -164,9 +164,6 @@ public class DeviceManager implements BtleListener {
 
     @Override
     public void onDataAvailable(byte[] data) {
-        for (int i = 0; i < data.length; i++) {
-            Log.d(TAG, "JAY->" + String.format("[%d] = %02x, %c\n", i, data[i], data[i]));
-        }
         String[] recvMsg;
         if (handlerBuffer(data)) {
 
@@ -284,7 +281,6 @@ public class DeviceManager implements BtleListener {
     }
 
     public void start() {
-        Log.d(TAG, "JAY->start");
         if (!mUpdateThread.isAlive()) {
             mUpdateThread.start();
         }
@@ -292,6 +288,14 @@ public class DeviceManager implements BtleListener {
 
     public synchronized void release() {
         setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        this.notifyAll();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        BtleManager.getInstance().send("quit\r");
         BtleManager.getInstance().unregister();
         BtleManager.getInstance().release();
         mIsConnected = false;
@@ -338,9 +342,9 @@ public class DeviceManager implements BtleListener {
         if (!isFake) {
             try {
                 //wait '>'
-                Log.d(TAG, "wait");
+                //Log.v(TAG, "wait");
                 this.wait();
-                Log.d(TAG, "wait done");
+                //Log.v(TAG, "wait done");
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

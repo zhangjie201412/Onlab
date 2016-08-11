@@ -133,6 +133,17 @@ public class Utils {
         builder.create().show();
     }
 
+    public static void showAlertDialog(Context context, String title, String message, DialogInterface.OnClickListener listner,
+                                       DialogInterface.OnCancelListener cancelListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(R.string.ok_string, listner);
+        builder.setOnCancelListener(cancelListener);
+        builder.setCancelable(false);
+        builder.create().show();
+    }
+
     public static boolean checkWavelengthInvalid(Context context, float wavelength) {
         if (wavelength <= 190 || (wavelength >= 1100)) {
             Toast.makeText(context, context.getString(R.string.notice_wavelength_invalid), Toast.LENGTH_LONG).show();
