@@ -325,7 +325,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
-        mChartView.setViewportCalculationEnabled(true);
+        mChartView.setViewportCalculationEnabled(false);
 
         Axis axisX = new Axis();
         Axis axisY = new Axis();

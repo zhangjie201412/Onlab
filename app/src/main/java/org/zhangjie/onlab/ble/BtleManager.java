@@ -191,7 +191,7 @@ public class BtleManager {
     }
 
     public void send(String data) {
-//        Log.d(TAG, "-> " + data);
+        Log.d(TAG, "JAY-> " + data);
         mBluetoothLeService.send(data);
     }
 

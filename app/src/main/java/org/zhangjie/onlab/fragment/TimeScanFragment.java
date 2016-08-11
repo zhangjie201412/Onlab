@@ -340,7 +340,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
         mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
-        mChartView.setViewportCalculationEnabled(true);
+        mChartView.setViewportCalculationEnabled(false);
 
         Axis axisX = new Axis();
         Axis axisY = new Axis();

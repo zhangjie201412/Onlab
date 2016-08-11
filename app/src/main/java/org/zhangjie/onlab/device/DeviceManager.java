@@ -164,9 +164,9 @@ public class DeviceManager implements BtleListener {
 
     @Override
     public void onDataAvailable(byte[] data) {
-//        for (int i = 0; i < data.length; i++) {
-//            Log.d(TAG, String.format("[%d] = %02x, %c\n", i, data[i], data[i]));
-//        }
+        for (int i = 0; i < data.length; i++) {
+            Log.d(TAG, "JAY->" + String.format("[%d] = %02x, %c\n", i, data[i], data[i]));
+        }
         String[] recvMsg;
         if (handlerBuffer(data)) {
 
@@ -284,6 +284,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public void start() {
+        Log.d(TAG, "JAY->start");
         if (!mUpdateThread.isAlive()) {
             mUpdateThread.start();
         }
@@ -337,9 +338,9 @@ public class DeviceManager implements BtleListener {
         if (!isFake) {
             try {
                 //wait '>'
-                Log.v(TAG, "wait");
+                Log.d(TAG, "wait");
                 this.wait();
-                Log.v(TAG, "wait done");
+                Log.d(TAG, "wait done");
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -424,7 +425,7 @@ public class DeviceManager implements BtleListener {
         Log.d(TAG, "INIT WORK FLAG = " + mEntryFlag);
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
-        addCmd(cmdList, DEVICE_CMD_LIST_SET_QUIT, -1);
+//        addCmd(cmdList, DEVICE_CMD_LIST_SET_QUIT, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_CONNECT, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_DARK, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);

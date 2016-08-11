@@ -183,20 +183,22 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_GET_STATUS) != 0) {
             //getstatus ertry
             Log.d(TAG, "GET STATUS ENTRY");
-            work_entry_getstatus(msg);
-//            mDeviceManager.start();
+                work_entry_getstatus(msg);
         }
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_INITIALIZE) != 0) {
             //initialzation ertry
             Log.d(TAG, "INITIALZE ENTRY");
             work_entry_initialize(msg);
-            mDeviceManager.start();
         }
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_UPDATE_STATUS) != 0) {
             mDeviceManager.clearFlag(DeviceManager.WORK_ENTRY_FLAG_INITIALIZE);
             //update status entry
             Log.v(TAG, "UPDATE STATUS ENTRY");
-            work_entry_updatestatus(msg);
+            if(mIsInitialized) {
+                work_entry_updatestatus(msg);
+            } else {
+                work_entry_initialize(msg);
+            }
         }
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_SET_WAVELENGTH) != 0) {
             //set wavelength entry
@@ -269,14 +271,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             Log.d(TAG, "-> " + msg[i]);
         }
         if (tag.startsWith(DeviceManager.TAG_GET_STATUS)) {
-            Log.d(TAG, "###TAG_GET_sTATUS!");
+            Log.d(TAG, "###TAG_GET_STATUS!");
         }
         if (tag.startsWith(DeviceManager.TAG_ONLINE)) {
             Log.d(TAG, "###TAG_ONLINE!");
             mDeviceCheckDialog.dismiss();
             if (!mIsInitialized) {
                 initDialog();
-                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+                //mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
                 mDeviceManager.initializeWork();
             }
         }
@@ -285,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mDeviceCheckDialog.dismiss();
             if (!mIsInitialized) {
                 initDialog();
-                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+                //mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
                 mDeviceManager.initializeWork();
             }
         }
@@ -341,14 +343,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     mDeviceManager.skip();
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     if (!mIsInitialized) {
                         initDialog();
-                        //mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
                         mDeviceManager.initializeWork();
                     }
                 }
@@ -370,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 toastShow(getString(R.string.connect_done));
                 mDeviceSelectDialog.dismiss();
                 mDeviceCheckDialog.dismiss();
+                mDeviceManager.start();
             }
         } else if (tag.startsWith(DeviceManager.TAG_GET_WAVELENGTH)) {
             //get wavelength
@@ -1401,11 +1398,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             public void run() {
                 if (mWaitDialog.isShowing()) {
                     mWaitDialog.dismiss();
-                    //timeout
+                    if (!mIsInitialized) {
+                        //timeout
 //                    BtleManager.getInstance().disconnect();
 //                    Toast.makeText(MainActivity.this, getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
-                    mDeviceManager.initializeWork();
-                    initDialog();
+                        mDeviceManager.initializeWork();
+                        initDialog();
+                    }
                 }
             }
         };
