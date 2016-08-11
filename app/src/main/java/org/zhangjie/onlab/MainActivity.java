@@ -268,70 +268,73 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         for (int i = 0; i < msg.length; i++) {
             Log.d(TAG, "-> " + msg[i]);
         }
-        if(tag.startsWith(DeviceManager.TAG_GET_STATUS)) {
+        if (tag.startsWith(DeviceManager.TAG_GET_STATUS)) {
+            Log.d(TAG, "###TAG_GET_sTATUS!");
         }
-        if(tag.startsWith(DeviceManager.TAG_ONLINE)) {
+        if (tag.startsWith(DeviceManager.TAG_ONLINE)) {
+            Log.d(TAG, "###TAG_ONLINE!");
             mDeviceCheckDialog.dismiss();
-            if(!mIsInitialized) {
+            if (!mIsInitialized) {
                 initDialog();
                 mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
                 mDeviceManager.initializeWork();
             }
         }
-        if(tag.startsWith(DeviceManager.TAG_READY)) {
+        if (tag.startsWith(DeviceManager.TAG_READY)) {
+            Log.d(TAG, "###TAG_READY!");
             mDeviceCheckDialog.dismiss();
-            if(!mIsInitialized) {
+            if (!mIsInitialized) {
                 initDialog();
                 mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
                 mDeviceManager.initializeWork();
             }
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_LAMP_START)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_LAMP_START)) {
 //            mDeviceCheckDialog.addItem(getString(R.string.lamp) + getString(R.string.ing));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_LAMP_DONE)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_LAMP_DONE)) {
             mDeviceCheckDialog.addItem(getString(R.string.lamp) + getString(R.string.done));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_AD_START)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_AD_START)) {
 //            mDeviceCheckDialog.addItem(getString(R.string.ad) + getString(R.string.ing));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_AD_DONE)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_AD_DONE)) {
             mDeviceCheckDialog.addItem(getString(R.string.ad) + getString(R.string.done));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_DEUTERIUM_START)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_DEUTERIUM_START)) {
 //            mDeviceCheckDialog.addItem(getString(R.string.deuterium) + getString(R.string.ing));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_DEUTERIUM_DONE)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_DEUTERIUM_DONE)) {
             mDeviceCheckDialog.addItem(getString(R.string.deuterium) + getString(R.string.done));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_TUNGSTEN_START)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_TUNGSTEN_START)) {
 //            mDeviceCheckDialog.addItem(getString(R.string.tungsten) + getString(R.string.ing));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_TUNGSTEN_OK)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_TUNGSTEN_OK)) {
             mDeviceCheckDialog.addItem(getString(R.string.tungsten) + getString(R.string.done));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_WAVE_START)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_WAVE_START)) {
 //            mDeviceCheckDialog.addItem(getString(R.string.wave) + getString(R.string.ing));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_WAVE_DONE)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_WAVE_DONE)) {
             Log.d(TAG, "####WAVE DONE");
             mDeviceCheckDialog.addItem(getString(R.string.wave) + getString(R.string.done));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_PARA_START)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_PARA_START)) {
 //            mDeviceCheckDialog.addItem(getString(R.string.para) + getString(R.string.ing));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_PARA_DONE)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_PARA_DONE)) {
             Log.d(TAG, "####PARA DONE");
             mDeviceCheckDialog.addItem(getString(R.string.para) + getString(R.string.done));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_DARK_START)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_DARK_START)) {
 //            mDeviceCheckDialog.addItem(getString(R.string.dark) + getString(R.string.ing));
         }
-        if(tag.startsWith(DeviceManager.TAG_CHECK_DARK_DONE)) {
+        if (tag.startsWith(DeviceManager.TAG_CHECK_DARK_DONE)) {
             Log.d(TAG, "####DARK DONE");
             mDeviceCheckDialog.addItem(getString(R.string.dark) + getString(R.string.done));
         }
-        if(tag.startsWith(DeviceManager.TAG_WARM)) {
+        if (tag.startsWith(DeviceManager.TAG_WARM)) {
             mDeviceCheckDialog.addItem(getString(R.string.warm));
 //            mDeviceCheckDialog.warm();
             Utils.showAlertDialog(this, getString(R.string.warm), getString(R.string.skip_warm), new DialogInterface.OnClickListener() {
@@ -343,9 +346,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if(!mIsInitialized) {
+                    if (!mIsInitialized) {
                         initDialog();
-                        mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+                        //mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
                         mDeviceManager.initializeWork();
                     }
                 }
@@ -381,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             //get a
             msg[1] = msg[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mA = Integer.parseInt(msg[1]);
-        } else if(tag.startsWith(DeviceManager.TAG_GET_LAMP_WAVELENGTH)) {
+        } else if (tag.startsWith(DeviceManager.TAG_GET_LAMP_WAVELENGTH)) {
             //get wavelength
             Log.d(TAG, "get lamp wavelength = " + msg[1]);
             msg[1] = msg[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
@@ -1007,6 +1010,16 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mDeviceManager != null) {
+            mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+        }
+        try {
+            //delay some time for quit cmd done~
+            //TODO: ???
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         mDeviceManager.release();
         mDeviceManager = null;
     }

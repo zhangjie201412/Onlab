@@ -290,6 +290,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public synchronized void release() {
+        setLoopThreadPause();
         BtleManager.getInstance().unregister();
         BtleManager.getInstance().release();
         mIsConnected = false;
@@ -423,6 +424,7 @@ public class DeviceManager implements BtleListener {
         Log.d(TAG, "INIT WORK FLAG = " + mEntryFlag);
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_QUIT, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_CONNECT, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_DARK, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
