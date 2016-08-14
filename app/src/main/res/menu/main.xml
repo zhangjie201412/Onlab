@@ -49,7 +49,12 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_peak_distance"
-        android:orderInCategory="140"
+        android:orderInCategory="150"
         android:title="@string/action_peak_distance"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_dark_current"
+        android:orderInCategory="160"
+        android:title="@string/action_dark_current"
         app:showAsAction="never" />
 </menu>

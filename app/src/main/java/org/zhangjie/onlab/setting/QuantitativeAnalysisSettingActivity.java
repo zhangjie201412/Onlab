@@ -315,15 +315,20 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
                     Toast.LENGTH_SHORT).show();
             return false;
         } else {
-            SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
-            sp.setKeyQaK0(Float.parseFloat(mK0EditText.getEditableText().toString()));
-            sp.setKeyQaK1(Float.parseFloat(mK1EditText.getEditableText().toString()));
-            sp.setKeyQaWavelength1(Float.parseFloat(mWavelength1EditText.getEditableText().toString()));
-            sp.setKeyQaWavelength2(Float.parseFloat(mWavelength2EditText.getEditableText().toString()));
-            sp.setKeyQaWavelength3(Float.parseFloat(mWavelength3EditText.getEditableText().toString()));
-            sp.setKeyQaRatio1(Float.parseFloat(mRatio1EditText.getEditableText().toString()));
-            sp.setKeyQaRatio2(Float.parseFloat(mRatio2EditText.getEditableText().toString()));
-            sp.setKeyQaRatio3(Float.parseFloat(mRatio3EditText.getEditableText().toString()));
+            try {
+                SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+                sp.setKeyQaK0(Float.parseFloat(mK0EditText.getEditableText().toString()));
+                sp.setKeyQaK1(Float.parseFloat(mK1EditText.getEditableText().toString()));
+                sp.setKeyQaWavelength1(Float.parseFloat(mWavelength1EditText.getEditableText().toString()));
+                sp.setKeyQaWavelength2(Float.parseFloat(mWavelength2EditText.getEditableText().toString()));
+                sp.setKeyQaWavelength3(Float.parseFloat(mWavelength3EditText.getEditableText().toString()));
+                sp.setKeyQaRatio1(Float.parseFloat(mRatio1EditText.getEditableText().toString()));
+                sp.setKeyQaRatio2(Float.parseFloat(mRatio2EditText.getEditableText().toString()));
+                sp.setKeyQaRatio3(Float.parseFloat(mRatio3EditText.getEditableText().toString()));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                return false;
+            }
             return true;
         }
     }

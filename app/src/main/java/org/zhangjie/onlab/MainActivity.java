@@ -888,10 +888,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private void work_entry_single_command(String[] msgs) {
         String[] msg = msgs.clone();
         String tag = msg[0];
-
         Log.d(TAG, "single command -> " + tag);
+
         //restart main loop
         mDeviceManager.setLoopThreadRestart();
+
+        if(tag.startsWith(DeviceManager.TAG_RESET_DARK)) {
+            dismissDialog();
+            //get dark
+            for (int i = 0; i < 8; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                mDark[i] = Integer.parseInt(msg[i + 1]);
+            }
+        }
     }
 
     private void work_entry_set_wavelength(String[] msgs) {
@@ -1182,9 +1191,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 if (!checkConnected()) {
                     return super.onOptionsItemSelected(item);
                 }
-
                 mBaselineDialog.show(getFragmentManager(), "baseline");
-
+                break;
+            case R.id.action_dark_current:
+                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
+                loadResetDarkDialog();
                 break;
             default:
                 break;
@@ -1388,6 +1399,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    private void loadResetDarkDialog() {
+        if(!mWaitDialog.isShowing()) {
+            mWaitDialog.setMessage(getString(R.string.reset_dark));
+            mWaitDialog.show();
+        }
+    }
+
     private void loadBaselineDialog() {
         if (!mWaitDialog.isShowing()) {
             mWaitDialog.setMessage(getString(R.string.baseline_message));
@@ -1463,8 +1481,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     public void loadWavelengthDialog(float wavelength) {
-        mDeviceManager.setWavelengthWork((int) (wavelength));
-        loadSetWavelengthDialog();
+        if(checkConnected()) {
+            mDeviceManager.setWavelengthWork((int) (wavelength));
+            loadSetWavelengthDialog();
+        }
     }
 
     public void showSystemSettingDialog() {
@@ -1573,6 +1593,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 break;
             case SYSTEM_SETTING_ITEM_DARK_CURRENT_ADJUST:
                 mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
+                loadResetDarkDialog();
                 break;
             case SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT:
                 mLightMgrDialog.show(getFragmentManager(), "light_mgr");

@@ -10,6 +10,7 @@
     <string name="action_set_wavelength">设置波长</string>
     <string name="action_baseline">建立基线</string>
     <string name="action_peak_distance">峰高设置</string>
+    <string name="action_dark_current">暗电流测试</string>
     <string name="wavelength">波长</string>
     <string name="abs">吸光度</string>
     <string name="trans">透过率</string>
@@ -111,7 +112,7 @@
     <string name="wavelength2">波长2</string>
     <string name="nm_ratio3"> nm   系数3</string>
     <string name="wavelength3">波长3</string>
-    <string name="system_setting">系统设置</string>
+    <string name="system_setting">系统应用</string>
     <string name="acurrency_setting">精度设置</string>
     <string name="baseline_message">正在建立基线...</string>
     <string name="baseline_done">建立基线完成</string>
@@ -172,6 +173,7 @@
     <string name="tungsten_switch">开关钨灯</string>
     <string name="tungsten_clear_time">钨灯时间清零</string>
     <string name="set_switch_wavelength">设置切换波长</string>
+    <string name="reset_dark">正在校正暗电流</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

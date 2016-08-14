@@ -358,6 +358,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             if (k0 == 0 && k1 == 0) {
                 formalu = "CONC = 0";
             }
+
             mFormaluTextView.setText(formalu);
             mAddButton.setEnabled(false);
             mDoFittingButton.setEnabled(false);
@@ -366,12 +367,31 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             //update hello chart with formalu
             updateChartWithFormalu(k0, k1);
         } else if (calc_type == QuantitativeAnalysisSettingActivity.CALC_TYPE_SAMPLE) {
-            mFormaluTextView.setVisibility(View.GONE);
+//            mFormaluTextView.setVisibility(View.GONE);
+            mFormaluTextView.setVisibility(View.VISIBLE);
+            //make the formalu
+            String formalu = "CONC = ";
+            if (sampleA0 != 0) {
+                formalu += "" + sampleA0;
+            }
+            if (sampleA1 != 0) {
+                if (sampleA0 != 0) {
+                    formalu += " + " + sampleA1 + " x A";
+                } else {
+                    formalu += "" + sampleA1 + " x A";
+                }
+            }
+            if (sampleA0 == 0 && sampleA1 == 0) {
+                formalu = "CONC = 0";
+            }
+            mFormaluTextView.setText(formalu);
+
             mAddButton.setEnabled(true);
             mDoFittingButton.setEnabled(true);
             mSelectallButton.setEnabled(true);
             mDeleteButton.setEnabled(true);
-        }
+            mPoints.clear();
+            mChartView.setLineChartData(mChartData);        }
         String xTtitle = getString(R.string.abs_with_unit);
         String yTitle = getString(R.string.conc) + "(" + getResources().getStringArray(R.array.concs)[conc_unit] + ")";
         updateXYTitle(xTtitle, yTitle, 0, 4.0f, 10.0f, 0);
@@ -542,7 +562,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             loadSetting();
             //set wavelength to target
             float work_wavelength = DeviceApplication.getInstance().getSpUtils().getQAWavelength1();
-//            ((MainActivity)getActivity()).loadWavelengthDialog(work_wavelength);
+            ((MainActivity)getActivity()).loadWavelengthDialog(work_wavelength);
         } else if (resultCode == QuantitativeAnalysisSettingActivity.RESULT_CANCEL) {
             Log.d(TAG, "CANCEL");
         }
@@ -810,6 +830,22 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         sampleA1 = a1;
         Log.d(TAG, "a0 = " + a0 + ", a1 = " + a1);
         isFittinged = true;
+        //make the formalu
+        String formalu = "CONC = ";
+        if (sampleA0 != 0) {
+            formalu += "" + sampleA0;
+        }
+        if (sampleA1 != 0) {
+            if (sampleA0 != 0) {
+                formalu += " + " + sampleA1 + " x A";
+            } else {
+                formalu += "" + sampleA1 + " x A";
+            }
+        }
+        if (sampleA0 == 0 && sampleA1 == 0) {
+            formalu = "CONC = 0";
+        }
+        mFormaluTextView.setText(formalu);
         //update hello chart
         updateChartWithFormalu(a0, a1);
     }

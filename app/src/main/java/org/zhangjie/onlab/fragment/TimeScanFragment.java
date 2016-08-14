@@ -105,6 +105,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     private int loadFileIndex = -1;
 
     private int mCurDataIndex = 0;
+    private int mLstDataIndex = 0;
 
     @Nullable
     @Override
@@ -492,6 +493,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                     for (int i = 3; i >= 0; i--) {
                         if (mData[i].size() == 0) {
                             mCurDataIndex = i;
+                            mLstDataIndex = mCurDataIndex;
                         }
                     }
                     setCurrentButton();
@@ -530,6 +532,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
             case R.id.bt_time_scan_stop:
                 if (mThread.isAlive()) {
                     mThread.pause();
+                    mCurDataIndex = mLstDataIndex;
                 }
                 break;
             case R.id.bt_time_scan_rezero:

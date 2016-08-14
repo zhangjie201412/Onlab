@@ -94,6 +94,7 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_ONLINE = "online";
     public static final String TAG_GET_LAMP_WAVELENGTH = "getlampwl";
     public static final String TAG_SET_LAMP_WAVELENGTH = "setlampwl";
+    public static final String TAG_RESET_DARK = "resetdark";
 
     public static final float BASELINE_END = 1100;//1100;
     public static final float BASELINE_START = 190;//190;
@@ -619,7 +620,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public synchronized void doSingleCommand(int cmdType) {
-//        setLoopThreadPause();
+        setLoopThreadPause();
         mEntryFlag = 0x00000000;
         mEntryFlag |= WORK_ENTRY_FLAG_SINGLE_COMMAND;
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();

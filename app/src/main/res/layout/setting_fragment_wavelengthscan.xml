@@ -80,7 +80,7 @@
                     android:layout_centerVertical="true"
                     android:clickable="false"
                     android:text="@string/title_wavelength_test_mode_y"
-                    android:textSize="@dimen/setting_content" />
+                    android:textSize="@dimen/setting_title" />
 
                 <TextView
                     android:id="@+id/test_mode_value"
@@ -108,6 +108,7 @@
             android:layout_weight="1"
             android:orientation="vertical">
             <TextView
+                android:layout_marginTop="@dimen/setting_margin_top"
                 android:text="@string/title_wavelength_y"
                 android:textSize="@dimen/setting_title"
                 android:layout_width="wrap_content"
@@ -133,6 +134,7 @@
                     android:layout_height="wrap_content" />
             </RelativeLayout>
             <RelativeLayout
+                android:layout_marginTop="@dimen/setting_margin_item"
                 android:id="@+id/layout_limit_down"
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
@@ -157,6 +159,7 @@
                 android:layout_height="0.5dp"
                 android:background="@color/color_divide_line" />
             <TextView
+                android:layout_marginTop="@dimen/setting_margin_top"
                 android:text="@string/title_wavelength_x"
                 android:textSize="@dimen/setting_title"
                 android:layout_width="wrap_content"
@@ -186,6 +189,7 @@
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
                 android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_marginTop="@dimen/setting_margin_item"
                 android:layout_height="wrap_content">
                 <TextView
                     android:layout_width="wrap_content"
@@ -209,6 +213,8 @@
                 android:layout_width="match_parent"
                 android:orientation="vertical"
                 android:id="@+id/layout_wavelengthscan_speed"
+                android:layout_marginTop="@dimen/setting_margin_top"
+
                 android:layout_height="wrap_content">
                 <TextView
                     android:text="@string/title_scan_speed"
@@ -229,6 +235,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
+                android:layout_marginTop="@dimen/setting_margin_top"
+
                 android:orientation="vertical">
 
                 <TextView
