@@ -94,13 +94,25 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/chart_margin_right"
+            android:layout_marginTop="@dimen/chart_margin_top"
             android:layout_weight="1">
 
             <lecho.lib.hellocharts.view.LineChartView
                 android:id="@+id/hello_wavelength_scan"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/margin_2_dp" />
+                />
+            <View
+                android:layout_alignParentTop="true"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line"/>
+            <View
+                android:layout_alignParentRight="true"
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:background="@color/color_divide_line"/>
         </RelativeLayout>
 
         <View
