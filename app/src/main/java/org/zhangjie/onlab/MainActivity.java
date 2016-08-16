@@ -1,5 +1,6 @@
 package org.zhangjie.onlab;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -67,6 +68,9 @@ import org.zhangjie.onlab.utils.Utils;
 
 import java.util.List;
 
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class MainActivity extends AppCompatActivity implements WavelengthDialog.WavelengthInputListern,
         FragmentCallbackListener, View.OnClickListener, DialogInterface.OnClickListener {
 
@@ -100,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private DeviceManager mDeviceManager;
 
     private Toast mToast;
-    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    private int permissionCheck;
     private BluetoothAdapter mBluetoothAdapter;
     private ProgressDialog mWaitDialog;
     //++++UV DATA
@@ -183,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_GET_STATUS) != 0) {
             //getstatus ertry
             Log.d(TAG, "GET STATUS ENTRY");
-                work_entry_getstatus(msg);
+            work_entry_getstatus(msg);
         }
         if ((flag & DeviceManager.WORK_ENTRY_FLAG_INITIALIZE) != 0) {
             //initialzation ertry
@@ -194,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mDeviceManager.clearFlag(DeviceManager.WORK_ENTRY_FLAG_INITIALIZE);
             //update status entry
             Log.v(TAG, "UPDATE STATUS ENTRY");
-            if(mIsInitialized) {
+            if (mIsInitialized) {
                 work_entry_updatestatus(msg);
             } else {
                 work_entry_initialize(msg);
@@ -893,7 +895,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         //restart main loop
         mDeviceManager.setLoopThreadRestart();
 
-        if(tag.startsWith(DeviceManager.TAG_RESET_DARK)) {
+        if (tag.startsWith(DeviceManager.TAG_RESET_DARK)) {
             dismissDialog();
             //get dark
             for (int i = 0; i < 8; i++) {
@@ -1003,8 +1005,36 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mDeviceManager = DeviceManager.getInstance();
         mDeviceManager.init(this, mUiHandler);
 
-        checkLocationPermission();
+        checkPermissions();
         mDark = new int[8];
+        //check the directory is exist?
+        //if not exist, create the directory
+        Utils.checkDirectory();
+    }
+
+    private static final int RC_ROOT = 102;
+
+    @AfterPermissionGranted(RC_ROOT)
+    public void checkPermissions() {
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_COARSE_LOCATION};
+        boolean[] allows = new boolean[permissions.length];
+        for(int i = 0; i < permissions.length; i++) {
+            if(EasyPermissions.hasPermissions(this, permissions[i])) {
+                allows[i] = true;
+            } else {
+                allows[i] = false;
+            }
+        }
+        boolean result = true;
+        for(int i = 0; i < permissions.length; i++) {
+            result &= allows[i];
+        }
+
+        if(!result) {
+            EasyPermissions.requestPermissions(this, "Root", RC_ROOT, permissions[0], permissions[1], permissions[2]);
+        }
     }
 
     @Override
@@ -1174,6 +1204,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 //                toastShow("save");
                 BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_SAVE));
                 break;
+            case R.id.action_file_export:
+                BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_FILE_EXPORT));
+                break;
             case R.id.action_print:
                 BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_PRINT));
 //                toastShow("print");
@@ -1313,27 +1346,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
-    public void checkLocationPermission() {
-        permissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
-
-        switch (permissionCheck) {
-            case PackageManager.PERMISSION_GRANTED:
-                break;
-
-            case PackageManager.PERMISSION_DENIED:
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    //Show an explanation to user *asynchronouselly* -- don't block
-                    //this thread waiting for the user's response! After user sees the explanation, try again to request the permission
-                    toastShow("Location access is required to show Bluetooth devices nearby.");
-                } else {
-                    //No explanation needed, we can request the permission
-                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
-                }
-                break;
-        }
-    }
-
     private void toastShow(String msg) {
         if (mToast != null) {
             mToast.setText(msg);
@@ -1400,7 +1412,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void loadResetDarkDialog() {
-        if(!mWaitDialog.isShowing()) {
+        if (!mWaitDialog.isShowing()) {
             mWaitDialog.setMessage(getString(R.string.reset_dark));
             mWaitDialog.show();
         }
@@ -1481,7 +1493,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     public void loadWavelengthDialog(float wavelength) {
-        if(checkConnected()) {
+        if (checkConnected()) {
             mDeviceManager.setWavelengthWork((int) (wavelength));
             loadSetWavelengthDialog();
         }

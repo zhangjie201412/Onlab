@@ -34,6 +34,10 @@ import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 import org.zhangjie.onlab.utils.Utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,13 +47,14 @@ import java.util.List;
  */
 public class PhotometricMeasureFragment extends Fragment implements View.OnClickListener {
 
-    private boolean isFake = false;
+    private boolean isFake = true;
     private static final String TAG = "Onlab.PhotometricMea";
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
     private List<HashMap<String, String>> mData;
     private boolean mIsRezeroed = false;
     private SaveNameDialog mSaveDialog;
+    private SaveNameDialog mFileExportDialog;
 
     private boolean loadFile = false;
     private int loadFileIndex = -1;
@@ -140,10 +145,10 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
         rezero.setOnClickListener(this);
         setting.setOnClickListener(this);
         mSaveDialog = new SaveNameDialog();
+        mFileExportDialog = new SaveNameDialog();
         mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
             @Override
             public void onSettingInputComplete(int id, String name) {
-
                 if(name.length() < 1 || (!Utils.isValidName(name))) {
                     Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
                     return;
@@ -183,6 +188,57 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
                 getFragmentManager().popBackStack();
             }
         });
+        mFileExportDialog.init(-1, getString(R.string.action_file_export), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(int index, String name) {
+                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                File file = Utils.getPhotometricMeasureFile(name + ".txt");
+                try {
+                    FileWriter out = new FileWriter(file, false);
+                    BufferedWriter writer = new BufferedWriter(out);
+                    String line = String.format("%s\t%s\t%s\t%s\t%s\n",
+                            getString(R.string.index),
+                            getString(R.string.wavelength),
+                            getString(R.string.abs),
+                            getString(R.string.trans),
+                            getString(R.string.energy));
+                    writer.write(line);
+                    for (int i = 0; i < mData.size(); i++) {
+                        int id = 0;
+                        float wavelength = 0.0f;
+                        float abs = 0.0f;
+                        float trans = 0.0f;
+                        int energy = 0;
+
+                        HashMap<String, String> map = mData.get(i);
+                        id = Integer.parseInt(map.get("id"));
+                        wavelength = Float.parseFloat(map.get("wavelength"));
+                        abs = Float.parseFloat(map.get("abs"));
+                        trans = Float.parseFloat(map.get("trans"));
+                        energy = Integer.parseInt(map.get("energy"));
+                        line = String.format("%d\t%f\t%f\t%f\t%d\n",
+                                id, wavelength, abs, trans, energy);
+                        writer.write(line);
+                    }
+                    writer.flush();
+                    writer.close();
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void abort() {
+
+            }
+        });
+        mFileExportDialog.setAbort(false);
+
         if(loadFile) {
             loadFileById(loadFileIndex);
         }
@@ -294,6 +350,12 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
             mSaveDialog.show(getFragmentManager(), "save");
         } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
 
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
+            if(mData.size() < 1) {
+                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mFileExportDialog.show(getFragmentManager(), "file_export");
         }
     }
 

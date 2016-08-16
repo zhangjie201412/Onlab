@@ -2,6 +2,7 @@ package org.zhangjie.onlab.utils;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,6 +11,7 @@ import org.zhangjie.onlab.DeviceApplication;
 import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 import lecho.lib.hellocharts.util.ChartUtils;
@@ -32,6 +34,12 @@ public class Utils {
     public static final int DEFAULT_ENERGY_VALUE = 65535;
 
     public static boolean needToSave = false;
+
+    public static String FILE_PATH_ONLAB = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Onlab/";
+    public static String FILE_PATH_PHOTOMETRIC_MEASURE = FILE_PATH_ONLAB + "/PhtotmetricMeasure/";
+    public static String FILE_PATH_QUANTITATIVE_ANALYSIS = FILE_PATH_ONLAB + "/QuantitativeAnalysis/";
+    public static String FILE_PATH_WAVELENGTH_SCAN = FILE_PATH_ONLAB + "/WavelengthScan/";
+    public static String FILE_PATH_TIME_SCAN = FILE_PATH_ONLAB + "/TimeScan/";
 
     public static String formatAbs(float abs) {
         String result = "";
@@ -157,5 +165,24 @@ public class Utils {
         String namePattern = "^[\\u4E00-\\u9FA5\\uF900-\\uFA2D\\w]{1,10}$";
         boolean result = Pattern.matches(namePattern, name);
         return result;
+    }
+
+    public static void createDirectory(String dirPath) {
+        File file = new File(dirPath);
+        if(!file.exists()) {
+            file.mkdirs();
+        }
+    }
+
+    public static void checkDirectory() {
+        createDirectory(FILE_PATH_ONLAB);
+        createDirectory(FILE_PATH_PHOTOMETRIC_MEASURE);
+        createDirectory(FILE_PATH_QUANTITATIVE_ANALYSIS);
+        createDirectory(FILE_PATH_WAVELENGTH_SCAN);
+        createDirectory(FILE_PATH_TIME_SCAN);
+    }
+
+    public static File getPhotometricMeasureFile(String name) {
+        return new File(FILE_PATH_PHOTOMETRIC_MEASURE + name);
     }
 }

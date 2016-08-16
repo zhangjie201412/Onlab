@@ -33,6 +33,11 @@
         android:title="@string/action_save"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_file_export"
+        android:orderInCategory="120"
+        android:title="@string/action_file_export"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_print"
         android:orderInCategory="120"
         android:title="@string/action_print"

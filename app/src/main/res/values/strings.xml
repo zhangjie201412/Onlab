@@ -6,6 +6,7 @@
     <string name="main">主界面</string>
     <string name="action_open">打开</string>
     <string name="action_save">保存</string>
+    <string name="action_file_export">文件导出</string>
     <string name="action_print">打印</string>
     <string name="action_set_wavelength">设置波长</string>
     <string name="action_baseline">建立基线</string>
