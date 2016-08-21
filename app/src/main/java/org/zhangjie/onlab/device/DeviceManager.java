@@ -274,11 +274,11 @@ public class DeviceManager implements BtleListener {
     }
 
     public int getDarkFromWavelength(float wavelength) {
-        return mI0[(int)((wavelength - BASELINE_START)*10)];
+        return mI0[(int) ((wavelength - BASELINE_START) * 10)];
     }
 
     public void setDark(float wavelength, int dark) {
-        mI0[(int)((wavelength - BASELINE_START)*10)] = dark;
+        mI0[(int) ((wavelength - BASELINE_START) * 10)] = dark;
     }
 
     public void start() {
@@ -397,6 +397,8 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS = 1 << 11;
     public static final int WORK_ENTRY_FLAG_GET_STATUS = 1 << 12;
     public static final int WORK_ENTRY_FLAG_SET_LAMP_WAVELENGTH = 1 << 13;
+    public static final int WORK_ENTRY_FLAG_DNA_REZERO = 1 << 14;
+    public static final int WORK_ENTRY_FLAG_DNA_TEST = 1 << 15;
     public static final int WORK_ENTRY_FLAG_SINGLE_COMMAND = 1 << 31;
 
     private int mEntryFlag = 0x00000000;
@@ -571,7 +573,7 @@ public class DeviceManager implements BtleListener {
         clearCmd(cmdList);
 
         for (float wl = end; wl >= start; wl -= interval) {
-            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH,  wl);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl);
             addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wl));
             addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         }
@@ -608,6 +610,40 @@ public class DeviceManager implements BtleListener {
         doWork(cmdList);
     }
 
+    public synchronized void doDnaRezero(float wl1, float wl2, float wlRef) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_DNA_REZERO;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl1);
+        addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl2);
+        addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wlRef);
+        addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
+        doWork(cmdList);
+    }
+
+    public synchronized void doDnaTest(float wl1, float wl2, float wlRef) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_DNA_TEST;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl1);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl1));
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl2);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl2));
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wlRef);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wlRef));
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        doWork(cmdList);
+    }
     public synchronized void doQuantitativeAnalysis() {
         setLoopThreadPause();
         mEntryFlag = 0x00000000;

@@ -1,7 +1,6 @@
 package org.zhangjie.onlab;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -14,8 +13,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -43,6 +40,7 @@ import org.zhangjie.onlab.dialog.LightMgrDialog;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.fragment.AboutFragment;
+import org.zhangjie.onlab.fragment.DnaFragment;
 import org.zhangjie.onlab.fragment.FragmentCallbackListener;
 import org.zhangjie.onlab.fragment.HelloChartFragment;
 import org.zhangjie.onlab.fragment.MainFragment;
@@ -52,6 +50,7 @@ import org.zhangjie.onlab.fragment.QuantitativeAnalysisFragment;
 import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.DnaCallbackEvent;
 import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
 import org.zhangjie.onlab.otto.QaUpdateEvent;
@@ -82,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private QuantitativeAnalysisFragment mQuantitativeAnalysisFragment;
     private MultipleWavelengthFragment mMultipleWavelengthFragment;
     private AboutFragment mAboutFragment;
+    private DnaFragment mDnaFragment;
     private HelloChartFragment mHelloChart;
     private TextView mTitleTextView;
     private TextView mBottomWavelength;
@@ -256,6 +256,16 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             //do quantitative analysis entry
             Log.d(TAG, "QUANTITATIVE ANALYSIS ENTRY");
             work_entry_quantitative_analysis(msg);
+        }
+
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_DNA_REZERO) != 0) {
+            Log.d(TAG, "DNA REZERO ENTRY");
+            work_entry_dna_rezero(msg);
+        }
+
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_DNA_TEST) != 0) {
+            Log.d(TAG, "DNA TEST ENTRY");
+            work_entry_dna_test(msg);
         }
 
         //...
@@ -749,7 +759,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     //++
     private float mMultipleWavelength;
-
     //--
     private void work_entry_multiple_wavelength_rezero(String[] msgs) {
         String tag = msgs[0];
@@ -852,6 +861,80 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 loadWavelengthDialog(MultipleWavelengthFragment.mOrderWavelengths[0]);
 //                mI0 = mDeviceManager.getDarkFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
 //                mA = mDeviceManager.getGainFromBaseline((int)MultipleWavelengthFragment.mOrderWavelengths[0]);
+            }
+        }
+    }
+
+    //++
+    private float mDnaWavelength;
+    //--
+    private void work_entry_dna_rezero(String[] msgs) {
+        String tag = msgs[0];
+
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
+            String wl = msgs[0].substring(3);
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            Log.d(TAG, "dna rezero wl = " + wl);
+            mDnaWavelength = Float.parseFloat(wl);
+        } else if (tag.startsWith(DeviceManager.TAG_REZERO)) {
+            if (mDnaWavelength == 0) {
+                return;
+            }
+            msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            mI0 = Integer.parseInt(msgs[1]);
+            mA = Integer.parseInt(msgs[2]);
+
+            int I0 = Integer.parseInt(msgs[1]);
+            mDeviceManager.setDark(mDnaWavelength, I0);
+            int gain = Integer.parseInt(msgs[2]);
+            mDeviceManager.setGain((int) mDnaWavelength, gain);
+            if (mDnaWavelength == DnaFragment.refWavelength) {
+                Log.d(TAG, "do dna wavelength rezero done!");
+                mDnaWavelength = 0;
+                dismissDialog();
+                BusProvider.getInstance().post(new DnaCallbackEvent(DnaCallbackEvent.EVENT_TYPE_REZERO_DONE));
+                mDeviceManager.setLoopThreadRestart();
+            }
+        }
+    }
+
+    private void work_entry_dna_test(String[] msgs) {
+        String tag = msgs[0];
+        int energy;
+
+        Log.d(TAG, "msgs[0] = " + msgs[0]);
+
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
+            String wl = msgs[0].substring(3);
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            mDnaWavelength = Float.parseFloat(wl);
+        } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
+
+        } else if (tag.startsWith("ge 1")) {
+            if (mDnaWavelength == 0) {
+                return;
+            }
+            //get energy
+            msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            energy = Integer.parseInt(msgs[1]);
+            int gain = mDeviceManager.getGainFromBaseline((int) mDnaWavelength);
+
+            int I1 = energy;
+            float trans = (float) (I1 - mDark[gain - 1]) /
+                    (float) (mDeviceManager.getDarkFromWavelength(mDnaWavelength) - mDark[gain - 1]);
+            float abs = (float) -Math.log10(trans);
+            abs = Utils.getValidAbs(abs);
+
+            BusProvider.getInstance().post(new DnaCallbackEvent(DnaCallbackEvent.EVENT_TYPE_UPDATE,
+                    mDnaWavelength, abs));
+
+            if (mDnaWavelength == DnaFragment.refWavelength) {
+                Log.d(TAG, "do dna test done!");
+                mDnaWavelength = 0;
+                dismissDialog();
+                BusProvider.getInstance().post(new DnaCallbackEvent(DnaCallbackEvent.EVENT_TYPE_TEST_DONE));
+                mDeviceManager.setLoopThreadRestart();
             }
         }
     }
@@ -1148,13 +1231,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             case MainFragment.ITEM_MULTI_WAVELENGTH:
                 addContentFragment(mMultipleWavelengthFragment);
                 break;
-            case MainFragment.ITEM_HESUAN:
-                break;
             case MainFragment.ITEM_SYSTEM_SETTING:
                 showSystemSettingDialog();
                 break;
             case MainFragment.ITEM_ABOUT:
                 addContentFragment(mAboutFragment);
+                break;
+            case MainFragment.ITEM_DNA:
+                addContentFragment(mDnaFragment);
                 break;
             default:
                 break;
@@ -1299,6 +1383,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mQuantitativeAnalysisFragment = new QuantitativeAnalysisFragment();
         mMultipleWavelengthFragment = new MultipleWavelengthFragment();
         mAboutFragment = new AboutFragment();
+        mDnaFragment = new DnaFragment();
         mHelloChart = new HelloChartFragment();
 
         mWaitDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
@@ -1561,10 +1646,21 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     public void onMultipleWavelengthEvent(MultipleWavelengthCallbackEvent event) {
         if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_REZERO) {
             doRezeroDialog();
-            DeviceManager.getInstance().doMultipleWavelengthRezero(event.wavelengths);
+            mDeviceManager.doMultipleWavelengthRezero(event.wavelengths);
         } else if (event.event_type == MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_TEST) {
             doTestDialog();
-            DeviceManager.getInstance().doMultipleWavelengthTest(event.wavelengths);
+            mDeviceManager.doMultipleWavelengthTest(event.wavelengths);
+        }
+    }
+
+    @Subscribe
+    public void onDnaEvent(DnaCallbackEvent event) {
+        if(event.event_type == DnaCallbackEvent.EVENT_TYPE_DO_REZERO) {
+            doRezeroDialog();
+            mDeviceManager.doDnaRezero(event.wl1, event.wl2, event.wlRef);
+        } else if(event.event_type == DnaCallbackEvent.EVENT_TYPE_DO_TEST) {
+            doTestDialog();
+            mDeviceManager.doDnaTest(event.wl1, event.wl2, event.wlRef);
         }
     }
 
