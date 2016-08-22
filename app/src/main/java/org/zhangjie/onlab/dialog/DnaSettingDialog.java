@@ -12,6 +12,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
 import android.text.style.TypefaceSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -85,32 +86,34 @@ public class DnaSettingDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_dna_setting, null);
 
+        Log.d("###", "SIZE = " + getResources().getDimensionPixelSize(R.dimen.formalu_text_size));
+
         mFormaluTextView = (TextView) view.findViewById(R.id.tv_formalu_title);
         mSp = new SpannableString("CDNA=(Abs波长1-Abs参考波长)xF1-(Abs波长2-Abs参考波长)xF2\nCProtein=(Abs波长2-Abs参考波长)xF3-(Abs波长1-Abs参考波长)xF4");
         mSp.setSpan(new StyleSpan(Typeface.BOLD), 0, mSp.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(24, true), 0, mSp.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size), true), 0, mSp.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new TypefaceSpan("monospace"), 0, mSp.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 1, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 1, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 1, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 9, 12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 9, 12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 9, 12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 16, 20, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 16, 20, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 16, 20, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 29, 32, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 29, 32, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 29, 32, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 36, 40, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 36, 40, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 36, 40, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         mSp.setSpan(new SubscriptSpan(), 46, 53, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true),46, 53, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true),46, 53, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 58, 61, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 58, 61, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 58, 61, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 65, 69, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 65, 69, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 65, 69, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 76, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 76, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 76, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 85, 89, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan(15, true), 85, 89, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 85, 89, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mFormaluTextView.setText(mSp);
 
         initView(view);

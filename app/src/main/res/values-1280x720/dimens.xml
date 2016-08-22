@@ -17,9 +17,9 @@
     <dimen name="margin_4_dp">4dp</dimen>
     <dimen name="margin_5_dp">5dp</dimen>
     <dimen name="list_text_size">16sp</dimen>
-    <dimen name="setting_title">24sp</dimen>
-    <dimen name="setting_content">20sp</dimen>
-    <dimen name="setting_value">20sp</dimen>
+    <dimen name="setting_title">18sp</dimen>
+    <dimen name="setting_content">14sp</dimen>
+    <dimen name="setting_value">14sp</dimen>
     <dimen name="setting_margin_top">15dp</dimen>
     <dimen name="setting_margin_item">10dp</dimen>
     <dimen name="setting_margin_left">20dp</dimen>
@@ -28,16 +28,16 @@
     <dimen name="formalu_size">18sp</dimen>
     <dimen name="add_text_size">18sp</dimen>
     <dimen name="baseline_title_size">18sp</dimen>
-    <dimen name="item_width">90dp</dimen>
-    <dimen name="item_height">90dp</dimen>
-    <dimen name="item_text_size">18sp</dimen>
-    <dimen name="item_padding">40dp</dimen>
+    <dimen name="item_width">60dp</dimen>
+    <dimen name="item_height">6dp</dimen>
+    <dimen name="item_text_size">14sp</dimen>
+    <dimen name="item_padding">32dp</dimen>
     <dimen name="item_text_margin_top">6dp</dimen>
     <dimen name="title_text_size">16sp</dimen>
     <dimen name="chart_margin_top">10dp</dimen>
     <dimen name="chart_margin_right">10dp</dimen>
-    <dimen name="dna_setting_margin_top">50dp</dimen>
-    <dimen name="formalu_text_size">24px</dimen>
-    <dimen name="formalu_text_size_down">15px</dimen>
+    <dimen name="dna_setting_margin_top">30dp</dimen>
+    <dimen name="formalu_text_size">12px</dimen>
+    <dimen name="formalu_text_size_down">8px</dimen>
 
 </resources>

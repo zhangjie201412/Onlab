@@ -156,9 +156,12 @@ public class BtleManager {
 
             mLEScanner.startScan(mScanCallback);
         } else {
-
-            mLEScanner.stopScan(mScanCallback);
-            Log.d(TAG, "stop scan");
+            if(mBluetoothLeService!= null) {
+                mLEScanner.stopScan(mScanCallback);
+                Log.d(TAG, "stop scan");
+            } else {
+                Log.e(TAG, "something is null");
+            }
         }
     }
 
