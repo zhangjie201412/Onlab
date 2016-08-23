@@ -63,7 +63,8 @@ import lecho.lib.hellocharts.view.LineChartView;
 public class TimeScanFragment extends Fragment implements View.OnClickListener, CalcSpeedDialog.CalcSpeedListener {
 
     private static final String TAG = "Onlab.TimeScanFragment";
-    private boolean isFake = false;
+    private static final int LINE_MAX = 30;
+    private boolean isFake = true;
     private TextView mWavelengthTextView;
     private TextView mRatioTextView;
     private TextView mIntervalTextView;
@@ -165,12 +166,11 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         mRatioTextView.setVisibility(View.INVISIBLE);
 
         mListView = (ListView) view.findViewById(R.id.lv_time_scan);
-        mData = new List[4];
+        mData = new List[LINE_MAX];
 
-        mData[0] = new ArrayList<HashMap<String, String>>();
-        mData[1] = new ArrayList<HashMap<String, String>>();
-        mData[2] = new ArrayList<HashMap<String, String>>();
-        mData[3] = new ArrayList<HashMap<String, String>>();
+        for(int i = 0; i < LINE_MAX; i++) {
+            mData[i] = new ArrayList<>();
+        }
 
         mPeakData = new ArrayList<HashMap<String, String>>();
         mOperateData = new ArrayList<HashMap<String, String>>();
@@ -258,20 +258,18 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     }
 
     private void initChart() {
-        mPoints = new List[4];
-        mPoints[0] = new ArrayList<PointValue>();
-        mPoints[1] = new ArrayList<PointValue>();
-        mPoints[2] = new ArrayList<PointValue>();
-        mPoints[3] = new ArrayList<PointValue>();
+        mPoints = new List[LINE_MAX];
+        for(int i = 0; i < LINE_MAX; i++) {
+            mPoints[i] = new ArrayList<PointValue>();
+        }
         mPeakPoints = new ArrayList<PointValue>();
         mOperatePoints = new ArrayList<PointValue>();
         mDerivativePoints = new ArrayList<PointValue>();
         mLines = new ArrayList<Line>();
-        mLine = new Line[4];
-        mLine[0] = new Line(mPoints[0]).setColor(Utils.COLORS[0]).setCubic(true);
-        mLine[1] = new Line(mPoints[1]).setColor(Utils.COLORS[1]).setCubic(true);
-        mLine[2] = new Line(mPoints[2]).setColor(Utils.COLORS[2]).setCubic(true);
-        mLine[3] = new Line(mPoints[3]).setColor(Utils.COLORS[3]).setCubic(true);
+        mLine = new Line[LINE_MAX];
+        for(int i = 0; i < LINE_MAX; i++) {
+            mLine[i] = new Line(mPoints[i]).setColor(Utils.COLORS[i % 4]).setCubic(true);
+        }
 
         for (int i = 0; i < mLine.length; i++) {
             mLine[i].setPointRadius(1);
@@ -368,8 +366,6 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
         item.put("id", "" + no);
         item.put("second", "" + record.getSecond());
-
-
         item.put("abs", Utils.formatAbs(record.getAbs()));
         item.put("trans", Utils.formatTrans(record.getTrans()));
         item.put("energy", "" + record.getEnergy());
@@ -490,7 +486,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 break;
             case R.id.bt_time_scan_start:
                 if (!isFake) {
-                    for (int i = 3; i >= 0; i--) {
+                    for (int i = LINE_MAX - 1; i >= 0; i--) {
                         if (mData[i].size() == 0) {
                             mCurDataIndex = i;
                             mLstDataIndex = mCurDataIndex;
@@ -503,7 +499,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                     mThread = new TimescanThread(mInterval, mDuration);
                     mThread.start();
                 } else {
-                    for (int i = 3; i >= 0; i--) {
+                    for (int i = LINE_MAX - 1; i >= 0; i--) {
                         if (mData[i].size() == 0) {
                             mCurDataIndex = i;
                         }
@@ -546,9 +542,9 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     private void showCurrentLines() {
         int avaliables = 0;
         List<String> lineItems = new ArrayList<String>();
-        final int[] indicates = new int[4];
+        final int[] indicates = new int[LINE_MAX];
         int index = 0;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < LINE_MAX; i++) {
             if (mData[i].size() > 0) {
                 avaliables++;
                 lineItems.add(getString(R.string.line) + (i + 1));
@@ -584,7 +580,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     private void setCurrentButton() {
         mCurrentButton.setText(getString(R.string.current) +
                 ": " + getString(R.string.line) + "" + (mCurDataIndex + 1));
-        mCurrentButton.setTextColor(Utils.COLORS[mCurDataIndex]);
+        mCurrentButton.setTextColor(Utils.COLORS[mCurDataIndex % 4]);
     }
 
     private final int PROCESS_ITEM_CUBIC = 0;
@@ -644,7 +640,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                             //select lines
                             int avaliables = 0;
                             List<String> lineItems = new ArrayList<String>();
-                            for (int i = 0; i < 4; i++) {
+                            for (int i = 0; i < LINE_MAX; i++) {
                                 if (mData[i].size() > 0) {
                                     avaliables++;
                                     lineItems.add(getString(R.string.line) + (i + 1));
@@ -867,6 +863,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         int ind_count2 = 0;
         int ind_count = 0;
 
+        String debug = "";
         for (int i = 0; i < mData[id].size(); i++) {
             int index = 0;
             int energy = 0;
@@ -884,7 +881,9 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
             } else if (mode == TimescanSettingActivity.TEST_MODE_TRANS) {
                 data[i] = trans;
             }
+            debug += "" + data[i] + ",";
         }
+        Log.d(TAG, debug);
 
         int direction = data[0] > 0 ? -1 : 1;
         for (int i = 0; i < totalSize - 1; i++) {

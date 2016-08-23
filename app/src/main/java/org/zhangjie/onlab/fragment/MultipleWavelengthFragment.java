@@ -25,6 +25,7 @@ import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.MultipleWavelengthSettingDialog;
+import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
 import org.zhangjie.onlab.otto.SetOperateEvent;
@@ -61,6 +62,11 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
 
     private int mMainIndex = 1;
     private int mSubIndex = 1;
+    private SaveNameDialog mSaveDialog;
+    private SaveNameDialog mFileExportDialog;
+
+    private boolean loadFile = false;
+    private int loadFileIndex = -1;
 
     @Nullable
     @Override
@@ -126,12 +132,158 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
                 Log.d(TAG, String.format("[%d] -> %f\n", i, mOrderWavelengths[i]));
             }
         }
+        mSaveDialog = new SaveNameDialog();
+        mFileExportDialog = new SaveNameDialog();
+//        mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
+//            @Override
+//            public void onSettingInputComplete(int id, String name) {
+//                if(name.length() < 1 || (!Utils.isValidName(name))) {
+//                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                List<String> saveFileList = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+//                Log.d(TAG, "Alread saved -> " + saveFileList.size() + " files.");
+//
+//                for (int i = 0; i < saveFileList.size(); i++) {
+//                    Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
+//                }
+//                String fileName = name;
+//                for (int i = 0; i < mData.size(); i++) {
+//                    int index = 0;
+//                    float wavelength = 0.0f;
+//                    float abs = 0.0f;
+//                    float trans = 0.0f;
+//                    int energy = 0;
+//                    long date = 0;
+//
+//                    HashMap<String, String> map = mData.get(i);
+//                    index = Integer.parseInt(map.get("id"));
+//                    wavelength = Float.parseFloat(map.get("wavelength"));
+//                    abs = Float.parseFloat(map.get("abs"));
+//                    trans = Float.parseFloat(map.get("trans"));
+//                    energy = Integer.parseInt(map.get("energy"));
+//                    date = Long.parseLong(map.get("date"));
+//
+//                    PhotoMeasureRecord record = new PhotoMeasureRecord(index, wavelength, abs, trans, energy, date);
+//                    DeviceApplication.getInstance().getPhotometricMeasureDb().saveRecord(fileName, record);
+//                }
+//                Log.d(TAG, "save to -> " + fileName);
+//                Utils.needToSave = false;
+//            }
+//
+//            @Override
+//            public void abort() {
+//                getFragmentManager().popBackStack();
+//            }
+//        });
+//        mFileExportDialog.init(-1, getString(R.string.action_file_export), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
+//            @Override
+//            public void onSettingInputComplete(int index, String name) {
+//                if(name.length() < 1 || (!Utils.isValidName(name))) {
+//                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                File file = Utils.getPhotometricMeasureFile(name + ".txt");
+//                try {
+//                    FileWriter out = new FileWriter(file, false);
+//                    BufferedWriter writer = new BufferedWriter(out);
+//                    String line = String.format("%s\t%s\t%s\t%s\t%s\n",
+//                            getString(R.string.index),
+//                            getString(R.string.wavelength),
+//                            getString(R.string.abs),
+//                            getString(R.string.trans),
+//                            getString(R.string.energy));
+//                    writer.write(line);
+//                    for (int i = 0; i < mData.size(); i++) {
+//                        int id = 0;
+//                        float wavelength = 0.0f;
+//                        float abs = 0.0f;
+//                        float trans = 0.0f;
+//                        int energy = 0;
+//
+//                        HashMap<String, String> map = mData.get(i);
+//                        id = Integer.parseInt(map.get("id"));
+//                        wavelength = Float.parseFloat(map.get("wavelength"));
+//                        abs = Float.parseFloat(map.get("abs"));
+//                        trans = Float.parseFloat(map.get("trans"));
+//                        energy = Integer.parseInt(map.get("energy"));
+//                        line = String.format("%d\t%f\t%f\t%f\t%d\n",
+//                                id, wavelength, abs, trans, energy);
+//                        writer.write(line);
+//                    }
+//                    writer.flush();
+//                    writer.close();
+//                    out.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void abort() {
+//
+//            }
+//        });
+//        mFileExportDialog.setAbort(false);
+//
+//        if(loadFile) {
+//            loadFileById(loadFileIndex);
+//        }
     }
+
+    public void prepareLoadFile(int id) {
+        loadFile = true;
+        loadFileIndex = id;
+    }
+
+//    private void loadFileById(int id) {
+//        List<String> fileList = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+//        String fileName = fileList.get(id);
+//        List<PhotoMeasureRecord> lists = DeviceApplication.getInstance().getPhotometricMeasureDb().getRecords(fileName);
+//        mData.clear();
+//        for(int i = 0; i < lists.size(); i++) {
+//            addItem(lists.get(i));
+//        }
+//        Utils.needToSave = false;
+//    }
+
+//    @Subscribe
+//    public void onFileOperateEvent(FileOperateEvent event) {
+//        if (event.op_type == FileOperateEvent.OP_EVENT_OPEN) {
+//            List<String> saveFileList = DeviceApplication.getInstance().getPhotometricMeasureDb().getTables();
+//
+//            Utils.showItemSelectDialog(getActivity(), getString(R.string.action_open)
+//                    , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            loadFileById(which);
+//                        }
+//                    });
+//
+//        } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+//            if(mData.size() < 1) {
+//                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//            mSaveDialog.show(getFragmentManager(), "save");
+//        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+//
+//        } else if(event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
+//            if(mData.size() < 1) {
+//                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//            mFileExportDialog.show(getFragmentManager(), "file_export");
+//        }
+//    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+        Utils.needToSave = false;
+        loadFile = false;
     }
 
     private void addItem(MultipleWavelengthRecord record) {
