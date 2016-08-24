@@ -926,6 +926,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             float abs = (float) -Math.log10(trans);
             abs = Utils.getValidAbs(abs);
 
+            Log.d(TAG, "Update abs = " + abs);
+
             BusProvider.getInstance().post(new DnaCallbackEvent(DnaCallbackEvent.EVENT_TYPE_UPDATE,
                     mDnaWavelength, abs));
 
@@ -1158,6 +1160,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     public void onBackPressed() {
 
+        Log.d(TAG, "operateMode = " + mOperateMode + ", needToSave = " + Utils.needToSave);
         if (mOperateMode) {
             BusProvider.getInstance().post(new SetOperateModeEvent(false));
             setOperateMode(false);
@@ -1170,7 +1173,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
 
         int backStackCount = getFragmentManager().getBackStackEntryCount();
-//        Log.d(TAG, "back stack count = " + backStackCount);
+        Log.d(TAG, "back stack count = " + backStackCount);
         // the main fragment is always on the bottom stack
         if (backStackCount > 1) {
             setTitle(getString(R.string.main));
@@ -1264,6 +1267,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             case MainFragment.ITEM_QUANTITATIVE_ANALYSIS:
                 mQuantitativeAnalysisFragment.prepareLoadFile(fileIndex);
                 addContentFragment(mQuantitativeAnalysisFragment);
+                break;
+            case MainFragment.ITEM_MULTI_WAVELENGTH:
+                break;
+            case MainFragment.ITEM_DNA:
+                mDnaFragment.prepareLoadFile(fileIndex);
+                addContentFragment(mDnaFragment);
                 break;
 
             default:

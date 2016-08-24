@@ -3,24 +3,26 @@ package org.zhangjie.onlab.record;
 public class DnaRecord extends BaseData {
 	private int index;
 	private String name;
-	private float wavelength1;
-	private float wavelength2;
-	private float wavelengthRef;
+	private float abs1;
+	private float abs2;
+	private float absRef;
 	private float dna;
 	private float protein;
+	private float ratio;
 	private long time;
 	public DnaRecord() {
 	}
 
-	public DnaRecord(int index, String name, float wavelength1, float wavelength2,
-			float wavelengthRef, float dna, float protein, long date) {
+	public DnaRecord(int index, String name, float abs1, float abs2,
+			float absRef, float dna, float protein, float ratio, long date) {
 		this.index = index;
 		this.name = name;
-		this.wavelength1 = wavelength1;
-		this.wavelength2 = wavelength2;
-		this.wavelengthRef = wavelengthRef;
+		this.abs1 = abs1;
+		this.abs2 = abs2;
+		this.absRef = absRef;
 		this.dna = dna;
 		this.protein = protein;
+		this.ratio = ratio;
 		this.time = date;
 	}
 
@@ -40,28 +42,28 @@ public class DnaRecord extends BaseData {
 		this.name = name;
 	}
 
-	public float getWavelength1() {
-		return wavelength1;
+	public float getAbs1() {
+		return abs1;
 	}
 
-	public void setWavelength1(float wavelength1) {
-		this.wavelength1 = wavelength1;
+	public void setAbs1(float abs1) {
+		this.abs1 = abs1;
 	}
 
-	public float getWavelength2() {
-		return wavelength2;
+	public float getAbs2() {
+		return abs2;
 	}
 
-	public void setWavelength2(float wavelength2) {
-		this.wavelength2 = wavelength2;
+	public void setAbs2(float abs2) {
+		this.abs2 = abs2;
 	}
 
-	public float getWavelengthRef() {
-		return wavelengthRef;
+	public float getAbsRef() {
+		return absRef;
 	}
 
-	public void setWavelengthRef(float wavelengthRef) {
-		this.wavelengthRef = wavelengthRef;
+	public void setAbsRef(float absRef) {
+		this.absRef = absRef;
 	}
 
 	public float getDna() {
@@ -78,6 +80,14 @@ public class DnaRecord extends BaseData {
 
 	public void setProtein(float protein) {
 		this.protein = protein;
+	}
+
+	public float getRatio() {
+		return ratio;
+	}
+
+	public void setRatio(float ratio) {
+		this.ratio = ratio;
 	}
 
 	public long getDate() {

@@ -186,6 +186,20 @@ public class MainFragment extends Fragment {
                                                     }
                                                 });
                                         break;
+                                    case ITEM_MULTI_WAVELENGTH:
+                                        break;
+                                    case ITEM_DNA:
+                                        List<String> saveFileList5 = DeviceApplication.getInstance().getDnaDb().getTables();
+
+                                        Utils.showItemSelectDialog(getActivity(), getResources().getStringArray(R.array.open_titles)[5]
+                                                , saveFileList5.toArray(new String[saveFileList5.size()]), new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        mListener.loadFile(which, id);
+                                                    }
+                                                });
+                                        break;
+
                                 }
                             }
                         });

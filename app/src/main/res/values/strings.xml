@@ -189,6 +189,7 @@
     <string name="dna_with_unit">DNA(ug/ml)</string>
     <string name="protein_with_unit">Protein(ug/ml)</string>
     <string name="radio">radio</string>
+    <string name="sample_name_setting">设置样品名称</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
@@ -277,6 +278,8 @@
         <item>定量分析</item>
         <item>波长扫描</item>
         <item>时间扫描</item>
+        <item>多波长测试</item>
+        <item>核酸蛋白</item>
     </string-array>
 
     <string-array name="titles">

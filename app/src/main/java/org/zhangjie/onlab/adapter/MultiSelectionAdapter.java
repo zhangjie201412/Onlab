@@ -102,6 +102,18 @@ public class MultiSelectionAdapter extends BaseAdapter {
                 holder.energy.setText(mData.get(position).get("energy"));
             } else if (mKeys[i].equals("conc")) {
                 holder.conc.setText(mData.get(position).get("conc"));
+            } else if (mKeys[i].equals("abs1")) {
+                holder.abs1.setText(mData.get(position).get("abs1"));
+            } else if (mKeys[i].equals("abs2")) {
+                holder.abs2.setText(mData.get(position).get("abs2"));
+            } else if (mKeys[i].equals("absRef")) {
+                holder.absRef.setText(mData.get(position).get("absRef"));
+            } else if (mKeys[i].equals("dna")) {
+                holder.dna.setText(mData.get(position).get("dna"));
+            } else if (mKeys[i].equals("protein")) {
+                holder.protein.setText(mData.get(position).get("protein"));
+            } else if (mKeys[i].equals("ratio")) {
+                holder.ratio.setText(mData.get(position).get("ratio"));
             }
         }
         holder.cb.setTag("" + position);
@@ -150,6 +162,12 @@ public class MultiSelectionAdapter extends BaseAdapter {
         public TextView trans;
         public TextView energy;
         public TextView conc;
+        public TextView abs1;
+        public TextView abs2;
+        public TextView absRef;
+        public TextView dna;
+        public TextView protein;
+        public TextView ratio;
         public CheckBox cb;
 
         public void setTextViewByKey(String key, TextView tv) {
@@ -169,6 +187,18 @@ public class MultiSelectionAdapter extends BaseAdapter {
                 energy = tv;
             } else if (key.equals("conc")) {
                 conc = tv;
+            } else if (key.equals("abs1")) {
+                abs1 = tv;
+            } else if (key.equals("abs2")) {
+                abs2 = tv;
+            } else if (key.equals("absRef")) {
+                absRef = tv;
+            } else if (key.equals("dna")) {
+                dna = tv;
+            } else if (key.equals("protein")) {
+                protein = tv;
+            } else if(key.equals("ratio")) {
+                ratio = tv;
             }
         }
     }
