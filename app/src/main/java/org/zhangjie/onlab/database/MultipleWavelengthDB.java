@@ -28,12 +28,12 @@ public class MultipleWavelengthDB {
     public void saveRecord(String recordName, MultipleWavelengthRecord record) {
         mDb.execSQL("CREATE table IF NOT EXISTS _"
                 + recordName
-                + " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,date TEXT)");
+                + " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,subid INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,date TEXT)");
         mDb.execSQL(
                 "insert into _"
                         + recordName
-                        + " (iindex,wavelength,abs,trans,energy,date) values(?,?,?,?,?,?)",
-                new Object[]{record.getIndex(), record.getWavelength(),
+                        + " (iindex,subid,wavelength,abs,trans,energy,date) values(?,?,?,?,?,?,?)",
+                new Object[]{record.getIndex(), record.getSubIndex(), record.getWavelength(),
                         record.getAbs(), record.getTrans(), record.getEnergy(),
                         record.getDate()});
     }
@@ -45,13 +45,14 @@ public class MultipleWavelengthDB {
                 "SELECT * from _" + recordName + " ORDER BY _id", null);
         while (c.moveToNext()) {
             int index = c.getInt(c.getColumnIndex("iindex"));
+            int subIndex = c.getInt(c.getColumnIndex("subid"));
             float wavelength = c.getFloat(c.getColumnIndex("wavelength"));
             float abs = c.getFloat(c.getColumnIndex("abs"));
             float trans = c.getFloat(c.getColumnIndex("trans"));
             int energy = c.getInt(c.getColumnIndex("energy"));
             long date = c.getLong(c.getColumnIndex("date"));
             MultipleWavelengthRecord record = new MultipleWavelengthRecord(index,
-                    wavelength, abs, trans, energy, date);
+                    subIndex, wavelength, abs, trans, energy, date);
             list.add(record);
         }
         c.close();

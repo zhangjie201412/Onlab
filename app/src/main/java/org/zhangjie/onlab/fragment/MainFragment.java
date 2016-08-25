@@ -187,6 +187,15 @@ public class MainFragment extends Fragment {
                                                 });
                                         break;
                                     case ITEM_MULTI_WAVELENGTH:
+                                        List<String> saveFileList4 = DeviceApplication.getInstance().getMultipleWavelengthDb().getTables();
+
+                                        Utils.showItemSelectDialog(getActivity(), getResources().getStringArray(R.array.open_titles)[4]
+                                                , saveFileList4.toArray(new String[saveFileList4.size()]), new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        mListener.loadFile(which, id);
+                                                    }
+                                                });
                                         break;
                                     case ITEM_DNA:
                                         List<String> saveFileList5 = DeviceApplication.getInstance().getDnaDb().getTables();

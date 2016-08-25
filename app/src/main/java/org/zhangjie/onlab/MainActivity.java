@@ -1269,6 +1269,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 addContentFragment(mQuantitativeAnalysisFragment);
                 break;
             case MainFragment.ITEM_MULTI_WAVELENGTH:
+                mMultipleWavelengthFragment.prepareLoadFile(fileIndex);
+                addContentFragment(mMultipleWavelengthFragment);
                 break;
             case MainFragment.ITEM_DNA:
                 mDnaFragment.prepareLoadFile(fileIndex);

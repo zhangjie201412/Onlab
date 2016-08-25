@@ -2,6 +2,7 @@ package org.zhangjie.onlab.record;
 
 public class MultipleWavelengthRecord extends BaseData {
 	private int index;
+	private int subIndex;
 	private float wavelength;
 	private float abs;
 	private float trans;
@@ -11,9 +12,10 @@ public class MultipleWavelengthRecord extends BaseData {
 	public MultipleWavelengthRecord() {
 	}
 
-	public MultipleWavelengthRecord(int index, float wavelength, float abs,
+	public MultipleWavelengthRecord(int index, int subIndex, float wavelength, float abs,
 									float trans, int energy, long date) {
 		this.index = index;
+		this.subIndex = subIndex;
 		this.wavelength = wavelength;
 		this.abs = abs;
 		this.trans = trans;
@@ -27,6 +29,10 @@ public class MultipleWavelengthRecord extends BaseData {
 
 	public void setIndex(int index) {
 		this.index = index;
+	}
+
+	public int getSubIndex() {
+		return subIndex;
 	}
 
 	public float getWavelength() {
