@@ -27,6 +27,7 @@ import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.dialog.FileExportDialog;
 import org.zhangjie.onlab.dialog.QASampleDialog;
 import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
@@ -40,6 +41,10 @@ import org.zhangjie.onlab.setting.QuantitativeAnalysisSettingActivity;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 import org.zhangjie.onlab.utils.Utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,6 +105,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
 
     private boolean loadFile = false;
     private int loadFileIndex = -1;
+
+    private FileExportDialog mFileExportDialog;
+    private int mFileType;
 
     @Nullable
     @Override
@@ -298,6 +306,66 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 getFragmentManager().popBackStack();
             }
         });
+
+        mFileExportDialog = new FileExportDialog();
+        mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(String name) {
+                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String typeString = "unknow";
+                String titleFormatString = "";
+                String contentFormatString = "";
+                if(mFileType == FileExportDialog.FILE_TYPE_TXT) {
+                    typeString = "txt";
+                    titleFormatString = "%s\t%s\t%s\t%s\n";
+                    contentFormatString = "%d\t%s\t%f\t%f\n";
+                } else if(mFileType ==FileExportDialog.FILE_TYPE_CVS) {
+                    typeString = "cvs";
+                    titleFormatString = "%s,%s,%s,%s\n";
+                    contentFormatString = "%d,%s,%f,%f\n";
+                }
+                File file = Utils.getQuantitativeAnalsisFile(name + "." + typeString);
+                try {
+                    FileWriter out = new FileWriter(file, false);
+                    BufferedWriter writer = new BufferedWriter(out);
+                    String line = String.format(titleFormatString,
+                            getString(R.string.index),
+                            getString(R.string.name),
+                            getString(R.string.abs),
+                            getString(R.string.conc));
+                    writer.write(line);
+                    for (int i = 0; i < mData.size(); i++) {
+                        int id = 0;
+                        String testName = "";
+                        float abs = 0.0f;
+                        float conc = 0.0f;
+
+                        HashMap<String, String> map = mData.get(i);
+                        id = Integer.parseInt(map.get("id"));
+                        testName = map.get("name");
+                        abs = Float.parseFloat(map.get("abs"));
+                        conc = Float.parseFloat(map.get("conc"));
+                        line = String.format(contentFormatString,
+                                id, testName, abs, conc);
+                        writer.write(line);
+                    }
+                    writer.flush();
+                    writer.close();
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFileTypeSelect(int type) {
+                mFileType = type;
+            }
+        });
+
         if (loadFile) {
             loadFileById(loadFileIndex);
         }
@@ -485,8 +553,12 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 return;
             }
             mSaveDialog.show(getFragmentManager(), "save");
-        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
-
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
+            if(mData.size() < 1) {
+                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mFileExportDialog.show(getFragmentManager(), "file_export");
         }
     }
 

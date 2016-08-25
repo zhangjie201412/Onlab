@@ -30,6 +30,7 @@ import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.CalcSpeedDialog;
+import org.zhangjie.onlab.dialog.FileExportDialog;
 import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.FileOperateEvent;
@@ -43,6 +44,10 @@ import org.zhangjie.onlab.setting.TimescanSettingActivity;
 import org.zhangjie.onlab.setting.WavelengthSettingActivity;
 import org.zhangjie.onlab.utils.Utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,6 +112,8 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
     private int mCurDataIndex = 0;
     private int mLstDataIndex = 0;
+    private int mFileType = FileExportDialog.FILE_TYPE_TXT;
+    private FileExportDialog mFileExportDialog;
 
     @Nullable
     @Override
@@ -244,6 +251,71 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 getFragmentManager().popBackStack();
             }
         });
+
+        mFileExportDialog = new FileExportDialog();
+        mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(String name) {
+                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String typeString = "unknow";
+                String titleFormatString = "";
+                String contentFormatString = "";
+                if(mFileType == FileExportDialog.FILE_TYPE_TXT) {
+                    typeString = "txt";
+                    titleFormatString = "%s\t%s\t%s\t%s\n";
+                    contentFormatString = "%d\t%f\t%f\t%d\n";
+                } else if(mFileType ==FileExportDialog.FILE_TYPE_CVS) {
+                    typeString = "cvs";
+                    titleFormatString = "%s,%s,%s,%s\n";
+                    contentFormatString = "%d,%f,%f,%d\n";
+                }
+                for(int index = 0; index < LINE_MAX; index++) {
+                    if(mData[index].size() == 0)
+                        continue;
+                    File file = Utils.getTimeScanFile(name + "__" + (index + 1) + "." + typeString );
+                    try {
+                        FileWriter out = new FileWriter(file, false);
+                        BufferedWriter writer = new BufferedWriter(out);
+                        String line = String.format(titleFormatString,
+                                getString(R.string.index),
+                                getString(R.string.abs),
+                                getString(R.string.trans),
+                                getString(R.string.energy));
+                        writer.write(line);
+                        for (int i = 0; i < mData[index].size(); i++) {
+                            int id = 0;
+                            float abs = 0.0f;
+                            float trans = 0.0f;
+                            int energy = 0;
+
+                            HashMap<String, String> map = mData[index].get(i);
+                            id = Integer.parseInt(map.get("id"));
+                            abs = Float.parseFloat(map.get("abs"));
+                            trans = Float.parseFloat(map.get("trans"));
+                            energy = Integer.parseInt(map.get("energy"));
+                            line = String.format(contentFormatString,
+                                    id, abs, trans, energy);
+                            writer.write(line);
+                        }
+                        writer.flush();
+                        writer.close();
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFileTypeSelect(int type) {
+                mFileType = type;
+            }
+        });
+
         if (loadFile) {
             loadFileById(loadFileIndex);
         }
@@ -1010,12 +1082,24 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                     });
 
         } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
+            Log.d("##", "123123");
             if (mData[mCurDataIndex].size() < 1) {
                 Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
                 return;
             }
             mSaveDialog.show(getFragmentManager(), "save");
-        } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
+            Log.d("##", "123");
+            int available = 0;
+            for(int i = 0; i < LINE_MAX; i++) {
+                if(mData[i].size() > 0)
+                    available ++;
+            }
+            if(available == 0) {
+                Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mFileExportDialog.show(getFragmentManager(), "file_export");
 
         }
     }
