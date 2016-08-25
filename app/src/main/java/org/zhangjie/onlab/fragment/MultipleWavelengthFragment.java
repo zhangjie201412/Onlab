@@ -25,6 +25,7 @@ import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.dialog.FileExportDialog;
 import org.zhangjie.onlab.dialog.MultipleWavelengthSettingDialog;
 import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
@@ -70,10 +71,11 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
     private int mMainIndex = 1;
     private int mSubIndex = 1;
     private SaveNameDialog mSaveDialog;
-    private SaveNameDialog mFileExportDialog;
+    private FileExportDialog mFileExportDialog;
 
     private boolean loadFile = false;
     private int loadFileIndex = -1;
+    private int mFileType = FileExportDialog.FILE_TYPE_TXT;
 
     @Nullable
     @Override
@@ -154,7 +156,7 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
             }
         }
         mSaveDialog = new SaveNameDialog();
-        mFileExportDialog = new SaveNameDialog();
+        mFileExportDialog = new FileExportDialog();
         mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
             @Override
             public void onSettingInputComplete(int id, String name) {
@@ -203,18 +205,30 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
                 getFragmentManager().popBackStack();
             }
         });
-        mFileExportDialog.init(-1, getString(R.string.action_file_export), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
+        mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
             @Override
-            public void onSettingInputComplete(int index, String name) {
+            public void onSettingInputComplete(String name) {
                 if(name.length() < 1 || (!Utils.isValidName(name))) {
                     Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                File file = Utils.getMultipleWavelengthFile(name + ".txt");
+                String typeString = "unknow";
+                String titleFormatString = "";
+                String contentFormatString = "";
+                if(mFileType == FileExportDialog.FILE_TYPE_TXT) {
+                    typeString = "txt";
+                    titleFormatString = "%s\t%s\t%s\t%s\t%s\n";
+                    contentFormatString = "%d\t%f\t%f\t%f\t%d\n";
+                } else if(mFileType ==FileExportDialog.FILE_TYPE_CVS) {
+                    typeString = "cvs";
+                    titleFormatString = "%s,%s,%s,%s,%s\n";
+                    contentFormatString = "%d,%f,%f,%f,%d\n";
+                }
+                File file = Utils.getPhotometricMeasureFile(name + "." + typeString);
                 try {
                     FileWriter out = new FileWriter(file, false);
                     BufferedWriter writer = new BufferedWriter(out);
-                    String line = String.format("%s\t%s\t%s\t%s\t%s\n",
+                    String line = String.format(titleFormatString,
                             getString(R.string.index),
                             getString(R.string.wavelength),
                             getString(R.string.abs),
@@ -234,7 +248,7 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
                         abs = Float.parseFloat(map.get("abs"));
                         trans = Float.parseFloat(map.get("trans"));
                         energy = Integer.parseInt(map.get("energy"));
-                        line = String.format("%s\t%f\t%f\t%f\t%d\n",
+                        line = String.format(contentFormatString,
                                 id, wavelength, abs, trans, energy);
                         writer.write(line);
                     }
@@ -247,11 +261,10 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
             }
 
             @Override
-            public void abort() {
-
+            public void onFileTypeSelect(int type) {
+                mFileType = type;
             }
         });
-        mFileExportDialog.setAbort(false);
 
         if (loadFile) {
             loadFileById(loadFileIndex);

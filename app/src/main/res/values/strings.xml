@@ -190,6 +190,8 @@
     <string name="protein_with_unit">Protein(ug/ml)</string>
     <string name="radio">radio</string>
     <string name="sample_name_setting">设置样品名称</string>
+    <string name="txt">txt</string>
+    <string name="cvs">cvs</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

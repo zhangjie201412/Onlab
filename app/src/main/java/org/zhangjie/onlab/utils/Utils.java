@@ -41,6 +41,7 @@ public class Utils {
     public static String FILE_PATH_WAVELENGTH_SCAN = FILE_PATH_ONLAB + "/WavelengthScan/";
     public static String FILE_PATH_TIME_SCAN = FILE_PATH_ONLAB + "/TimeScan/";
     public static String FILE_PATH_MULTIPLE_WAVELENGTH = FILE_PATH_ONLAB + "/MultipleWavelengthScan/";
+    public static String FILE_PATH_DNA = FILE_PATH_ONLAB + "/DNA/";
 
     public static String formatAbs(float abs) {
         String result = "";
@@ -182,13 +183,30 @@ public class Utils {
         createDirectory(FILE_PATH_WAVELENGTH_SCAN);
         createDirectory(FILE_PATH_TIME_SCAN);
         createDirectory(FILE_PATH_MULTIPLE_WAVELENGTH);
+        createDirectory(FILE_PATH_DNA);
     }
 
     public static File getPhotometricMeasureFile(String name) {
         return new File(FILE_PATH_PHOTOMETRIC_MEASURE + name);
     }
 
+    public static File getQuantitativeAnalsisFile(String name) {
+        return new File(FILE_PATH_QUANTITATIVE_ANALYSIS + name);
+    }
+
+    public static File getWavelengthScanFile(String name) {
+        return new File(FILE_PATH_WAVELENGTH_SCAN + name);
+    }
+
+    public static File getTimeScanFile(String name) {
+        return new File(FILE_PATH_TIME_SCAN + name);
+    }
+
     public static File getMultipleWavelengthFile(String name) {
         return new File(FILE_PATH_MULTIPLE_WAVELENGTH + name);
+    }
+
+    public static File getDnaFile(String name) {
+        return new File(FILE_PATH_DNA + name);
     }
 }

@@ -23,6 +23,7 @@ import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.DnaSettingDialog;
+import org.zhangjie.onlab.dialog.FileExportDialog;
 import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.DnaCallbackEvent;
@@ -31,6 +32,10 @@ import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.record.DnaRecord;
 import org.zhangjie.onlab.utils.Utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +54,7 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
     private MultiSelectionAdapter mAdapter;
     private List<HashMap<String, String>> mData;
     private SaveNameDialog mSaveDialog;
-    private SaveNameDialog mFileExportDialog;
+    private FileExportDialog mFileExportDialog;
 
     public static float refWavelength;
     public static float wavelength1;
@@ -68,6 +73,8 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
     private boolean loadFile = false;
     private int loadFileIndex = -1;
 
+    private int mFileType = FileExportDialog.FILE_TYPE_TXT;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,7 +85,7 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
         mDnaSettingDialog.setListener(this);
         mNameDialog = new SaveNameDialog();
         mSaveDialog = new SaveNameDialog();
-        mFileExportDialog = new SaveNameDialog();
+        mFileExportDialog = new FileExportDialog();
         mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
             @Override
             public void onSettingInputComplete(int id, String name) {
@@ -127,56 +134,6 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
                 getFragmentManager().popBackStack();
             }
         });
-//        mFileExportDialog.init(-1, getString(R.string.action_file_export), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
-//            @Override
-//            public void onSettingInputComplete(int index, String name) {
-//                if(name.length() < 1 || (!Utils.isValidName(name))) {
-//                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                File file = Utils.getPhotometricMeasureFile(name + ".txt");
-//                try {
-//                    FileWriter out = new FileWriter(file, false);
-//                    BufferedWriter writer = new BufferedWriter(out);
-//                    String line = String.format("%s\t%s\t%s\t%s\t%s\n",
-//                            getString(R.string.index),
-//                            getString(R.string.wavelength),
-//                            getString(R.string.abs),
-//                            getString(R.string.trans),
-//                            getString(R.string.energy));
-//                    writer.write(line);
-//                    for (int i = 0; i < mData.size(); i++) {
-//                        int id = 0;
-//                        float wavelength = 0.0f;
-//                        float abs = 0.0f;
-//                        float trans = 0.0f;
-//                        int energy = 0;
-//
-//                        HashMap<String, String> map = mData.get(i);
-//                        id = Integer.parseInt(map.get("id"));
-//                        wavelength = Float.parseFloat(map.get("wavelength"));
-//                        abs = Float.parseFloat(map.get("abs"));
-//                        trans = Float.parseFloat(map.get("trans"));
-//                        energy = Integer.parseInt(map.get("energy"));
-//                        line = String.format("%d\t%f\t%f\t%f\t%d\n",
-//                                id, wavelength, abs, trans, energy);
-//                        writer.write(line);
-//                    }
-//                    writer.flush();
-//                    writer.close();
-//                    out.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//
-//            @Override
-//            public void abort() {
-//
-//            }
-//        });
-//        mFileExportDialog.setAbort(false);
 
         if(loadFile) {
             loadFileById(loadFileIndex);
@@ -258,6 +215,73 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
                         });
                 mNameDialog.setAbort(false);
                 mNameDialog.show(getFragmentManager(), "name");
+            }
+        });
+        mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(String name) {
+                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String typeString = "unknow";
+                String titleFormatString = "";
+                String contentFormatString = "";
+                if(mFileType == FileExportDialog.FILE_TYPE_TXT) {
+                    typeString = "txt";
+                    titleFormatString = "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n";
+                    contentFormatString = "%d\t%s\t%f\t%f\t%f\t%f\t%f\t%f\n";
+                } else if(mFileType ==FileExportDialog.FILE_TYPE_CVS) {
+                    typeString = "cvs";
+                    titleFormatString = "%s,%s,%s,%s,%s,%s,%s,%s\n";
+                    contentFormatString = "%d,%s,%f,%f,%f,%f,%f,%f\n";
+                }
+                File file = Utils.getDnaFile(name + "." + typeString);
+                try {
+                    FileWriter out = new FileWriter(file, false);
+                    BufferedWriter writer = new BufferedWriter(out);
+                    String line = String.format(titleFormatString,
+                            getString(R.string.index),
+                            getString(R.string.sample_name),
+                            getString(R.string.abs_with_unit),
+                            getString(R.string.abs_with_unit),
+                            getString(R.string.abs_with_unit),
+                            getString(R.string.dna_with_unit),
+                            getString(R.string.protein_with_unit),
+                            getString(R.string.radio));
+                    writer.write(line);
+                    for (int i = 0; i < mData.size(); i++) {
+                        int id = 0;
+                        float abs1 = 0.0f;
+                        float abs2 = 0.0f;
+                        float absRef = 0.0f;
+                        float dna = 0.0f;
+                        float protein = 0.0f;
+                        float ratio = 0.0f;
+
+                        HashMap<String, String> map = mData.get(i);
+                        id = Integer.parseInt(map.get("id"));
+                        abs1 = Float.parseFloat(map.get("abs1"));
+                        abs2 = Float.parseFloat(map.get("abs2"));
+                        absRef = Float.parseFloat(map.get("absRef"));
+                        dna = Float.parseFloat(map.get("dna"));
+                        protein = Float.parseFloat(map.get("protein"));
+                        ratio = Float.parseFloat(map.get("ratio"));
+                        line = String.format(contentFormatString,
+                                id, abs1, abs2, absRef, dna, protein, ratio);
+                        writer.write(line);
+                    }
+                    writer.flush();
+                    writer.close();
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFileTypeSelect(int type) {
+                mFileType = type;
             }
         });
     }
