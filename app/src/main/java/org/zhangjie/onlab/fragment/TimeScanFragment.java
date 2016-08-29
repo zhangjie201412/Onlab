@@ -53,7 +53,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import lecho.lib.hellocharts.formatter.AxisValueFormatter;
 import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
@@ -409,20 +411,41 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         viewport.right = right;
         viewport.bottom = bottom;
 
+        mChartView.setPadding(0, 50, 50, 0);
         mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
         mChartView.setViewportCalculationEnabled(false);
 
-        Axis axisX = new Axis();
-        Axis axisY = new Axis();
+        List<AxisValue> axisXValues = new ArrayList<>();
+        axisXValues.add(new AxisValue(left));
+        axisXValues.add(new AxisValue((left + right) / 2));
+        axisXValues.add(new AxisValue(right));
+        List<AxisValue> axisYValues = new ArrayList<>();
+        axisYValues.add(new AxisValue(bottom));
+        axisYValues.add(new AxisValue((bottom + top) / 3));
+        axisYValues.add(new AxisValue((bottom + top) * 2 / 3));
+        axisYValues.add(new AxisValue(top));
+
+        Axis axisX = new Axis(axisXValues);
+        Axis axisY = new Axis(axisYValues);
         axisX.setName(xTitle);
         axisX.setHasSeparationLine(true);
+//        axisX.setHasLines(true);
+
 //        axisX.setHasLines(true);
         axisY.setName(yTitle);
         axisY.setHasSeparationLine(true);
 //        axisY.setHasLines(true);
+//        axisY.setHasLines(true);
         mChartData.setAxisXBottom(axisX);
         mChartData.setAxisYLeft(axisY);
+
+        List<AxisValue> nullValues = new ArrayList<>();
+        Axis nullAxis = new Axis(nullValues);
+        nullAxis.setName("");
+        nullAxis.setInside(false);
+        mChartData.setAxisXTop(nullAxis);
+        mChartData.setAxisYRight(nullAxis);
     }
 
     void autoUpdateChart() {
