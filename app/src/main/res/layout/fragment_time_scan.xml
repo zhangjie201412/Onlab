@@ -103,7 +103,7 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
             <LinearLayout
                 android:id="@+id/layout_chart"
@@ -139,21 +139,7 @@
                     android:id="@+id/hello_time_scan"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_alignParentTop="true"
-                    android:background="@color/color_divide_line" />
-
-                <View
-                    android:layout_width="0.5dp"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentRight="true"
-                    android:background="@color/color_divide_line" />
-
             </RelativeLayout>
-
         </RelativeLayout>
 
         <View
