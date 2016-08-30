@@ -979,7 +979,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
             debug += "" + data[i] + ",";
         }
         Log.d(TAG, debug);
-
+/*
         int direction = data[0] > 0 ? -1 : 1;
         for (int i = 0; i < totalSize - 1; i++) {
             if ((data[i + 1] - data[i]) * direction > 0) {
@@ -993,9 +993,16 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 }
             }
         }
-
-        for (int i = 0; i < ind_count2; i++) {
-            float d = Math.abs(data[ind2[i]] - data[ind2[i + 1]]);
+*/
+        for(int i = 1; i < totalSize - 1; i++) {
+            if((data[i + 1] - data[i]) * (data[i] - data[i - 1]) < 0) {
+                ind2[ind_count2] = i;
+                ind_count2 ++;
+            }
+        }
+        for (int i = 0; i < ind_count2 - 1; i++) {
+//            float d = Math.abs(data[ind2[i]] - data[ind2[i + 1]]);
+            float d = data[ind2[i + 1]] - data[ind2[i]];
 
             if (d >= distance) {
                 ind[ind_count] = ind2[i];
