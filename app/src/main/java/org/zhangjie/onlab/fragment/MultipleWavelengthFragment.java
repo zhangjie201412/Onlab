@@ -56,7 +56,7 @@ import java.util.List;
  */
 public class MultipleWavelengthFragment extends Fragment implements View.OnClickListener, MultipleWavelengthSettingDialog.MultipleWavelengthSettingCallback {
     private static final String TAG = "Onlab.MultipleWave";
-    private boolean isFake = true;
+    private boolean isFake = false;
     private ListView mListView;
     private MultiSelectionAdapter mAdapter;
     private List<HashMap<String, String>> mData;

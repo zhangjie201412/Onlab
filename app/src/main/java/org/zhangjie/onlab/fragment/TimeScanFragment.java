@@ -71,7 +71,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
     private static final String TAG = "Onlab.TimeScanFragment";
     private static final int LINE_MAX = 30;
-    private boolean isFake = true;
+    private boolean isFake = false;
     private TextView mWavelengthTextView;
     private TextView mRatioTextView;
     private TextView mIntervalTextView;

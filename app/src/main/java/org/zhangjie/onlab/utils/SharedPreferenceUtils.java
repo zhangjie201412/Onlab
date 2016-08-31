@@ -60,6 +60,8 @@ public class SharedPreferenceUtils {
     public static final String KEY_D2_STATUS = "key_d2_status";
     public static final String KEY_WU_STATUS = "key_wu_status";
 
+    public static final String KEY_MAC_ADDRESS = "key_mac_address";
+
     private SharedPreferences mSp;
     private SharedPreferences.Editor mEditor;
 
@@ -203,6 +205,10 @@ public class SharedPreferenceUtils {
 
     public boolean getWuStatus() {
         return mSp.getBoolean(KEY_WU_STATUS, false);
+    }
+
+    public String getMacAddress() {
+        return mSp.getString(KEY_MAC_ADDRESS, "");
     }
 
     public void setKeyQaFittingMethod(int method) {
@@ -362,6 +368,11 @@ public class SharedPreferenceUtils {
 
     public void setKeyWuStatus(boolean on) {
         mEditor.putBoolean(KEY_WU_STATUS, on);
+        mEditor.commit();
+    }
+
+    public void setKeyMacAddress(String macAddress) {
+        mEditor.putString(KEY_MAC_ADDRESS, macAddress);
         mEditor.commit();
     }
 

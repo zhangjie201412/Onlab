@@ -192,6 +192,7 @@
     <string name="sample_name_setting">设置样品名称</string>
     <string name="txt">txt</string>
     <string name="cvs">cvs</string>
+    <string name="notice_invalid_license">输入注册码无效！</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

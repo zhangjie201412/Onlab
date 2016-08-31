@@ -128,7 +128,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     mIsBluetoothConnected = true;
                     setBluetoothConnected(true);
                     dismissDialog();
-                    mDeviceSelectDialog.dismiss();
+//                    if(mDeviceSelectDialog != null) {
+//                        mDeviceSelectDialog.dismiss();
+//                    }
                     //device self check
                     new Thread(new Runnable() {
                         @Override
@@ -168,7 +170,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     String name = bundle.getString("name");
                     String addr = bundle.getString("addr");
                     Log.d(TAG, "###name = " + name);
-                    mDeviceSelectDialog.addDevice(name, addr);
+//                    mDeviceSelectDialog.addDevice(name, addr);
+                    String address = DeviceApplication.getInstance().getSpUtils().getMacAddress();
+                    if(address.equals(addr)) {
+                        BtleManager.getInstance().connect(address);
+                    }
                     break;
                 case DeviceManager.UI_MSG_DEVICE_DATA:
                     Bundle data = msg.getData();
@@ -386,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 dismissDialog();
                 mIsInitialized = true;
                 toastShow(getString(R.string.connect_done));
-                mDeviceSelectDialog.dismiss();
+//                mDeviceSelectDialog.dismiss();
                 mDeviceCheckDialog.dismiss();
                 mDeviceManager.start();
             }
@@ -1095,6 +1101,24 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         //check the directory is exist?
         //if not exist, create the directory
         Utils.checkDirectory();
+        String address = DeviceApplication.getInstance().getSpUtils().getMacAddress();
+        if(address.length() == 17) {
+            mWaitDialog.setMessage(getString(R.string.attempt_connecting_device));
+            mWaitDialog.show();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                        mDeviceManager.scan();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        } else {
+            addRegistCode();
+        }
     }
 
     private static final int RC_ROOT = 102;
@@ -1120,6 +1144,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         if(!result) {
             EasyPermissions.requestPermissions(this, "Root", RC_ROOT, permissions[0], permissions[1], permissions[2]);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
@@ -1340,6 +1369,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mTopToolbar.setTitleTextColor(getResources().getColor(R.color.colorTitle));
         mTopToolbar.setTitle(getResources().getString(R.string.bluetooth_disconnected));
         mTopToolbar.setNavigationIcon(R.mipmap.bluetooth_disabled);
+        /*
         mTopToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1359,6 +1389,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 }
             }
         });
+        */
     }
 
     private void setOperateMode(boolean enable) {
@@ -1850,9 +1881,27 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 });
     }
 
+    private void checkLicense(String inputLicense) {
+        if(inputLicense.charAt(2)=='O' ||
+                inputLicense.charAt(5) =='N' ||
+                inputLicense.charAt(8)=='L' ||
+                inputLicense.charAt(11)=='A' ||
+                inputLicense.charAt(14)=='B' ||
+                inputLicense.charAt(17)=='E') {
+            String macAddress = inputLicense.substring(0,2) + ":" +
+                    inputLicense.substring(3,5) + ":" +
+                    inputLicense.substring(6,8) + ":" +
+                    inputLicense.substring(9,11) + ":" +
+                    inputLicense.substring(12,14) + ":" +
+                    inputLicense.substring(15,17);
+            Log.d(TAG, "MAC ADDRESS: " + macAddress);
+            DeviceApplication.getInstance().getSpUtils().setKeyMacAddress(macAddress);
+        }
+    }
+
     private void addRegistCode() {
         TextView registCode;
-        EditText license;
+        final EditText license;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_add_regist_code, null);
@@ -1865,7 +1914,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        String inputLicense = license.getEditableText().toString();
+                        if(inputLicense.length() != 18) {
+                            toastShow(getString(R.string.notice_invalid_license));
+                            return;
+                        }
+                        checkLicense(inputLicense);
                     }
                 }).setNegativeButton(getString(R.string.cancel_string), null)
                 .setTitle(R.string.regist_code_title).setIcon(R.mipmap.ic_launcher);

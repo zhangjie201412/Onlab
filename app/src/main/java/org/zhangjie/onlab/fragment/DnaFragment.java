@@ -80,12 +80,12 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dna, container, false);
 
+        mFileExportDialog = new FileExportDialog();
         initView(view);
         mDnaSettingDialog = new DnaSettingDialog();
         mDnaSettingDialog.setListener(this);
         mNameDialog = new SaveNameDialog();
         mSaveDialog = new SaveNameDialog();
-        mFileExportDialog = new FileExportDialog();
         mSaveDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
             @Override
             public void onSettingInputComplete(int id, String name) {
