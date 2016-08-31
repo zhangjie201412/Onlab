@@ -30,6 +30,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
     private int mLayout;
     private int[] mViewIds;
     private boolean mSelectMode = false;
+    private boolean mAddMode = false;
 
     public MultiSelectionAdapter(Context context, List<HashMap<String, String>> data,
                                  int layout, String[] keys, int[] viewIds) {
@@ -46,6 +47,9 @@ public class MultiSelectionAdapter extends BaseAdapter {
         }
     }
 
+    public void setAddMode(boolean mode) {
+        mAddMode = mode;
+    }
 
     @Override
     public int getCount() {
@@ -128,7 +132,21 @@ public class MultiSelectionAdapter extends BaseAdapter {
                 mIsSelected.put(index, arg1);
             }
         });
-        holder.cb.setChecked(getIsSelected().get(position));
+        if(holder.cb != null) {
+            holder.cb.setChecked(getIsSelected().get(position));
+        }
+
+        if(mAddMode) {
+            Log.d(TAG, "position = " + position + ", size = " + mData.size());
+            if(position == (mData.size() - 1)) {
+                holder.cb.setVisibility(View.INVISIBLE);
+                holder.id.setVisibility(View.INVISIBLE);
+                holder.name.setVisibility(View.INVISIBLE);
+                holder.abs.setVisibility(View.INVISIBLE);
+                holder.conc.setVisibility(View.INVISIBLE);
+            }
+        }
+
         return convertView;
     }
 

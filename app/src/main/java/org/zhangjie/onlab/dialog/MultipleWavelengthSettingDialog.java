@@ -67,17 +67,25 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
             public void onClick(View v) {
                 mDialog.init(-1, getString(R.string.multi_wavelength_setting),
                         getString(R.string.wavelength), MultipleWavelengthSettingDialog.this);
-                mDialog.show(getFragmentManager(), "wavelength");            }
+                mDialog.show(getFragmentManager(), "wavelength");
+            }
         });
+        mAddTextView.setVisibility(View.INVISIBLE);
 
         mData = new ArrayList<HashMap<String, String>>();
-        mListView = (ListView)view.findViewById(R.id.dialog_lv_multiple_wavelength);
+        mListView = (ListView) view.findViewById(R.id.dialog_lv_multiple_wavelength);
         mAdapter = new MultipleWavelengthSettingAdapter(getActivity(), mData);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mDialog.init(position, getString(R.string.multi_wavelength_setting),
+                int pos;
+                if(position == (mData.size() - 1)) {
+                    pos = -1;
+                } else {
+                    pos = position;
+                }
+                mDialog.init(pos, getString(R.string.multi_wavelength_setting),
                         getString(R.string.wavelength), MultipleWavelengthSettingDialog.this);
                 mDialog.show(getFragmentManager(), "wavelength");
             }
@@ -85,7 +93,9 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                showDeleteDialog(position);
+                if(position < (mData.size() - 1)) {
+                    showDeleteDialog(position);
+                }
                 return true;
             }
         });
@@ -95,36 +105,33 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
         builder.setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                int count = mData.size();
+                int count = mData.size() - 1;
                 //check all the data
-                for(int i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     String value = mData.get(i).get("wavelength");
-                    if(value.length() < 1) {
+                    if (value.length() < 1) {
                         Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
-                if(count > 0) {
+                if (count > 0) {
                     float[] wavelengths = new float[count];
-                    for(int i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         wavelengths[i] = Float.parseFloat(mData.get(i).get("wavelength"));
                     }
                     mCallback.onCallback(wavelengths);
                 } else {
-                    Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
                 }
             }
         });
+        addItem();
 
-        if(DeviceApplication.getInstance().getSpUtils().getMultipleWavelengthLength() == 0) {
-            addItem();
-        } else {
-            int length = DeviceApplication.getInstance().getSpUtils().getMultipleWavelengthLength();
-            float[] wavelengths = DeviceApplication.getInstance().getSpUtils().getMultipleWavelength();
+        int length = DeviceApplication.getInstance().getSpUtils().getMultipleWavelengthLength();
+        float[] wavelengths = DeviceApplication.getInstance().getSpUtils().getMultipleWavelength();
 
-            for(int i = 0; i < length; i++) {
-                addItem("" + wavelengths[i]);
-            }
+        for (int i = 0; i < length; i++) {
+            addItem("" + wavelengths[i]);
         }
 
         return builder.create();
@@ -143,11 +150,13 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
     private void addItem(String wavelength) {
         HashMap<String, String> item = new HashMap<String, String>();
         item.put("wavelength", wavelength);
+        mData.remove(mData.size() - 1);
         mData.add(item);
         mAdapter.notifyDataSetChanged();
         if (mData.size() > 0) {
             mListView.setSelection(mData.size() - 1);
         }
+        addItem();
     }
 
     private void showDeleteDialog(final int index) {
@@ -180,8 +189,8 @@ public class MultipleWavelengthSettingDialog extends DialogFragment implements S
         }
 
         float wl = Float.parseFloat(wavelength);
-        if(Utils.checkWavelengthInvalid(getActivity(), wl)) {
-            if(index == -1) {
+        if (Utils.checkWavelengthInvalid(getActivity(), wl)) {
+            if (index == -1) {
                 addItem(wavelength);
             } else {
                 mData.get(index).put("wavelength", wavelength);

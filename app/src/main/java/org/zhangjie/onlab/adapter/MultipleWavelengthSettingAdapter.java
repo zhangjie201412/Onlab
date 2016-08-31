@@ -1,6 +1,7 @@
 package org.zhangjie.onlab.adapter;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,11 +56,15 @@ public class MultipleWavelengthSettingAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder)convertView.getTag();
         }
-        holder.id.setText(mContext.getString(R.string.wavelength)
-                + "" + (position + 1));
-        if(mData.get(position).get("wavelength").length() < 1) {
-            holder.value.setText(mContext.getString(R.string.summary_timescan_work_wavelength));
+
+        //last one
+        if(mData.size() == (position + 1)) {
+            holder.id.setText("");
+            holder.value.setText(mContext.getString(R.string.add_item));
+            holder.value.setGravity(Gravity.CENTER_HORIZONTAL);
         } else {
+            holder.id.setText(mContext.getString(R.string.wavelength)
+                    + "" + (position + 1));
             holder.value.setText(mData.get(position).get("wavelength") + "\t" + mContext.getString(R.string.nm));
         }
         return convertView;
