@@ -346,9 +346,10 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         }
 
         for (int i = 0; i < mLine.length; i++) {
-            mLine[i].setPointRadius(1);
+            mLine[i].setPointRadius(0);
             mLine[i].setStrokeWidth(1);
             mLine[i].setCubic(false);
+            mLine[i].setHasPoints(false);
         }
 
         mPeakLine = new Line(mPeakPoints).setColor(ChartUtils.COLOR_GREEN).setCubic(false);

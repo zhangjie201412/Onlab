@@ -254,9 +254,10 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mDerivativeLine = new Line(mDerivativePoints).setColor(Color.YELLOW).setCubic(false);
 
         for (int i = 0; i < mLine.length; i++) {
-            mLine[i].setPointRadius(1);
+            mLine[i].setPointRadius(0);
             mLine[i].setStrokeWidth(1);
             mLine[i].setCubic(false);
+            mLine[i].setHasPoints(false);
         }
 
         mOperateLine.setPointRadius(2);
@@ -630,6 +631,19 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 DeviceManager.getInstance().stopWork();
                 break;
             case R.id.bt_wavelength_scan_rezero:
+                //check baseline is existed
+                if(!DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
+                    Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int [] baseline = DeviceApplication.getInstance().getSpUtils()
+                        .getBaseline((int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1));
+                for(int i = 0; i < (int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1); i++) {
+                    if(baseline[i] <= 0) {
+                        Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
                 SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
 
                 float start = sp.getWavelengthscanStart();
