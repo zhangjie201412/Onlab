@@ -37,6 +37,7 @@ import org.zhangjie.onlab.dialog.BaselineDialog.BaselineOperateListener;
 import org.zhangjie.onlab.dialog.DeviceCheckDialog;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.LightMgrDialog;
+import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.dialog.WavelengthDialog;
 import org.zhangjie.onlab.fragment.AboutFragment;
@@ -596,6 +597,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
                         //save gain
                         mDeviceManager.setGain((int) mBaselineWavelength, mBaselineGain);
+                        updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                         mDirection = DIRECTION_UNKNOW;
                         mBaselineWavelength = mBaselineWavelength - 1;
                         if (mBaselineWavelength < DeviceManager.BASELINE_START) {
@@ -612,6 +614,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     //gain == 1
                     Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = 1, energy = " + energy);
                     mDeviceManager.setGain((int) mBaselineWavelength, mBaselineGain);
+                    updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                     mDirection = DIRECTION_UNKNOW;
                     mBaselineWavelength = mBaselineWavelength - 1;
                     if (mBaselineWavelength < DeviceManager.BASELINE_START) {
@@ -619,7 +622,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         return;
                     }
                     mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
-                    updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                 }
             }
             if (energy < DeviceManager.ENERGY_FIT_DOWN) {
@@ -629,6 +631,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         //update
                         Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
                         mDeviceManager.setGain((int) mBaselineWavelength, mBaselineGain);
+                        updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                         mDirection = DIRECTION_UNKNOW;
                         mBaselineWavelength = mBaselineWavelength - 1;
                         if (mBaselineWavelength < DeviceManager.BASELINE_START) {
@@ -645,6 +648,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     //gain == 8
                     Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = 1, energy = " + energy);
                     mDeviceManager.setGain((int) mBaselineWavelength, mBaselineGain);
+                    updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                     mDirection = DIRECTION_UNKNOW;
                     mBaselineWavelength = mBaselineWavelength - 1;
                     if (mBaselineWavelength < DeviceManager.BASELINE_START) {
@@ -652,13 +656,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                         return;
                     }
                     mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
-                    updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                 }
             }
             if (energy >= DeviceManager.ENERGY_FIT_DOWN && (energy <= DeviceManager.ENERGY_FIT_UP)) {
                 //20000 <= energy <= 40000
                 Log.d(TAG, "Update wavelength = " + mBaselineWavelength + ", gain = " + mBaselineGain + ", energy = " + energy);
                 mDeviceManager.setGain((int) mBaselineWavelength, mBaselineGain);
+                updateBaseline(mBaselineWavelength, mBaselineGain, energy);
                 mDirection = DIRECTION_UNKNOW;
                 mBaselineWavelength = mBaselineWavelength - 1;
                 if (mBaselineWavelength < DeviceManager.BASELINE_START) {
@@ -666,7 +670,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     return;
                 }
                 mDeviceManager.baselineWork((int) mBaselineWavelength, -1);
-                updateBaseline(mBaselineWavelength, mBaselineGain, energy);
             }
         }
     }
@@ -1348,7 +1351,24 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 if (!checkConnected()) {
                     return super.onOptionsItemSelected(item);
                 }
-                mBaselineDialog.show(getFragmentManager(), "baseline");
+                //check if baseline is available
+                List<String> saveFileList = DeviceApplication.getInstance().getBaselineDb().getTables();
+
+                if(saveFileList.size() == 0) {
+                    toastShow(getString(R.string.notice_null_baseline_available));
+                    mBaselineDialog.setLoadFileId(-1);
+                    mBaselineDialog.show(getFragmentManager(), "baseline");
+                } else {
+                    Utils.showItemSelectDialog(this, getString(R.string.action_open)
+                            , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //load the baseline
+                                    mBaselineDialog.setLoadFileId(which);
+                                    mBaselineDialog.show(getFragmentManager(), "baseline");
+                                }
+                            });
+                }
                 break;
             case R.id.action_dark_current:
                 mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);

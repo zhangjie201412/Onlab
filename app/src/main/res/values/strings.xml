@@ -194,6 +194,10 @@
     <string name="cvs">cvs</string>
     <string name="notice_invalid_license">输入注册码无效！</string>
     <string name="notice_baseline_null">请先做系统基线</string>
+    <string name="notice_null_baseline_available">当前没有保存的系统基线</string>
+    <string name="apply_baseline">使用当前基线</string>
+    <string name="create_baseline">建立基线</string>
+    <string name="apply_done">已使用当前基线</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

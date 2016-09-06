@@ -77,17 +77,27 @@
             android:layout_weight="1"
             android:background="@drawable/bg_button"
             android:minHeight="@dimen/button_min_height"
-            android:text="@string/start"
+            android:text="@string/create_baseline"
             android:textColor="@color/color_button" />
         <Button
-            android:id="@+id/bt_baseline_stop"
+            android:id="@+id/bt_baseline_save"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/button_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button"
             android:minHeight="@dimen/button_min_height"
-            android:text="@string/stop"
+            android:text="@string/action_save"
+            android:textColor="@color/color_button" />
+        <Button
+            android:id="@+id/bt_baseline_apply"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
+            android:text="@string/apply_baseline"
             android:textColor="@color/color_button" />
     </LinearLayout>
 

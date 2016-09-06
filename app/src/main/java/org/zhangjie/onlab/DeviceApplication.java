@@ -2,6 +2,7 @@ package org.zhangjie.onlab;
 
 import android.app.Application;
 
+import org.zhangjie.onlab.database.BaselineDB;
 import org.zhangjie.onlab.database.DnaDB;
 import org.zhangjie.onlab.database.MultipleWavelengthDB;
 import org.zhangjie.onlab.database.PhotometricMeasureDB;
@@ -24,6 +25,7 @@ public class DeviceApplication extends Application {
     private QuantitativeAnalysisDB mQuantitativeAnalysisDb;
     private DnaDB mDnaDb;
     private MultipleWavelengthDB mMultipleWavelengthDb;
+    private BaselineDB mBaselineDb;
 
     public synchronized static DeviceApplication getInstance() {
         return mApplication;
@@ -41,6 +43,7 @@ public class DeviceApplication extends Application {
         mQuantitativeAnalysisDb = new QuantitativeAnalysisDB(this);
         mDnaDb = new DnaDB(this);
         mMultipleWavelengthDb = new MultipleWavelengthDB(this);
+        mBaselineDb = new BaselineDB(this);
     }
 
     public synchronized PhotometricMeasureDB getPhotometricMeasureDb() {
@@ -83,6 +86,13 @@ public class DeviceApplication extends Application {
             mMultipleWavelengthDb = new MultipleWavelengthDB(this);
 
         return mMultipleWavelengthDb;
+    }
+
+    public synchronized BaselineDB getBaselineDb() {
+        if(mBaselineDb == null)
+            mBaselineDb = new BaselineDB(this);
+
+        return mBaselineDb;
     }
 
     public synchronized SharedPreferenceUtils getSpUtils() {
