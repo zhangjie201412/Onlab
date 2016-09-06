@@ -155,7 +155,7 @@ public class Utils {
     }
 
     public static boolean checkWavelengthInvalid(Context context, float wavelength) {
-        if (wavelength <= 190 || (wavelength >= 1100)) {
+        if (wavelength < 190 || (wavelength > 1100)) {
             Toast.makeText(context, context.getString(R.string.notice_wavelength_invalid), Toast.LENGTH_LONG).show();
             return false;
         } else {
