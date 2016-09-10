@@ -399,6 +399,8 @@ public class DeviceManager implements BtleListener {
     public static final int WORK_ENTRY_FLAG_SET_LAMP_WAVELENGTH = 1 << 13;
     public static final int WORK_ENTRY_FLAG_DNA_REZERO = 1 << 14;
     public static final int WORK_ENTRY_FLAG_DNA_TEST = 1 << 15;
+    public static final int WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_REZERO = 1 << 16;
+    public static final int WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_SAMPLE = 1 << 17;
     public static final int WORK_ENTRY_FLAG_SINGLE_COMMAND = 1 << 31;
 
     private int mEntryFlag = 0x00000000;
@@ -461,6 +463,18 @@ public class DeviceManager implements BtleListener {
         Log.d(TAG, "REZERO WORK FLAG = " + mEntryFlag);
         List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
         clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
+        doWork(cmdList);
+    }
+
+    public synchronized void rezeroWork(float wl) {
+        mEntryFlag = 0x00000000;
+        //set rezero flag
+        mEntryFlag |= WORK_ENTRY_FLAG_REZERO;
+        Log.d(TAG, "REZERO WORK FLAG = " + mEntryFlag);
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl);
         addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
         doWork(cmdList);
     }
@@ -652,6 +666,47 @@ public class DeviceManager implements BtleListener {
         clearCmd(cmdList);
 
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 5);
+        doWork(cmdList);
+    }
+
+    public synchronized void doQualtitativeAnalysisSample(float wl1, float wl2, float wl3) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_SAMPLE;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 5);
+        if(wl2 > 0) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl2);
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 5);
+        }
+        if(wl3 > 0) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl3);
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 5);
+        }
+        doWork(cmdList);
+
+    }
+
+    public synchronized void doQuantitativeAnalysisRezero(float wl1, float wl2, float wl3) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_REZERO;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl1);
+        addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
+        if(wl2 > 0) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl2);
+            addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
+        }
+        if(wl3 > 0) {
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl3);
+            addCmd(cmdList, DEVICE_CMD_LIST_REZERO, -1);
+        }
         doWork(cmdList);
     }
 

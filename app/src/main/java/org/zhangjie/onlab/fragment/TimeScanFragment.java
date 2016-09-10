@@ -225,26 +225,29 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                     Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
                 }
                 String fileName = name;
-                for (int i = 0; i < mData[mCurDataIndex].size(); i++) {
-                    int index = 0;
-                    int second = 0;
-                    float abs = 0.0f;
-                    float trans = 0.0f;
-                    int energy = 0;
-                    long date = 0;
+                for(int index = 0; index < LINE_MAX; index ++) {
+                    if(mData[index].size() <= 0)
+                        continue;
+                    for (int i = 0; i < mData[index].size(); i++) {
+                        int idx = 0;
+                        int second = 0;
+                        float abs = 0.0f;
+                        float trans = 0.0f;
+                        int energy = 0;
+                        long date = 0;
 
-                    HashMap<String, String> map = mData[mCurDataIndex].get(i);
-                    index = Integer.parseInt(map.get("id"));
-                    second = Integer.parseInt(map.get("second"));
-                    abs = Float.parseFloat(map.get("abs"));
-                    trans = Float.parseFloat(map.get("trans"));
-                    energy = Integer.parseInt(map.get("energy"));
-                    date = Long.parseLong(map.get("date"));
+                        HashMap<String, String> map = mData[mCurDataIndex].get(i);
+                        idx = Integer.parseInt(map.get("id"));
+                        second = Integer.parseInt(map.get("second"));
+                        abs = Float.parseFloat(map.get("abs"));
+                        trans = Float.parseFloat(map.get("trans"));
+                        energy = Integer.parseInt(map.get("energy"));
+                        date = Long.parseLong(map.get("date"));
 
-                    TimeScanRecord record = new TimeScanRecord(index, second, abs, trans, energy, date);
-                    DeviceApplication.getInstance().getTimeScanDb().saveRecord(fileName, record);
+                        TimeScanRecord record = new TimeScanRecord(idx, second, abs, trans, energy, date);
+                        DeviceApplication.getInstance().getTimeScanDb().saveRecord(fileName + "_" + index, record);
+                    }
                 }
-                Log.d(TAG, "save to -> " + fileName);
                 Utils.needToSave = false;
             }
 
@@ -628,7 +631,12 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 }
                 break;
             case R.id.bt_time_scan_rezero:
-                DeviceManager.getInstance().rezeroWork();
+                //set wavelength to target
+                float work_wavelength = DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength();
+                if (!isFake) {
+                    ((MainActivity) getActivity()).loadSetWavelengthDialog();
+                }
+                DeviceManager.getInstance().rezeroWork(work_wavelength);
                 break;
             default:
                 break;
@@ -1113,14 +1121,12 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                     });
 
         } else if (event.op_type == FileOperateEvent.OP_EVENT_SAVE) {
-            Log.d("##", "123123");
             if (mData[mCurDataIndex].size() < 1) {
                 Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
                 return;
             }
             mSaveDialog.show(getFragmentManager(), "save");
         } else if (event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
-            Log.d("##", "123");
             int available = 0;
             for(int i = 0; i < LINE_MAX; i++) {
                 if(mData[i].size() > 0)
@@ -1158,11 +1164,6 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         if (resultCode == TimescanSettingActivity.RESULT_OK) {
             Log.d(TAG, "OK");
             loadFromSetting();
-            //set wavelength to target
-            float work_wavelength = DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength();
-            if (!isFake) {
-                ((MainActivity) getActivity()).loadWavelengthDialog(work_wavelength);
-            }
 
         } else if (resultCode == TimescanSettingActivity.RESULT_CANCEL) {
             Log.d(TAG, "CANCEL");

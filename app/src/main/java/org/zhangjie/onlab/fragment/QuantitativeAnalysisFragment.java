@@ -307,6 +307,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             }
         });
 
+        mFileType = FileExportDialog.FILE_TYPE_TXT;
         mFileExportDialog = new FileExportDialog();
         mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
             @Override
@@ -315,7 +316,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                String typeString = "unknow";
+                String typeString = "txt";
                 String titleFormatString = "";
                 String contentFormatString = "";
                 if(mFileType == FileExportDialog.FILE_TYPE_TXT) {
@@ -355,6 +356,33 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     writer.flush();
                     writer.close();
                     out.close();
+                    file = Utils.getQuantitativeAnalsisFile(name + "_sample." + typeString);
+                    out = new FileWriter(file, false);
+                    writer = new BufferedWriter(out);
+                    line = String.format(titleFormatString,
+                            getString(R.string.index),
+                            getString(R.string.name),
+                            getString(R.string.abs),
+                            getString(R.string.conc));
+                    writer.write(line);
+                    for (int i = 0; i < mSampleData.size(); i++) {
+                        int id = 0;
+                        String testName = "";
+                        float abs = 0.0f;
+                        float conc = 0.0f;
+
+                        HashMap<String, String> map = mSampleData.get(i);
+                        id = Integer.parseInt(map.get("id"));
+                        testName = map.get("name");
+                        abs = Float.parseFloat(map.get("abs"));
+                        conc = Float.parseFloat(map.get("conc"));
+                        line = String.format(contentFormatString,
+                                id, testName, abs, conc);
+                        writer.write(line);
+                    }
+                    writer.flush();
+                    writer.close();
+                    out.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -369,6 +397,23 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         if (loadFile) {
             loadFileById(loadFileIndex);
         }
+    }
+
+    public boolean isLastWavelength(float wavelength) {
+        SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+        float wavelength1 = sp.getQAWavelength1();
+        float wavelength2 = sp.getQAWavelength2();
+        float wavelength3 = sp.getQAWavelength3();
+        int wavelength_setting = sp.getQAWavelengthSetting();
+        boolean ret = false;
+        if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_ONE) {
+            ret = (wavelength == wavelength1);
+        } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_TWO) {
+            ret = (wavelength == wavelength2);
+        } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_THREE) {
+            ret = (wavelength == wavelength3);
+        }
+        return ret;
     }
 
     public void prepareLoadFile(int id) {
@@ -632,9 +677,6 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         if (resultCode == QuantitativeAnalysisSettingActivity.RESULT_OK) {
             Log.d(TAG, "OK");
             loadSetting();
-            //set wavelength to target
-            float work_wavelength = DeviceApplication.getInstance().getSpUtils().getQAWavelength1();
-            ((MainActivity)getActivity()).loadWavelengthDialog(work_wavelength);
         } else if (resultCode == QuantitativeAnalysisSettingActivity.RESULT_CANCEL) {
             Log.d(TAG, "CANCEL");
         }
@@ -696,7 +738,20 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     mSampleAdapter.notifyDataSetChanged();
                 }
                 //send get abs cmd
-                DeviceManager.getInstance().doQuantitativeAnalysis();
+                SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+                int wavelength_setting = sp.getQAWavelengthSetting();
+                float wavelength1 = sp.getQAWavelength1();
+                float wavelength2 = sp.getQAWavelength2();
+                float wavelength3 = sp.getQAWavelength3();
+
+                if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_ONE) {
+                    DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, -1, -1);
+                } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_TWO) {
+                    DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, wavelength2, -1);
+                } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_THREE) {
+                    DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, wavelength2, wavelength3);
+                }
+                ((MainActivity)(getActivity())).doTestDialog();
             } else if (type == QASampleDialog.TYPE_CANCEL) {
 
             }
@@ -818,14 +873,45 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
 
     @Override
     public void onClick(View v) {
+        SharedPreferenceUtils sp;
+        int wavelength_setting;
+        float wavelength1;
+        float wavelength2;
+        float wavelength3;
         switch (v.getId()) {
             case R.id.bt_qa_start_test:
                 mActionType = ACTION_TYPE_TEST;
-                DeviceManager.getInstance().doQuantitativeAnalysis();
+                sp = DeviceApplication.getInstance().getSpUtils();
+                wavelength_setting = sp.getQAWavelengthSetting();
+                wavelength1 = sp.getQAWavelength1();
+                wavelength2 = sp.getQAWavelength2();
+                wavelength3 = sp.getQAWavelength3();
+
+                if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_ONE) {
+                    DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, -1, -1);
+                } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_TWO) {
+                    DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, wavelength2, -1);
+                } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_THREE) {
+                    DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, wavelength2, wavelength3);
+                }
+                ((MainActivity)(getActivity())).doTestDialog();
 //                addTestItem(new QuantitativeAnalysisRecord(-1, "Test", 1.0f, 2.4f, System.currentTimeMillis()));
                 break;
             case R.id.bt_qa_rezero:
-                DeviceManager.getInstance().rezeroWork();
+                sp = DeviceApplication.getInstance().getSpUtils();
+                wavelength_setting = sp.getQAWavelengthSetting();
+                wavelength1 = sp.getQAWavelength1();
+                wavelength2 = sp.getQAWavelength2();
+                wavelength3 = sp.getQAWavelength3();
+                if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_ONE) {
+                    DeviceManager.getInstance().doQuantitativeAnalysisRezero(wavelength1, -1, -1);
+                } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_TWO) {
+                    DeviceManager.getInstance().doQuantitativeAnalysisRezero(wavelength1, wavelength2, -1);
+                } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_THREE) {
+                    DeviceManager.getInstance().doQuantitativeAnalysisRezero(wavelength1, wavelength2, wavelength3);
+                }
+                //load dialog
+                ((MainActivity)(getActivity())).doRezeroDialog();
                 break;
             case R.id.bt_qa_add:
                 mSampleDialog.setIsNew(true);

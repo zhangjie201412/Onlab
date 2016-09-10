@@ -64,6 +64,7 @@ import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
 import org.zhangjie.onlab.utils.MD5;
+import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 import org.zhangjie.onlab.utils.Utils;
 
 import java.util.List;
@@ -273,6 +274,16 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         if((flag & DeviceManager.WORK_ENTRY_FLAG_DNA_TEST) != 0) {
             Log.d(TAG, "DNA TEST ENTRY");
             work_entry_dna_test(msg);
+        }
+
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_SAMPLE) != 0) {
+            Log.d(TAG, "QA SAMPLE ENTRY");
+            work_entry_quantitative_analysis_sample(msg);
+        }
+
+        if((flag & DeviceManager.WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_REZERO) != 0) {
+            Log.d(TAG, "QA REZERO ENTRY");
+            work_entry_quantitative_analysis_rezero(msg);
         }
 
         //...
@@ -714,6 +725,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 dismissDialog();
                 mDeviceManager.setLoopThreadRestart();
                 BusProvider.getInstance().post(new WavelengthScanCallbackEvent((WavelengthScanCallbackEvent.EVENT_TYPE_REZERO_DONE)));
+                //reset the wavelength to the end wavelength
+                float end = DeviceApplication.getInstance().getSpUtils().getWavelengthscanEnd();
+                loadWavelengthDialog(end);
             }
         }
     }
@@ -981,6 +995,106 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         //done
     }
 
+    private float mSampleWavelength = 0;
+    private float mSampleAbs1 = 0;
+    private float mSampleAbs2 = 0;
+    private float mSampleAbs3 = 0;
+    private void work_entry_quantitative_analysis_sample(String[] msgs) {
+        String[] msg = msgs.clone();
+        String tag = msg[0];
+        SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+        int wavelength_setting = sp.getQAWavelengthSetting();
+        float wavelength1 = sp.getQAWavelength1();
+        float wavelength2 = sp.getQAWavelength2();
+        float wavelength3 = sp.getQAWavelength3();
+        float ratio1 = sp.getQARatio1();
+        float ratio2 = sp.getQARatio2();
+        float ratio3 = sp.getQARatio3();
+
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
+            String wl = msgs[0].substring(3);
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            Log.d(TAG, "rezero wl = " + wl);
+            mSampleWavelength = Float.parseFloat(wl);
+            if(mSampleWavelength == wavelength1) {
+                mSampleAbs1 = 0;
+                mSampleAbs2 = 0;
+                mSampleAbs3 = 0;
+            } else if(mSampleWavelength == wavelength2) {
+                mSampleAbs2 = 0;
+                mSampleAbs3 = 0;
+            } else if(mSampleWavelength == wavelength3) {
+                mSampleAbs3 = 0;
+            }
+        } else if (tag.startsWith("ge 5")) {
+            int[] energies = new int[5];
+            int I1 = 0;
+            float abs = 0;
+
+            for (int i = 0; i < 5; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energies[i] = Integer.parseInt(msg[i + 1], 10);
+                I1 += energies[i];
+            }
+            I1 /= 5;
+
+            int gain = mDeviceManager.getGainFromBaseline((int) mSampleWavelength);
+            float trans = (float) (I1 - mDark[gain - 1]) /
+                    (float) (mDeviceManager.getDarkFromWavelength(mSampleWavelength) - mDark[gain - 1]);
+            abs = (float) -Math.log10(trans);
+            abs = Utils.getValidAbs(abs);
+            if(mSampleWavelength == wavelength1) {
+                mSampleAbs1 = abs;
+            } else if(mSampleWavelength == wavelength2) {
+                mSampleAbs2 = abs;
+            } else if(mSampleWavelength == wavelength3) {
+                mSampleAbs3 = abs;
+            }
+            if (mQuantitativeAnalysisFragment.isLastWavelength(mSampleWavelength)) {
+                Log.d(TAG, "do qa sample done!");
+                mSampleWavelength = 0;
+                dismissDialog();
+                mDeviceManager.setLoopThreadRestart();
+                Log.d(TAG, "Update abs = " + abs);
+                float updateAbs = mSampleAbs1 * ratio1 + mSampleAbs2 * ratio2 + mSampleAbs3 * ratio3;
+                BusProvider.getInstance().post(new QaUpdateEvent(updateAbs));
+                mDeviceManager.setLoopThreadRestart();
+            }
+        }
+        //done
+    }
+
+    float mQaWavelength = 0;
+    private void work_entry_quantitative_analysis_rezero(String[] msgs) {
+        String tag = msgs[0];
+
+        if (tag.startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
+            String wl = msgs[0].substring(3);
+            wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            Log.d(TAG, "rezero wl = " + wl);
+            mQaWavelength = Float.parseFloat(wl);
+        } else if (tag.startsWith(DeviceManager.TAG_REZERO)) {
+            if (mQaWavelength == 0) {
+                return;
+            }
+            msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            mI0 = Integer.parseInt(msgs[1]);
+            mA = Integer.parseInt(msgs[2]);
+
+            int I0 = Integer.parseInt(msgs[1]);
+            mDeviceManager.setDark(mQaWavelength, I0);
+            int gain = Integer.parseInt(msgs[2]);
+            mDeviceManager.setGain((int) mQaWavelength, gain);
+
+            if (mQuantitativeAnalysisFragment.isLastWavelength(mQaWavelength)) {
+                Log.d(TAG, "do qa rezero done!");
+                mQaWavelength = 0;
+                dismissDialog();
+                mDeviceManager.setLoopThreadRestart();
+            }
+        }
+    }
     private void work_entry_single_command(String[] msgs) {
         String[] msg = msgs.clone();
         String tag = msg[0];
@@ -1017,11 +1131,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void work_entry_rezero(String[] msgs) {
-        if (msgs[0].startsWith(DeviceManager.TAG_REZERO)) {
+        if (msgs[0].startsWith(DeviceManager.TAG_SET_WAVELENGTH)) {
+            dismissDialog();
+            mDeviceManager.setLoopThreadRestart();
+        } else if (msgs[0].startsWith(DeviceManager.TAG_REZERO)) {
             msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mI0 = Integer.parseInt(msgs[1]);
             mA = Integer.parseInt(msgs[2]);
+            mDeviceManager.setLoopThreadRestart();
         }
     }
 
@@ -1516,7 +1634,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mBottomWavelength.setText(wavelengthString);
     }
 
-    private void loadSetWavelengthDialog() {
+    public void loadSetWavelengthDialog() {
         final Runnable callback = new Runnable() {
             @Override
             public void run() {
@@ -1612,14 +1730,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
-    private void doRezeroDialog() {
+    public void doRezeroDialog() {
         if (!mWaitDialog.isShowing()) {
             mWaitDialog.setMessage(getString(R.string.rezero_message));
             mWaitDialog.show();
         }
     }
 
-    private void doTestDialog() {
+    public void doTestDialog() {
         if (!mWaitDialog.isShowing()) {
             mWaitDialog.setMessage(getString(R.string.test_message));
             mWaitDialog.show();
