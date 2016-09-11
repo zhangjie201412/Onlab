@@ -198,6 +198,10 @@
     <string name="apply_baseline">使用当前基线</string>
     <string name="create_baseline">建立基线</string>
     <string name="apply_done">已使用当前基线</string>
+    <string name="title_conc_setting">浓度设定(Y轴)</string>
+    <string name="title_conc_start">最小浓度</string>
+    <string name="title_conc_end">最大浓度</string>
+    <string name="conc_unit">ug/ml</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
@@ -231,12 +235,14 @@
     </string-array>
 
     <string-array name="system_settings">
-        <item>精度设置</item>
         <item>波长校正</item>
         <item>暗电流校正</item>
         <item>光源管理</item>
-        <item>文件管理</item>
+        <item>系统基线</item>
+        <item>峰高设置</item>
+        <item>精度设置</item>
         <item>注册授权码</item>
+        <item>文件管理</item>
         <item>恢复出厂设置</item>
         <item>系统版本</item>
     </string-array>
@@ -301,5 +307,5 @@
         <item>关于我们</item>
     </string-array>
 
-    <string name="version_string">V16.08.04</string>
+    <string name="version_string">V16.09.11</string>
 </resources>

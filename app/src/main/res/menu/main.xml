@@ -38,14 +38,24 @@
         android:title="@string/action_file_export"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_print"
-        android:orderInCategory="120"
-        android:title="@string/action_print"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/action_set_wavelength"
         android:orderInCategory="130"
         android:title="@string/action_set_wavelength"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_rezero"
+        android:orderInCategory="130"
+        android:title="@string/rezero"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_start_test"
+        android:orderInCategory="130"
+        android:title="@string/start_test"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_dark_current"
+        android:orderInCategory="160"
+        android:title="@string/action_dark_current"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_baseline"
@@ -56,10 +66,5 @@
         android:id="@+id/action_peak_distance"
         android:orderInCategory="150"
         android:title="@string/action_peak_distance"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_dark_current"
-        android:orderInCategory="160"
-        android:title="@string/action_dark_current"
         app:showAsAction="never" />
 </menu>

@@ -12,6 +12,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import org.zhangjie.onlab.R;
+import org.zhangjie.onlab.utils.Utils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +89,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
             holder.cb.setVisibility(View.INVISIBLE);
         }
 
+        float fval = 0;
         //fill the textView
         for (int i = 0; i < mKeys.length; i++) {
             if (mKeys[i].equals("id")) {
@@ -99,25 +101,34 @@ public class MultiSelectionAdapter extends BaseAdapter {
             } else if (mKeys[i].equals("gain")) {
                 holder.gain.setText(mData.get(position).get("gain"));
             } else if (mKeys[i].equals("abs")) {
-                holder.abs.setText(mData.get(position).get("abs"));
+                fval = Float.parseFloat(mData.get(position).get("abs"));
+                holder.abs.setText(Utils.formatAbs(fval));
             } else if (mKeys[i].equals("trans")) {
-                holder.trans.setText(mData.get(position).get("trans"));
+                fval = Float.parseFloat(mData.get(position).get("trans"));
+                holder.trans.setText(Utils.formatTrans(fval));
             } else if (mKeys[i].equals("energy")) {
                 holder.energy.setText(mData.get(position).get("energy"));
             } else if (mKeys[i].equals("conc")) {
-                holder.conc.setText(mData.get(position).get("conc"));
+                fval = Float.parseFloat(mData.get(position).get("conc"));
+                holder.conc.setText(Utils.formatConc(fval));
             } else if (mKeys[i].equals("abs1")) {
-                holder.abs1.setText(mData.get(position).get("abs1"));
+                fval = Float.parseFloat(mData.get(position).get("abs1"));
+                holder.abs1.setText(Utils.formatAbs(fval));
             } else if (mKeys[i].equals("abs2")) {
-                holder.abs2.setText(mData.get(position).get("abs2"));
+                fval = Float.parseFloat(mData.get(position).get("abs2"));
+                holder.abs2.setText(Utils.formatAbs(fval));
             } else if (mKeys[i].equals("absRef")) {
-                holder.absRef.setText(mData.get(position).get("absRef"));
+                fval = Float.parseFloat(mData.get(position).get("absRef"));
+                holder.absRef.setText(Utils.formatAbs(fval));
             } else if (mKeys[i].equals("dna")) {
-                holder.dna.setText(mData.get(position).get("dna"));
+                fval = Float.parseFloat(mData.get(position).get("dna"));
+                holder.dna.setText(Utils.formatConc(fval));
             } else if (mKeys[i].equals("protein")) {
-                holder.protein.setText(mData.get(position).get("protein"));
+                fval = Float.parseFloat(mData.get(position).get("protein"));
+                holder.protein.setText(Utils.formatConc(fval));
             } else if (mKeys[i].equals("ratio")) {
-                holder.ratio.setText(mData.get(position).get("ratio"));
+                fval = Float.parseFloat(mData.get(position).get("ratio"));
+                holder.ratio.setText(Utils.formatAbs(fval));
             }
         }
         holder.cb.setTag("" + position);

@@ -278,8 +278,8 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
 
         item.put("id", "" + no);
         item.put("wavelength", "" + record.getWavelength());
-        item.put("abs", Utils.formatAbs(record.getAbs()));
-        item.put("trans", Utils.formatTrans(record.getTrans()));
+        item.put("abs", "" + record.getAbs());
+        item.put("trans", "" + record.getTrans());
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData.add(item);
@@ -370,6 +370,29 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
                 return;
             }
             mFileExportDialog.show(getFragmentManager(), "file_export");
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
+            DeviceManager.getInstance().rezeroWork();
+            mIsRezeroed = true;
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+            if (isFake) {
+                int energy = (int) (Math.random() * 1000.0f);
+                float wavelength = (float) (Math.random() * 1000.0f);
+                float abs = (float) (Math.random() * 10);
+                float trans = (float) (Math.random() * 100);
+
+                PhotoMeasureRecord record = new PhotoMeasureRecord(-1,
+                        wavelength, abs, trans, energy,
+                        System.currentTimeMillis());
+                addItem(record);
+            } else {
+                if (!mIsRezeroed) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_rezero),
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                DeviceManager.getInstance().photometricMeasureWork();
+                BusProvider.getInstance().post(new WaitProgressEvent(true));
+            }
         }
     }
 

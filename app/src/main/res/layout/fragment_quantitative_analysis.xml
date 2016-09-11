@@ -288,10 +288,21 @@
                 </LinearLayout>
 
                 <ListView
+                    android:layout_alignParentTop="true"
                     android:id="@+id/lv_qa_sample"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_above="@id/layout_qa_operate"></ListView>
+                <!--<TextView-->
+                    <!--android:layout_marginTop="@dimen/button_margin"-->
+                    <!--android:layout_below="@id/lv_qa_sample"-->
+                    <!--android:id="@+id/tv_add"-->
+                    <!--android:gravity="center_horizontal"-->
+                    <!--android:textColor="@color/colorAccent"-->
+                    <!--android:textSize="@dimen/add_text_size"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:text="@string/add_item"-->
+                    <!--android:layout_height="wrap_content" />-->
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>

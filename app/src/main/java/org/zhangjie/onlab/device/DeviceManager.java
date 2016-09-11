@@ -457,6 +457,7 @@ public class DeviceManager implements BtleListener {
 
     //send rezero \r
     public synchronized void rezeroWork() {
+        setLoopThreadPause();
         mEntryFlag = 0x00000000;
         //set rezero flag
         mEntryFlag |= WORK_ENTRY_FLAG_REZERO;
@@ -468,6 +469,7 @@ public class DeviceManager implements BtleListener {
     }
 
     public synchronized void rezeroWork(float wl) {
+        setLoopThreadPause();
         mEntryFlag = 0x00000000;
         //set rezero flag
         mEntryFlag |= WORK_ENTRY_FLAG_REZERO;

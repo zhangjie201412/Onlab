@@ -28,6 +28,7 @@ import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 import org.zhangjie.onlab.adapter.MultiSelectionAdapter;
 import org.zhangjie.onlab.device.DeviceManager;
+import org.zhangjie.onlab.dialog.FileExportDialog;
 import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.otto.BusProvider;
@@ -43,6 +44,10 @@ import org.zhangjie.onlab.setting.WavelengthSettingActivity;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 import org.zhangjie.onlab.utils.Utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +114,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private boolean loadFile = false;
 
     private int mCurDataIndex = 0;
-
+    private int mFileType = FileExportDialog.FILE_TYPE_TXT;
+    private FileExportDialog mFileExportDialog;
 
     @Nullable
     @Override
@@ -219,6 +225,69 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             @Override
             public void abort() {
                 getFragmentManager().popBackStack();
+            }
+        });
+        mFileExportDialog = new FileExportDialog();
+        mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
+            @Override
+            public void onSettingInputComplete(String name) {
+                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String typeString = "unknow";
+                String titleFormatString = "";
+                String contentFormatString = "";
+                if(mFileType == FileExportDialog.FILE_TYPE_TXT) {
+                    typeString = "txt";
+                    titleFormatString = "%s\t%s\t%s\t%s\n";
+                    contentFormatString = "%d\t%f\t%f\t%d\n";
+                } else if(mFileType ==FileExportDialog.FILE_TYPE_CVS) {
+                    typeString = "cvs";
+                    titleFormatString = "%s,%s,%s,%s\n";
+                    contentFormatString = "%d,%f,%f,%d\n";
+                }
+                for(int index = 0; index < LINE_MAX; index++) {
+                    if(mData[index].size() == 0)
+                        continue;
+                    File file = Utils.getWavelengthScanFile(name + "__" + (index + 1) + "." + typeString );
+                    try {
+                        FileWriter out = new FileWriter(file, false);
+                        BufferedWriter writer = new BufferedWriter(out);
+                        String line = String.format(titleFormatString,
+                                getString(R.string.index),
+                                getString(R.string.abs),
+                                getString(R.string.trans),
+                                getString(R.string.energy));
+                        writer.write(line);
+                        for (int i = 0; i < mData[index].size(); i++) {
+                            int id = 0;
+                            float abs = 0.0f;
+                            float trans = 0.0f;
+                            int energy = 0;
+
+                            HashMap<String, String> map = mData[index].get(i);
+                            id = Integer.parseInt(map.get("id"));
+                            abs = Float.parseFloat(map.get("abs"));
+                            trans = Float.parseFloat(map.get("trans"));
+                            energy = Integer.parseInt(map.get("energy"));
+                            line = String.format(contentFormatString,
+                                    id, abs, trans, energy);
+                            writer.write(line);
+                        }
+                        writer.flush();
+                        writer.close();
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFileTypeSelect(int type) {
+                mFileType = type;
             }
         });
 
@@ -376,8 +445,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         item.put("id", "" + no);
         item.put("wavelength", String.format("%.1f", record.getWavelength()));
-        item.put("abs", Utils.formatAbs(record.getAbs()));
-        item.put("trans", Utils.formatTrans(record.getTrans()));
+        item.put("abs", "" + record.getAbs());
+        item.put("trans", "" + record.getTrans());
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData[index].add(item);
@@ -534,6 +603,94 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             }
             mSaveDialog.show(getFragmentManager(), "save");
         } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
+
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
+
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
+            //check baseline is existed
+            if(!DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
+                Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int [] baseline = DeviceApplication.getInstance().getSpUtils()
+                    .getBaseline((int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1));
+            for(int i = 0; i < (int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1); i++) {
+                if(baseline[i] <= 0) {
+                    Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+
+            float start = sp.getWavelengthscanStart();
+            float end = sp.getWavelengthscanEnd();
+            int speed = sp.getWavelengthscanSpeed();
+            float interval = sp.getWavelengthscanInterval();
+            BusProvider.getInstance().post(new RezeroEvent(start, end, speed, interval));
+
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+            if (isFake) {
+                for (int i = LINE_MAX - 1; i >= 0; i--) {
+                    if (mData[i].size() == 0) {
+                        mCurDataIndex = i;
+                    }
+                }
+                setCurrentButton();
+                //set adapter data
+                mAdapter.setData(mData[mCurDataIndex]);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+
+                        float start = sp.getWavelengthscanStart();
+                        float end = sp.getWavelengthscanEnd();
+                        int speed = sp.getWavelengthscanSpeed();
+                        float interval = sp.getWavelengthscanInterval();
+                        int count = (int) ((end - start) / interval);
+                        while (count > mData[mCurDataIndex].size()) {
+                            int energy = (int) (Math.random() * 1000.0f);
+                            float wavelength = end - mData[mCurDataIndex].size() * interval;
+                            float abs = (float) (Math.random() * 2);
+                            float trans = (float) (Math.random() * 100);
+
+                            WavelengthScanRecord record = new WavelengthScanRecord(-1,
+                                    wavelength, abs, trans, energy,
+                                    System.currentTimeMillis());
+                            addItem(mCurDataIndex, record);
+                            updateChart(mCurDataIndex, record);
+                        }
+                    }
+
+                });
+
+            } else {
+                int availables = 0;
+                for (int i = LINE_MAX - 1; i >= 0; i--) {
+                    if (mData[i].size() == 0) {
+                        mCurDataIndex = i;
+                    } else {
+                        availables++;
+                    }
+                }
+                if (availables == LINE_MAX) {
+                    clearData(mCurDataIndex);
+                }
+                setCurrentButton();
+                //set adapter data
+                mAdapter.setData(mData[mCurDataIndex]);
+                SharedPreferenceUtils sp = DeviceApplication.getInstance().getSpUtils();
+
+                float start = sp.getWavelengthscanStart();
+                float end = sp.getWavelengthscanEnd();
+                int speed = sp.getWavelengthscanSpeed();
+                float interval = sp.getWavelengthscanInterval();
+
+                ((MainActivity) (getActivity())).loadWavelengthDialog(end);
+                DeviceManager.getInstance().doWavelengthScan(start, end, interval);
+                mStartButton.setEnabled(false);
+                mStopButton.setEnabled(true);
+            }
 
         }
     }

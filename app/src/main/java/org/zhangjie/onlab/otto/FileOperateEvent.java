@@ -8,6 +8,8 @@ public class FileOperateEvent {
     public static final int OP_EVENT_SAVE = 1;
     public static final int OP_EVENT_PRINT = 2;
     public static final int OP_EVENT_FILE_EXPORT = 3;
+    public static final int OP_EVENT_REZERO = 4;
+    public static final int OP_EVENT_START_TEST = 5;
 
     public int op_type;
 

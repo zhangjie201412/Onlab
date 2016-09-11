@@ -453,6 +453,12 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         float ratio1 = sp.getQARatio1();
         float ratio2 = sp.getQARatio2();
         float ratio3 = sp.getQARatio3();
+        float xStart, xEnd, yStart, yEnd;
+
+        xStart = DeviceApplication.getInstance().getSpUtils().getQALimitDown();
+        xEnd = DeviceApplication.getInstance().getSpUtils().getQALimitUp();
+        yStart = DeviceApplication.getInstance().getSpUtils().getQAStartConc();
+        yEnd = DeviceApplication.getInstance().getSpUtils().getQAEndConc();
 
         if (calc_type == QuantitativeAnalysisSettingActivity.CALC_TYPE_FORMALU) {
             mFormaluTextView.setVisibility(View.VISIBLE);
@@ -507,7 +513,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             mChartView.setLineChartData(mChartData);        }
         String xTtitle = getString(R.string.abs_with_unit);
         String yTitle = getString(R.string.conc) + "(" + getResources().getStringArray(R.array.concs)[conc_unit] + ")";
-        updateXYTitle(xTtitle, yTitle, 0, 4.0f, 10.0f, 0);
+        updateXYTitle(xTtitle, yTitle, xStart, xEnd, yEnd, yStart);
     }
 
     void updateXYTitle(String xTitle, String yTitle, float left, float right, float top, float bottom) {
@@ -517,7 +523,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         viewport.right = right;
         viewport.bottom = bottom;
 
-        mChartView.setMaximumViewport(new Viewport(left - right, top * 2, right, bottom * 2));
+        Log.d(TAG, "##left = " + left + ", right = " + right + ", bottom = " + bottom + ", top = " + top);
+
+        mChartView.setMaximumViewport(viewport);
         mChartView.setCurrentViewport(viewport);
         mChartView.setViewportCalculationEnabled(false);
 
@@ -604,6 +612,49 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 return;
             }
             mFileExportDialog.show(getFragmentManager(), "file_export");
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
+            SharedPreferenceUtils sp;
+            int wavelength_setting;
+            float wavelength1;
+            float wavelength2;
+            float wavelength3;
+            sp = DeviceApplication.getInstance().getSpUtils();
+            wavelength_setting = sp.getQAWavelengthSetting();
+            wavelength1 = sp.getQAWavelength1();
+            wavelength2 = sp.getQAWavelength2();
+            wavelength3 = sp.getQAWavelength3();
+            if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_ONE) {
+                DeviceManager.getInstance().doQuantitativeAnalysisRezero(wavelength1, -1, -1);
+            } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_TWO) {
+                DeviceManager.getInstance().doQuantitativeAnalysisRezero(wavelength1, wavelength2, -1);
+            } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_THREE) {
+                DeviceManager.getInstance().doQuantitativeAnalysisRezero(wavelength1, wavelength2, wavelength3);
+            }
+            //load dialog
+            ((MainActivity)(getActivity())).doRezeroDialog();
+
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+            SharedPreferenceUtils sp;
+            int wavelength_setting;
+            float wavelength1;
+            float wavelength2;
+            float wavelength3;
+            mActionType = ACTION_TYPE_TEST;
+            sp = DeviceApplication.getInstance().getSpUtils();
+            wavelength_setting = sp.getQAWavelengthSetting();
+            wavelength1 = sp.getQAWavelength1();
+            wavelength2 = sp.getQAWavelength2();
+            wavelength3 = sp.getQAWavelength3();
+
+            if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_ONE) {
+                DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, -1, -1);
+            } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_TWO) {
+                DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, wavelength2, -1);
+            } else if(wavelength_setting == QuantitativeAnalysisSettingActivity.WAVELENGTH_THREE) {
+                DeviceManager.getInstance().doQualtitativeAnalysisSample(wavelength1, wavelength2, wavelength3);
+            }
+            ((MainActivity)(getActivity())).doTestDialog();
+//                addTestItem(new QuantitativeAnalysisRecord(-1, "Test", 1.0f, 2.4f, System.currentTimeMillis()));
         }
     }
 
@@ -765,8 +816,8 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
 
         item.put("id", "" + no);
         item.put("name", (record.getName() == null) ? "" : record.getName());
-        item.put("abs", Utils.formatAbs(record.getAbs()));
-        item.put("conc", "" + Utils.formatConc(record.getConc()));
+        item.put("abs", "" + record.getAbs());
+        item.put("conc", "" + record.getConc());
         item.put("date", "" + record.getDate());
         mData.add(item);
         mAdapter.add();
@@ -795,9 +846,9 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         if (record.getAbs() == -100.0f) {
             item.put("abs", "");
         } else {
-            item.put("abs", Utils.formatAbs(record.getAbs()));
+            item.put("abs", "" + record.getAbs());
         }
-        item.put("conc", "" + Utils.formatConc(record.getConc()));
+        item.put("conc", "" + record.getConc());
         mSampleData.add(item);
         mSampleAdapter.add();
         mSampleAdapter.setSelectMode(true);

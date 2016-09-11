@@ -29,6 +29,10 @@ public class SharedPreferenceUtils {
     public static final String KEY_QA_RATIO1 = "key_qa_ratio1";
     public static final String KEY_QA_RATIO2 = "key_qa_ratio2";
     public static final String KEY_QA_RATIO3 = "key_qa_ratio3";
+    public static final String KEY_QA_START_CONC = "key_qa_start_conc";
+    public static final String KEY_QA_END_CONC = "key_qa_end_conc";
+    public static final String KEY_QA_LIMIT_UP = "key_qa_limit_up";
+    public static final String KEY_QA_LIMIT_DOWN = "key_qa_limit_down";
     //---
     //+++time scan
     public static final String KEY_TIMESCAN_WORK_WAVELENGTH = "key_timescan_work_wavelength";
@@ -111,6 +115,18 @@ public class SharedPreferenceUtils {
     }
     public float getQARatio3() {
         return mSp.getFloat(KEY_QA_RATIO3, 0.0f);
+    }
+    public float getQAStartConc() {
+        return mSp.getFloat(KEY_QA_START_CONC, 0);
+    }
+    public float getQAEndConc() {
+        return mSp.getFloat(KEY_QA_END_CONC, 4.0f);
+    }
+    public float getQALimitUp() {
+        return mSp.getFloat(KEY_QA_LIMIT_UP, 10.0f);
+    }
+    public float getQALimitDown() {
+        return mSp.getFloat(KEY_QA_LIMIT_DOWN, 0.0f);
     }
 
     public float getTimescanWorkWavelength() {
@@ -263,6 +279,22 @@ public class SharedPreferenceUtils {
     }
     public void setKeyQaRatio3(float ratio) {
         mEditor.putFloat(KEY_QA_RATIO3, ratio);
+        mEditor.commit();
+    }
+    public void setKeyQaStartConc(float conc) {
+        mEditor.putFloat(KEY_QA_START_CONC, conc);
+        mEditor.commit();
+    }
+    public void setKeyQaEndConc(float conc) {
+        mEditor.putFloat(KEY_QA_END_CONC, conc);
+        mEditor.commit();
+    }
+    public void setKeyQaLimitUp(float up) {
+        mEditor.putFloat(KEY_QA_LIMIT_UP, up);
+        mEditor.commit();
+    }
+    public void setKeyQaLimitDown(float down) {
+        mEditor.putFloat(KEY_QA_LIMIT_DOWN, down);
         mEditor.commit();
     }
 

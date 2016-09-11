@@ -43,6 +43,10 @@ public class Utils {
     public static String FILE_PATH_MULTIPLE_WAVELENGTH = FILE_PATH_ONLAB + "/MultipleWavelengthScan/";
     public static String FILE_PATH_DNA = FILE_PATH_ONLAB + "/DNA/";
 
+    public static boolean isFake() {
+        return false;
+    }
+
     public static String formatAbs(float abs) {
         String result = "";
         int acc = DeviceApplication.getInstance().getSpUtils().getAcc();

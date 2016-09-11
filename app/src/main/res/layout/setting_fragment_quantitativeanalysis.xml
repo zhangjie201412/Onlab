@@ -133,8 +133,62 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:orientation="vertical"
             android:gravity="center_vertical">
 
+            <TextView
+                android:layout_marginTop="@dimen/setting_margin_top"
+                android:text="@string/title_wavelength_y"
+                android:textSize="@dimen/setting_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:id="@+id/layout_limit_up"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_limit_up"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_limit_up_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/abs_unit"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_marginTop="@dimen/setting_margin_item"
+                android:id="@+id/layout_limit_down"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_limit_down"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_limit_down_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/abs_unit"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <View
+                android:layout_marginTop="@dimen/button_margin_top_bottom"
+                android:layout_marginBottom="@dimen/button_margin_top_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
             <RadioGroup
                 android:id="@+id/rg_qa_setting"
                 android:layout_width="match_parent"
@@ -232,6 +286,59 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:orientation="vertical">
+            <TextView
+                android:layout_marginTop="@dimen/setting_margin_top"
+                android:text="@string/title_conc_setting"
+                android:textSize="@dimen/setting_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:id="@+id/layout_conc_start"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_conc_start"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_conc_start_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/conc_unit"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/layout_conc_end"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:layout_marginTop="@dimen/setting_margin_item"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/title_conc_end"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_conc_end_value"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/setting_margin_right"
+                    android:text="@string/conc_unit"
+                    android:textSize="@dimen/setting_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <View
+                android:layout_marginTop="@dimen/button_margin_top_bottom"
+                android:layout_marginBottom="@dimen/button_margin_top_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
 
             <LinearLayout
                 android:layout_width="match_parent"

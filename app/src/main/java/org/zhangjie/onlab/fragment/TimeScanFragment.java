@@ -421,17 +421,30 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         mChartView.setViewportCalculationEnabled(false);
 
         List<AxisValue> axisXValues = new ArrayList<>();
-        axisXValues.add(new AxisValue(left));
-        axisXValues.add(new AxisValue((left + right) / 2));
-        axisXValues.add(new AxisValue(right));
+        if(right - left > 1) {
+            axisXValues.add(new AxisValue(left));
+            axisXValues.add(new AxisValue((left + right) / 2));
+            axisXValues.add(new AxisValue(right));
+        }
         List<AxisValue> axisYValues = new ArrayList<>();
-        axisYValues.add(new AxisValue(bottom));
-        axisYValues.add(new AxisValue((bottom + top) / 3));
-        axisYValues.add(new AxisValue((bottom + top) * 2 / 3));
-        axisYValues.add(new AxisValue(top));
-
-        Axis axisX = new Axis(axisXValues);
-        Axis axisY = new Axis(axisYValues);
+        if(top - bottom > 1) {
+            axisYValues.add(new AxisValue(bottom));
+            axisYValues.add(new AxisValue((bottom + top) / 3));
+            axisYValues.add(new AxisValue((bottom + top) * 2 / 3));
+            axisYValues.add(new AxisValue(top));
+        }
+        Axis axisX;
+        if(axisXValues.size() > 0) {
+            axisX = new Axis(axisXValues);
+        } else {
+            axisX = new Axis();
+        }
+        Axis axisY;
+        if(axisYValues.size() > 0) {
+            axisY =new Axis(axisYValues);
+        } else {
+            axisY = new Axis();
+        }
         axisX.setName(xTitle);
         axisX.setHasSeparationLine(true);
 //        axisX.setHasLines(true);
@@ -465,8 +478,8 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
         item.put("id", "" + no);
         item.put("second", "" + record.getSecond());
-        item.put("abs", Utils.formatAbs(record.getAbs()));
-        item.put("trans", Utils.formatTrans(record.getTrans()));
+        item.put("abs", "" + record.getAbs());
+        item.put("trans", "" + record.getTrans());
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData[index].add(item);
@@ -1137,7 +1150,53 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 return;
             }
             mFileExportDialog.show(getFragmentManager(), "file_export");
-
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
+            //set wavelength to target
+            float work_wavelength = DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength();
+            if (!isFake) {
+                ((MainActivity) getActivity()).loadSetWavelengthDialog();
+            }
+            DeviceManager.getInstance().rezeroWork(work_wavelength);
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+            if (!isFake) {
+                for (int i = LINE_MAX - 1; i >= 0; i--) {
+                    if (mData[i].size() == 0) {
+                        mCurDataIndex = i;
+                        mLstDataIndex = mCurDataIndex;
+                    }
+                }
+                setCurrentButton();
+                //set adapter data
+                mAdapter.setData(mData[mCurDataIndex]);
+                clearData(mCurDataIndex);
+                mThread = new TimescanThread(mInterval, mDuration);
+                mThread.start();
+            } else {
+                for (int i = LINE_MAX - 1; i >= 0; i--) {
+                    if (mData[i].size() == 0) {
+                        mCurDataIndex = i;
+                    }
+                }
+                setCurrentButton();
+                //set adapter data
+                mAdapter.setData(mData[mCurDataIndex]);
+                clearData(mCurDataIndex);
+                for (int i = 0; i <= mDuration; i += mInterval) {
+                    int energy = (int) (Math.random() * 1000.0f);
+                    float abs = (float) (Math.random() * 2);
+                    float trans = (float) (Math.random() * 100);
+                    TimeScanRecord record = new TimeScanRecord(-1, i,
+                            abs, trans, energy,
+                            System.currentTimeMillis());
+                    addItem(mCurDataIndex, record);
+                    //update chart
+                    if (mTestMode == TimescanSettingActivity.TEST_MODE_ABS) {
+                        updateChart(mCurDataIndex, i, abs);
+                    } else if (mTestMode == TimescanSettingActivity.TEST_MODE_TRANS) {
+                        updateChart(mCurDataIndex, i, trans);
+                    }
+                }
+            }
         }
     }
 

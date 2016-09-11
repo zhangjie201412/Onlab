@@ -309,12 +309,12 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
 
         item.put("id", "" + no);
         item.put("name", "" + record.getName());
-        item.put("abs1", "" + Utils.formatAbs(record.getAbs1()));
-        item.put("abs2", "" + Utils.formatAbs(record.getAbs2()));
-        item.put("absRef", "" + Utils.formatAbs(record.getAbsRef()));
-        item.put("dna", Utils.formatConc(record.getDna()));
-        item.put("protein", Utils.formatConc(record.getProtein()));
-        item.put("ratio", Utils.formatAbs(record.getRatio()));
+        item.put("abs1", "" + record.getAbs1());
+        item.put("abs2", "" + record.getAbs2());
+        item.put("absRef", "" + record.getAbsRef());
+        item.put("dna", "" + record.getDna());
+        item.put("protein", "" + record.getProtein());
+        item.put("ratio", "" + record.getRatio());
         item.put("date", "" + record.getDate());
         mData.add(item);
         mAdapter.add();
@@ -377,6 +377,14 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
 //                return;
 //            }
 //            mFileExportDialog.show(getFragmentManager(), "file_export");
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
+            BusProvider.getInstance().post(new DnaCallbackEvent(
+                    DnaCallbackEvent.EVENT_TYPE_DO_REZERO, wavelength1,
+                    wavelength2, refWavelength));
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+            BusProvider.getInstance().post(new DnaCallbackEvent(
+                    DnaCallbackEvent.EVENT_TYPE_DO_TEST, wavelength1,
+                    wavelength2, refWavelength));
         }
     }
 

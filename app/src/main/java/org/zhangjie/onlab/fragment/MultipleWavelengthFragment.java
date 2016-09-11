@@ -314,6 +314,29 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
                 return;
             }
             mFileExportDialog.show(getFragmentManager(), "file_export");
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
+            Log.d(TAG, "rezero");
+            if (mOrderWavelengths == null || mOrderWavelengths.length < 1) {
+                Toast.makeText(getActivity(), getString(R.string.notice_setting_null), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_REZERO, mOrderWavelengths));
+        } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+            Log.d(TAG, "start");
+            if (isFake) {
+                int energy = (int) (Math.random() * 1000.0f);
+                float wavelength = (float) (Math.random() * 1000.0f);
+                float abs = (float) (Math.random() * 10);
+                float trans = (float) (Math.random() * 100);
+                addItem(new MultipleWavelengthRecord(-1, -1, wavelength, abs, trans, energy, System.currentTimeMillis()));
+                mSubIndex++;
+            } else {
+                if (mOrderWavelengths == null || mOrderWavelengths.length < 1) {
+                    Toast.makeText(getActivity(), getString(R.string.notice_setting_null), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_DO_TEST, mOrderWavelengths));
+            }
         }
     }
 
@@ -332,8 +355,8 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
 
         item.put("id", "" + "" + mMainIndex + "-" + mSubIndex);
         item.put("wavelength", "" + record.getWavelength());
-        item.put("abs", Utils.formatAbs(record.getAbs()));
-        item.put("trans", Utils.formatTrans(record.getTrans()));
+        item.put("abs", "" + record.getAbs());
+        item.put("trans", "" + record.getTrans());
         item.put("energy", "" + record.getEnergy());
         item.put("date", "" + record.getDate());
         mData.add(item);

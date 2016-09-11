@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +30,7 @@ import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 /**
  * Created by H151136 on 6/6/2016.
  */
-public class QuantitativeAnalysisSettingActivity extends AppCompatActivity implements View.OnClickListener {
+public class QuantitativeAnalysisSettingActivity extends AppCompatActivity implements View.OnClickListener , SettingEditDialog.SettingInputListern {
 
     public static final int RESULT_OK = 0;
     public static final int RESULT_CANCEL = 1;
@@ -82,6 +83,16 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
     private EditText mRatio2EditText;
     private EditText mRatio3EditText;
 
+    private RelativeLayout mLayoutLimitUp;
+    private RelativeLayout mLayoutLimitDown;
+    private RelativeLayout mLayoutStart;
+    private RelativeLayout mLayoutEnd;
+    private TextView mLimitUpValue;
+    private TextView mLimitDownValue;
+    private TextView mStartValue;
+    private TextView mEndValue;
+    private SettingEditDialog mDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +100,7 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.setting_fragment_quantitativeanalysis);
         initView();
+        mDialog = new SettingEditDialog();
     }
 
     private void initView() {
@@ -145,6 +157,19 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
         });
         mStandardSampleButton = (RadioButton) findViewById(R.id.rb_standard_sample_fitting);
         mFormaluRatioButton = (RadioButton) findViewById(R.id.rb_formalu_ratio);
+
+        mLayoutLimitUp = (RelativeLayout) findViewById(R.id.layout_limit_up);
+        mLayoutLimitDown = (RelativeLayout) findViewById(R.id.layout_limit_down);
+        mLayoutStart = (RelativeLayout) findViewById(R.id.layout_conc_start);
+        mLayoutEnd = (RelativeLayout) findViewById(R.id.layout_conc_end);
+        mLimitUpValue = (TextView)findViewById(R.id.tv_limit_up_value);
+        mLimitDownValue = (TextView)findViewById(R.id.tv_limit_down_value);
+        mStartValue = (TextView)findViewById(R.id.tv_conc_start_value);
+        mEndValue = (TextView)findViewById(R.id.tv_conc_end_value);
+        mLayoutLimitUp.setOnClickListener(this);
+        mLayoutLimitDown.setOnClickListener(this);
+        mLayoutStart.setOnClickListener(this);
+        mLayoutEnd.setOnClickListener(this);
 
         mK0EditText = (EditText) findViewById(R.id.et_k0);
         mK1EditText = (EditText) findViewById(R.id.et_k1);
@@ -238,6 +263,17 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
             mRatio2EditText.setEnabled(true);
             mRatio3EditText.setEnabled(true);
         }
+
+        float xStart, xEnd, yStart, yEnd;
+
+        xStart = DeviceApplication.getInstance().getSpUtils().getQALimitDown();
+        xEnd = DeviceApplication.getInstance().getSpUtils().getQALimitUp();
+        yStart = DeviceApplication.getInstance().getSpUtils().getQAStartConc();
+        yEnd = DeviceApplication.getInstance().getSpUtils().getQAEndConc();
+        mLimitUpValue.setText(xEnd + " " + getString(R.string.abs_unit));
+        mLimitDownValue.setText(xStart + " " + getString(R.string.abs_unit));
+        mStartValue.setText(yStart + " " + getString(R.string.conc_unit));
+        mEndValue.setText(yEnd + " " + getString(R.string.conc_unit));
     }
 
     @Override
@@ -270,6 +306,22 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
                             loadPreference();
                         }
                     });
+        } else if(v.getId() == R.id.layout_limit_up) {
+            mDialog.init(v.getId(), getString(R.string.title_wavelength_y),
+                    getString(R.string.title_limit_up), this);
+            mDialog.show(getFragmentManager(), "limit_up");
+        } else if(v.getId() == R.id.layout_limit_down) {
+            mDialog.init(v.getId(), getString(R.string.title_wavelength_y),
+                    getString(R.string.title_limit_down), this);
+            mDialog.show(getFragmentManager(), "limit_down");
+        } else if(v.getId() == R.id.layout_conc_start) {
+            mDialog.init(v.getId(), getString(R.string.title_conc_setting),
+                    getString(R.string.title_conc_start), this);
+            mDialog.show(getFragmentManager(), "conc_start");
+        } else if(v.getId() == R.id.layout_conc_end) {
+            mDialog.init(v.getId(), getString(R.string.title_conc_setting),
+                    getString(R.string.title_conc_end), this);
+            mDialog.show(getFragmentManager(), "conc_end");
         }
     }
 
@@ -279,6 +331,36 @@ public class QuantitativeAnalysisSettingActivity extends AppCompatActivity imple
         builder.setIcon(R.mipmap.ic_launcher);
         builder.setItems(items, listener);
         builder.create().show();
+    }
+
+    @Override
+    public void onSettingInputComplete(int index, String setting) {
+        if(setting.length() < 1) {
+            Toast.makeText(this, getString(R.string.notice_edit_null), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        switch (index) {
+            case R.id.layout_limit_up:
+                mLimitUpValue.setText(setting + " " + getString(R.string.abs_unit));
+                DeviceApplication.getInstance().getSpUtils().setKeyQaLimitUp(Float.parseFloat(setting));
+                break;
+            case R.id.layout_limit_down:
+                mLimitDownValue.setText(setting + " " + getString(R.string.abs_unit));
+                DeviceApplication.getInstance().getSpUtils().setKeyQaLimitDown(Float.parseFloat(setting));
+                break;
+            case R.id.layout_conc_start:
+                float conc = Float.parseFloat(setting);
+                mStartValue.setText(setting + " " + getString(R.string.conc_unit));
+                DeviceApplication.getInstance().getSpUtils().setKeyQaStartConc(conc);
+                break;
+            case R.id.layout_conc_end:
+                conc = Float.parseFloat(setting);
+                mEndValue.setText(setting + " " + getString(R.string.conc_unit));
+                DeviceApplication.getInstance().getSpUtils().setKeyQaEndConc(conc);
+                break;
+            default:
+                break;
+        }
     }
 
     class EditTextDoneListener implements TextWatcher {
