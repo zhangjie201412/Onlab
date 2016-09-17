@@ -12,6 +12,7 @@ import org.zhangjie.onlab.MainActivity;
 import org.zhangjie.onlab.R;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
 import lecho.lib.hellocharts.util.ChartUtils;
@@ -212,5 +213,30 @@ public class Utils {
 
     public static File getDnaFile(String name) {
         return new File(FILE_PATH_DNA + name);
+    }
+
+    private static final Charset charset = Charset.forName("UTF-8");
+
+    public static String encode(String key, String enc) {
+        byte[] keyBytes = key.getBytes(charset);
+        byte[] b = enc.getBytes(charset);
+        for(int i = 0, size = b.length; i < size; i++) {
+            for(byte keyBytes0: keyBytes) {
+                b[i] = (byte)(b[i]^keyBytes0);
+            }
+        }
+        return new String(b);
+    }
+
+    public static String decode(String key, String dec) {
+        byte[] keyBytes = key.getBytes(charset);
+        byte[] e = dec.getBytes(charset);
+        byte[] dee = e;
+        for(int i = 0, size = e.length; i < size; i++) {
+            for(byte keyBytes0: keyBytes) {
+                e[i] = (byte)(dee[i]^keyBytes0);
+            }
+        }
+        return new String(e);
     }
 }

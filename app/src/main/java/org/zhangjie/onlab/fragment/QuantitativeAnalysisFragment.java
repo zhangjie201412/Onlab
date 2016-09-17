@@ -108,6 +108,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
 
     private FileExportDialog mFileExportDialog;
     private int mFileType;
+    private boolean mIsRezeroed = false;
 
     @Nullable
     @Override
@@ -119,6 +120,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         mSampleDialog.setCallback(new QASampleDialogSample());
 
         mNameDialog = new SaveNameDialog();
+        mIsRezeroed = false;
         return view;
     }
 
@@ -632,8 +634,12 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             }
             //load dialog
             ((MainActivity)(getActivity())).doRezeroDialog();
-
+            mIsRezeroed = true;
         } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+            if(!mIsRezeroed) {
+                Toast.makeText(getActivity(), R.string.notice_rezero, Toast.LENGTH_SHORT).show();
+                return;
+            }
             SharedPreferenceUtils sp;
             int wavelength_setting;
             float wavelength1;
@@ -762,6 +768,10 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                     mSampleAdapter.notifyDataSetChanged();
                 }
             } else if (type == QASampleDialog.TYPE_TEST) {
+                if(!mIsRezeroed) {
+                    Toast.makeText(getActivity(), R.string.notice_rezero, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Log.d("###", "TEST");
                 mActionType = ACTION_TYPE_SAMPLE;
                 //check input
@@ -931,6 +941,10 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         float wavelength3;
         switch (v.getId()) {
             case R.id.bt_qa_start_test:
+                if(!mIsRezeroed) {
+                    Toast.makeText(getActivity(), R.string.notice_rezero, Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 mActionType = ACTION_TYPE_TEST;
                 sp = DeviceApplication.getInstance().getSpUtils();
                 wavelength_setting = sp.getQAWavelengthSetting();
@@ -963,6 +977,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
                 }
                 //load dialog
                 ((MainActivity)(getActivity())).doRezeroDialog();
+                mIsRezeroed = true;
                 break;
             case R.id.bt_qa_add:
                 mSampleDialog.setIsNew(true);

@@ -398,30 +398,43 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         int s1, s2, s3, s4, s5;
 
         List<AxisValue> axisXValues = new ArrayList<>();
-        s1 = (int)left;
-        s2 = (int)((left + right) / 4);
-        s3 = (int)((left + right) / 2);
-        s4 = (int)((left + right) * 3 / 4);
-        s5 = (int)right;
-        axisXValues.add(new AxisValue(s1));
-        axisXValues.add(new AxisValue(s2));
-        axisXValues.add(new AxisValue(s3));
-        axisXValues.add(new AxisValue(s4));
-        axisXValues.add(new AxisValue(s5));
+        if(right - left > 1) {
+            s1 = (int) left;
+            s2 = (int) ((left + right) / 4);
+            s3 = (int) ((left + right) / 2);
+            s4 = (int) ((left + right) * 3 / 4);
+            s5 = (int) right;
+            axisXValues.add(new AxisValue(s1));
+            axisXValues.add(new AxisValue(s2));
+            axisXValues.add(new AxisValue(s3));
+            axisXValues.add(new AxisValue(s4));
+            axisXValues.add(new AxisValue(s5));
+        }
         List<AxisValue> axisYValues = new ArrayList<>();
-        s1 = (int)bottom;
-        s2 = (int)((top + bottom) / 4);
-        s3 = (int)((top + bottom) / 2);
-        s4 = (int)((top + bottom) * 3 / 4);
-        s5 = (int)top;
-        axisYValues.add(new AxisValue(s1));
-        axisYValues.add(new AxisValue(s2));
-        axisYValues.add(new AxisValue(s3));
-        axisYValues.add(new AxisValue(s4));
-        axisYValues.add(new AxisValue(s5));
-
-        Axis axisX = new Axis(axisXValues);
-        Axis axisY = new Axis(axisYValues);
+        if(top - bottom > 1) {
+            s1 = (int) bottom;
+            s2 = (int) ((top + bottom) / 4);
+            s3 = (int) ((top + bottom) / 2);
+            s4 = (int) ((top + bottom) * 3 / 4);
+            s5 = (int) top;
+            axisYValues.add(new AxisValue(s1));
+            axisYValues.add(new AxisValue(s2));
+            axisYValues.add(new AxisValue(s3));
+            axisYValues.add(new AxisValue(s4));
+            axisYValues.add(new AxisValue(s5));
+        }
+        Axis axisX;
+        if(axisXValues.size() > 0) {
+            axisX = new Axis(axisXValues);
+        } else {
+            axisX = new Axis();
+        }
+        Axis axisY;
+        if(axisYValues.size() > 0) {
+            axisY =new Axis(axisYValues);
+        } else {
+            axisY = new Axis();
+        }
         axisX.setName(xTitle);
         axisX.setHasSeparationLine(true);
 //        axisX.setHasLines(true);

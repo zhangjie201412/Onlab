@@ -818,6 +818,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 dismissDialog();
                 BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_REZERO_DONE));
                 mDeviceManager.setLoopThreadRestart();
+                loadWavelengthDialog(MultipleWavelengthFragment.mOrderWavelengths[0]);
             }
         }
 
@@ -1164,6 +1165,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        String input = "74ODANEALACA85B5AE";
+//
+//        String enc = Utils.encode(KEY, input);
+//        String dec = Utils.encode(KEY, enc);
+//        Log.d(TAG, "##enc = " + enc);
+//        Log.d(TAG, "##dec = " + dec);
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
@@ -2087,6 +2095,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    public String KEY = "0123456789ABCDEFGH";
     private void addRegistCode() {
         TextView registCode;
         final EditText license;
@@ -2094,9 +2103,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_add_regist_code, null);
         registCode = (TextView) view.findViewById(R.id.tv_regist_code);
-        String key = "ONLAB_TEST_CODE2016";
-        String password = "ONLABCOM";
-        registCode.setText(new String(MD5.GetMD5Code(key)).substring(0, 16));
         license = (EditText) view.findViewById(R.id.dialog_et_license);
         builder.setView(view).setPositiveButton(getString(R.string.ok_string),
                 new DialogInterface.OnClickListener() {
@@ -2107,6 +2113,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                             toastShow(getString(R.string.notice_invalid_license));
                             return;
                         }
+                        //parse password
+                        inputLicense = Utils.decode(KEY, inputLicense);
                         checkLicense(inputLicense);
                     }
                 }).setNegativeButton(getString(R.string.cancel_string), null)

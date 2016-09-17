@@ -101,8 +101,12 @@ public class MultiSelectionAdapter extends BaseAdapter {
             } else if (mKeys[i].equals("gain")) {
                 holder.gain.setText(mData.get(position).get("gain"));
             } else if (mKeys[i].equals("abs")) {
-                fval = Float.parseFloat(mData.get(position).get("abs"));
-                holder.abs.setText(Utils.formatAbs(fval));
+                if(mData.get(position).get("abs").length() > 0) {
+                    fval = Float.parseFloat(mData.get(position).get("abs"));
+                    holder.abs.setText(Utils.formatAbs(fval));
+                } else {
+                    holder.abs.setText("");
+                }
             } else if (mKeys[i].equals("trans")) {
                 fval = Float.parseFloat(mData.get(position).get("trans"));
                 holder.trans.setText(Utils.formatTrans(fval));
