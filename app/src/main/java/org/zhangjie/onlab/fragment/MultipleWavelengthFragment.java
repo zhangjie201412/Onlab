@@ -118,6 +118,34 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         }
         mListView = (ListView) view.findViewById(R.id.lv_multiple_wavelength);
         mListView.setAdapter(mAdapter);
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                new AlertDialog.Builder(getActivity())
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setTitle(getString(R.string.notice_string))
+                        .setMessage(getString(R.string.sure_to_delete))
+                        .setPositiveButton(R.string.ok_string,
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        // TODO Auto-generated method stub
+                                        removeItem(position);
+                                    }
+                                })
+                        .setNegativeButton(getString(R.string.cancel_string),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {// 响应事件
+                                        // TODO Auto-generated method stub
+                                    }
+                                }).show();
+                return true;
+            }
+        });
         mAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
             public void onChanged() {
@@ -371,7 +399,7 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
         mData.remove(position);
         for (int i = 0; i < mData.size(); i++) {
             HashMap<String, String> item = mData.get(i);
-            item.put("id", "" + (i + 1));
+            //item.put("id", "" + (i + 1));
         }
         mAdapter.notifyDataSetChanged();
     }

@@ -656,6 +656,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
+    private int selectIndex;
     private void showCurrentLines() {
         int avaliables = 0;
         List<String> lineItems = new ArrayList<String>();
@@ -683,12 +684,21 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 setCurrentButton();
                 mAdapter.setData(mData[mCurDataIndex]);
                 mAdapter.notifyDataSetChanged();
+                selectIndex = which;
             }
         });
         builder.setNeutralButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getActivity(), "delete " + mCurDataIndex, Toast.LENGTH_SHORT).show();
+                mData[selectIndex].clear();
+                if(mCurDataIndex == selectIndex)
+                    mCurDataIndex = 0;
+                showCurrentLines();
+                setCurrentButton();
+                for(int i = 0; i < LINE_MAX; i++) {
+                    makeNormal(i);
+                }
             }
         });
         builder.create().show();

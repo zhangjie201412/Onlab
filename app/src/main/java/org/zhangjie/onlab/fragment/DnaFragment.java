@@ -6,6 +6,7 @@ import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -217,6 +218,35 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
                 mNameDialog.show(getFragmentManager(), "name");
             }
         });
+
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                new AlertDialog.Builder(getActivity())
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setTitle(getString(R.string.notice_string))
+                        .setMessage(getString(R.string.sure_to_delete))
+                        .setPositiveButton(R.string.ok_string,
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        // TODO Auto-generated method stub
+                                        removeItem(position);
+                                    }
+                                })
+                        .setNegativeButton(getString(R.string.cancel_string),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {// 响应事件
+                                        // TODO Auto-generated method stub
+                                    }
+                                }).show();
+                return true;
+            }
+        });
         mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
             @Override
             public void onSettingInputComplete(String name) {
@@ -322,6 +352,15 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
         if (mData.size() > 0) {
             mListView.setSelection(mData.size() - 1);
         }
+    }
+
+    private void removeItem(int position) {
+        mData.remove(position);
+        for (int i = 0; i < mData.size(); i++) {
+            HashMap<String, String> item = mData.get(i);
+            item.put("id", "" + (i + 1));
+        }
+        mAdapter.notifyDataSetChanged();
     }
 
     @Subscribe
