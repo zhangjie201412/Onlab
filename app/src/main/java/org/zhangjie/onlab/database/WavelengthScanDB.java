@@ -28,7 +28,7 @@ public class WavelengthScanDB {
 				+ recordName
 				+ " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,date TEXT)");
 		db.execSQL("insert into _" + recordName
-				+ " (iindex,wavelength,abs,trans,energy,date) values(?,?,?,?,?,?)",
+						+ " (iindex,wavelength,abs,trans,energy,date) values(?,?,?,?,?,?)",
 				new Object[] { record.getIndex(), record.getWavelength(),
 						record.getAbs(), record.getTrans(), record.getEnergy(),
 						record.getDate() });

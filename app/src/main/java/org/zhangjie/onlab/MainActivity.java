@@ -1320,7 +1320,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         try {
             //delay some time for quit cmd done~
             //TODO: ???
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -108,13 +108,13 @@ public class SharedPreferenceUtils {
         return mSp.getFloat(KEY_QA_WAVELENGTH3, 645.0f);
     }
     public float getQARatio1() {
-        return mSp.getFloat(KEY_QA_RATIO1, 0.0f);
+        return mSp.getFloat(KEY_QA_RATIO1, 1.0f);
     }
     public float getQARatio2() {
-        return mSp.getFloat(KEY_QA_RATIO2, 0.0f);
+        return mSp.getFloat(KEY_QA_RATIO2, 1.0f);
     }
     public float getQARatio3() {
-        return mSp.getFloat(KEY_QA_RATIO3, 0.0f);
+        return mSp.getFloat(KEY_QA_RATIO3, 1.0f);
     }
     public float getQAStartConc() {
         return mSp.getFloat(KEY_QA_START_CONC, 0);
