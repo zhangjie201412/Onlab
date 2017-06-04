@@ -1907,10 +1907,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         switch (which) {
             case SYSTEM_SETTING_ITEM_WAVELENGTH_ADJUST:
 //                mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
-                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
+                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_ADJUST_WL);
                 break;
             case SYSTEM_SETTING_ITEM_DARK_CURRENT_ADJUST:
-                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_ADJUST_WL);
+                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
                 loadResetDarkDialog();
                 break;
             case SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT:
