@@ -62,7 +62,8 @@ public class DeviceManager implements BtleListener {
     public static final int DEVICE_CMD_LIST_SET_WUOFF = 0x1011;
     public static final int DEVICE_CMD_LIST_SET_LAMP = 0x1012;
     public static final int DEVICE_CMD_LIST_SET_FILTER = 0x1013;
-    public static final int DEVICE_CMD_LIST_END = 0x1014;
+    public static final int DEVICE_CMD_LIST_ADJUST_WL = 0x1014;
+    public static final int DEVICE_CMD_LIST_END = 0x1015;
     public static String[] CMD_LIST;
     //----cmd list
 
@@ -137,6 +138,7 @@ public class DeviceManager implements BtleListener {
         CMD_LIST[DEVICE_CMD_LIST_SET_WUOFF - DEVICE_CMD_LIST_START] = "wuoff";
         CMD_LIST[DEVICE_CMD_LIST_SET_LAMP - DEVICE_CMD_LIST_START] = "setlamp";
         CMD_LIST[DEVICE_CMD_LIST_SET_FILTER - DEVICE_CMD_LIST_START] = "setfilter";
+        CMD_LIST[DEVICE_CMD_LIST_ADJUST_WL - DEVICE_CMD_LIST_START] = "adjustwl";
     }
 
     @Override
