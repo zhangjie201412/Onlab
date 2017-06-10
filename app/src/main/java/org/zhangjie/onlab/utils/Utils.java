@@ -27,7 +27,7 @@ public class Utils {
     public static final int OPERATE_TYPE_MUL = 2;
     public static final int OPERATE_TYPE_DIV = 3;
 
-    public static final int[] COLORS = {ChartUtils.CO, ChartUtils.COLOR_ORANGE,
+    public static final int[] COLORS = {ChartUtils.DEFAULT_COLOR, ChartUtils.COLOR_ORANGE,
             ChartUtils.COLOR_BLUE, ChartUtils.COLOR_VIOLET};
 
     public static final float DEFAULT_ABS_VALUE = 3.0f;

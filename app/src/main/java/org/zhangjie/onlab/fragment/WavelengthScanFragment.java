@@ -85,6 +85,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private Button mCurrentButton;
     private Button mStartButton;
     private Button mStopButton;
+    private Button mClearButton;
     private Button mRezeroButton;
     private Button mProcessButton;
 
@@ -131,6 +132,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mCurrentButton = (Button) view.findViewById(R.id.bt_wavelength_scan_current);
         mStartButton = (Button) view.findViewById(R.id.bt_wavelength_scan_start);
         mStopButton = (Button) view.findViewById(R.id.bt_wavelength_scan_stop);
+        mClearButton = (Button) view.findViewById(R.id.bt_wavelength_scan_clear);
         mRezeroButton = (Button) view.findViewById(R.id.bt_wavelength_scan_rezero);
         mProcessButton = (Button) view.findViewById(R.id.bt_wavelength_scan_process);
         mCurrentButton.setOnClickListener(this);
@@ -138,6 +140,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mStopButton.setOnClickListener(this);
         mRezeroButton.setOnClickListener(this);
         mProcessButton.setOnClickListener(this);
+        mClearButton.setOnClickListener(this);
 
         mListView = (ListView) view.findViewById(R.id.lv_wavelength_scan);
 
@@ -813,6 +816,34 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 mStartButton.setEnabled(true);
                 mStopButton.setEnabled(false);
                 DeviceManager.getInstance().stopWork();
+                break;
+            case R.id.bt_wavelength_scan_clear:
+                int availables = 0;
+                for (int i = 0; i < LINE_MAX; i++) {
+                    if (mData[i].size() > 0) {
+                        availables++;
+                    }
+                }
+                if(availables > 0) {
+                    Utils.showAlertDialog(getActivity(), getString(R.string.notice), getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            selectIndex = 0;
+                            for (int i = 0; i < mData.length; i++) {
+                                mData[i].clear();
+                            }
+                            mCurDataIndex = 0;
+                            for (int i = 0; i < LINE_MAX; i++) {
+                                makeNormal(i);
+                            }
+                        }
+                    }, new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+
+                        }
+                    });
+                }
                 break;
             case R.id.bt_wavelength_scan_rezero:
                 //check baseline is existed

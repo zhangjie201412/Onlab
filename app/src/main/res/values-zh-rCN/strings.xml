@@ -202,6 +202,7 @@
     <string name="title_conc_start">最小浓度</string>
     <string name="title_conc_end">最大浓度</string>
     <string name="conc_unit">ug/ml</string>
+    <string name="clear_chart">清除</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

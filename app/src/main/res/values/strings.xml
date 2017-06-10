@@ -202,6 +202,7 @@
     <string name="title_conc_start">Conc. lower limit</string>
     <string name="title_conc_end">Conc. upper limit</string>
     <string name="conc_unit">ug/ml</string>
+    <string name="clear_chart">clear</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
