@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     Log.d(TAG, "###name = " + name);
 //                    mDeviceSelectDialog.addDevice(name, addr);
                     String address = DeviceApplication.getInstance().getSpUtils().getMacAddress();
-                    if(address.equals(addr)) {
+                    if (address.equals(addr)) {
                         BtleManager.getInstance().connect(address);
                     }
                     break;
@@ -268,22 +268,22 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             work_entry_quantitative_analysis(msg);
         }
 
-        if((flag & DeviceManager.WORK_ENTRY_FLAG_DNA_REZERO) != 0) {
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_DNA_REZERO) != 0) {
             Log.d(TAG, "DNA REZERO ENTRY");
             work_entry_dna_rezero(msg);
         }
 
-        if((flag & DeviceManager.WORK_ENTRY_FLAG_DNA_TEST) != 0) {
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_DNA_TEST) != 0) {
             Log.d(TAG, "DNA TEST ENTRY");
             work_entry_dna_test(msg);
         }
 
-        if((flag & DeviceManager.WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_SAMPLE) != 0) {
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_SAMPLE) != 0) {
             Log.d(TAG, "QA SAMPLE ENTRY");
             work_entry_quantitative_analysis_sample(msg);
         }
 
-        if((flag & DeviceManager.WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_REZERO) != 0) {
+        if ((flag & DeviceManager.WORK_ENTRY_FLAG_QUANTITATIVE_ANALYSIS_REZERO) != 0) {
             Log.d(TAG, "QA REZERO ENTRY");
             work_entry_quantitative_analysis_rezero(msg);
         }
@@ -788,6 +788,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     //++
     private float mMultipleWavelength;
+
     //--
     private void work_entry_multiple_wavelength_rezero(String[] msgs) {
         String tag = msgs[0];
@@ -897,6 +898,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     //++
     private float mDnaWavelength;
+
     //--
     private void work_entry_dna_rezero(String[] msgs) {
         String tag = msgs[0];
@@ -1006,6 +1008,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private float mSampleAbs1 = 0;
     private float mSampleAbs2 = 0;
     private float mSampleAbs3 = 0;
+
     private void work_entry_quantitative_analysis_sample(String[] msgs) {
         String[] msg = msgs.clone();
         String tag = msg[0];
@@ -1023,14 +1026,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             Log.d(TAG, "rezero wl = " + wl);
             mSampleWavelength = Float.parseFloat(wl);
-            if(mSampleWavelength == wavelength1) {
+            if (mSampleWavelength == wavelength1) {
                 mSampleAbs1 = 0;
                 mSampleAbs2 = 0;
                 mSampleAbs3 = 0;
-            } else if(mSampleWavelength == wavelength2) {
+            } else if (mSampleWavelength == wavelength2) {
                 mSampleAbs2 = 0;
                 mSampleAbs3 = 0;
-            } else if(mSampleWavelength == wavelength3) {
+            } else if (mSampleWavelength == wavelength3) {
                 mSampleAbs3 = 0;
             }
         } else if (tag.startsWith("ge 5")) {
@@ -1050,11 +1053,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     (float) (mDeviceManager.getDarkFromWavelength(mSampleWavelength) - mDark[gain - 1]);
             abs = (float) -Math.log10(trans);
             abs = Utils.getValidAbs(abs);
-            if(mSampleWavelength == wavelength1) {
+            if (mSampleWavelength == wavelength1) {
                 mSampleAbs1 = abs;
-            } else if(mSampleWavelength == wavelength2) {
+            } else if (mSampleWavelength == wavelength2) {
                 mSampleAbs2 = abs;
-            } else if(mSampleWavelength == wavelength3) {
+            } else if (mSampleWavelength == wavelength3) {
                 mSampleAbs3 = abs;
             }
             if (mQuantitativeAnalysisFragment.isLastWavelength(mSampleWavelength)) {
@@ -1072,6 +1075,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     float mQaWavelength = 0;
+
     private void work_entry_quantitative_analysis_rezero(String[] msgs) {
         String tag = msgs[0];
 
@@ -1102,6 +1106,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
         }
     }
+
     private void work_entry_single_command(String[] msgs) {
         String[] msg = msgs.clone();
         String tag = msg[0];
@@ -1237,14 +1242,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         //check the directory is exist?
         //if not exist, create the directory
         Utils.checkDirectory();
-        if(Utils.isFake()) {
+        if (Utils.isFake()) {
             Log.d(TAG, "##isFake!!");
             return;
         }
         //check license
         String address = DeviceApplication.getInstance().getSpUtils().getMacAddress();
         Log.d(TAG, "##Check License: " + address);
-        if(address.length() == 17) {
+        if (address.length() == 17) {
             mWaitDialog.setMessage(getString(R.string.attempt_connecting_device));
             mWaitDialog.show();
             new Thread(new Runnable() {
@@ -1271,19 +1276,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.ACCESS_COARSE_LOCATION};
         boolean[] allows = new boolean[permissions.length];
-        for(int i = 0; i < permissions.length; i++) {
-            if(EasyPermissions.hasPermissions(this, permissions[i])) {
+        for (int i = 0; i < permissions.length; i++) {
+            if (EasyPermissions.hasPermissions(this, permissions[i])) {
                 allows[i] = true;
             } else {
                 allows[i] = false;
             }
         }
         boolean result = true;
-        for(int i = 0; i < permissions.length; i++) {
+        for (int i = 0; i < permissions.length; i++) {
             result &= allows[i];
         }
 
-        if(!result) {
+        if (!result) {
             EasyPermissions.requestPermissions(this, "Root", RC_ROOT, permissions[0], permissions[1], permissions[2]);
         }
     }
@@ -1505,7 +1510,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 //check if baseline is available
                 List<String> saveFileList = DeviceApplication.getInstance().getBaselineDb().getTables();
 
-                if(saveFileList.size() == 0) {
+                if (saveFileList.size() == 0) {
                     toastShow(getString(R.string.notice_null_baseline_available));
                     mBaselineDialog.setLoadFileId(-1);
                     mBaselineDialog.show(getFragmentManager(), "baseline");
@@ -1865,10 +1870,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     @Subscribe
     public void onDnaEvent(DnaCallbackEvent event) {
-        if(event.event_type == DnaCallbackEvent.EVENT_TYPE_DO_REZERO) {
+        if (event.event_type == DnaCallbackEvent.EVENT_TYPE_DO_REZERO) {
             doRezeroDialog();
             mDeviceManager.doDnaRezero(event.wl1, event.wl2, event.wlRef);
-        } else if(event.event_type == DnaCallbackEvent.EVENT_TYPE_DO_TEST) {
+        } else if (event.event_type == DnaCallbackEvent.EVENT_TYPE_DO_TEST) {
             doTestDialog();
             mDeviceManager.doDnaTest(event.wl1, event.wl2, event.wlRef);
         }
@@ -1923,7 +1928,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 //check if baseline is available
                 List<String> saveFileList = DeviceApplication.getInstance().getBaselineDb().getTables();
 
-                if(saveFileList.size() == 0) {
+                if (saveFileList.size() == 0) {
                     toastShow(getString(R.string.notice_null_baseline_available));
                     mBaselineDialog.setLoadFileId(-1);
                     mBaselineDialog.show(getFragmentManager(), "baseline");
@@ -2079,38 +2084,39 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void checkLicense(String inputLicense) {
-        if(inputLicense.charAt(2)=='O' ||
-                inputLicense.charAt(5) =='N' ||
-                inputLicense.charAt(8)=='L' ||
-                inputLicense.charAt(11)=='A' ||
-                inputLicense.charAt(14)=='B' ||
-                inputLicense.charAt(17)=='E') {
-            String macAddress = inputLicense.substring(0,2) + ":" +
-                    inputLicense.substring(3,5) + ":" +
-                    inputLicense.substring(6,8) + ":" +
-                    inputLicense.substring(9,11) + ":" +
-                    inputLicense.substring(12,14) + ":" +
-                    inputLicense.substring(15,17);
+        if (inputLicense.charAt(2) == 'O' ||
+                inputLicense.charAt(5) == 'N' ||
+                inputLicense.charAt(8) == 'L' ||
+                inputLicense.charAt(11) == 'A' ||
+                inputLicense.charAt(14) == 'B' ||
+                inputLicense.charAt(17) == 'E') {
+            String macAddress = inputLicense.substring(0, 2) + ":" +
+                    inputLicense.substring(3, 5) + ":" +
+                    inputLicense.substring(6, 8) + ":" +
+                    inputLicense.substring(9, 11) + ":" +
+                    inputLicense.substring(12, 14) + ":" +
+                    inputLicense.substring(15, 17);
             Log.d(TAG, "MAC ADDRESS: " + macAddress);
             DeviceApplication.getInstance().getSpUtils().setKeyMacAddress(macAddress);
         }
     }
 
     public String KEY = "0123456789ABCDEFGH";
+
     private void addRegistCode() {
-        TextView registCode;
+//        TextView registCode;
         final EditText license;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_add_regist_code, null);
-        registCode = (TextView) view.findViewById(R.id.tv_regist_code);
+//        registCode = (TextView) view.findViewById(R.id.tv_regist_code);
         license = (EditText) view.findViewById(R.id.dialog_et_license);
         builder.setView(view).setPositiveButton(getString(R.string.ok_string),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String inputLicense = license.getEditableText().toString();
-                        if(inputLicense.length() != 18) {
+                        if (inputLicense.length() != 18) {
                             toastShow(getString(R.string.notice_invalid_license));
                             return;
                         }

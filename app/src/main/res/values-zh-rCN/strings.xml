@@ -138,7 +138,7 @@
     <string name="notice_name_invalid">名称无效字符</string>
     <string name="regist_code">注册码</string>
     <string name="license">授权码</string>
-    <string name="regist_code_title">注册授权码</string>
+    <string name="regist_code_title">授权码</string>
     <string name="sure_to_disconnect">确定断开当前连接?</string>
     <string name="notice">提示</string>
     <string name="start">开始</string>

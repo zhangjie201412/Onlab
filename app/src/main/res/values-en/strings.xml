@@ -138,7 +138,7 @@
     <string name="notice_name_invalid">Invalid name</string>
     <string name="regist_code">Regist code</string>
     <string name="license">License</string>
-    <string name="regist_code_title">Regist/License</string>
+    <string name="regist_code_title">License</string>
     <string name="sure_to_disconnect">Sure to disconnection?</string>
     <string name="notice">Notice</string>
     <string name="start">Start</string>
