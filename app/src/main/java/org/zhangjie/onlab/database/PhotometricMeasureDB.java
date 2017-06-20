@@ -51,12 +51,13 @@ public class PhotometricMeasureDB {
             float trans = c.getFloat(c.getColumnIndex("trans"));
             int energy = c.getInt(c.getColumnIndex("energy"));
             long date = c.getLong(c.getColumnIndex("date"));
+            Log.d(TAG, "E = " + energy);
             PhotoMeasureRecord record = new PhotoMeasureRecord(index,
                     wavelength, abs, trans, energy, date);
             list.add(record);
         }
         c.close();
-        Collections.reverse(list);
+//        Collections.reverse(list);
         return list;
     }
 

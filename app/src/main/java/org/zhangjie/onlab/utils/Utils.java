@@ -2,6 +2,7 @@ package org.zhangjie.onlab.utils;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -27,8 +28,8 @@ public class Utils {
     public static final int OPERATE_TYPE_MUL = 2;
     public static final int OPERATE_TYPE_DIV = 3;
 
-    public static final int[] COLORS = {ChartUtils.DEFAULT_COLOR, ChartUtils.COLOR_ORANGE,
-            ChartUtils.COLOR_BLUE, ChartUtils.COLOR_VIOLET};
+    public static final int[] COLORS = {ChartUtils.COLOR_RED, Color.WHITE,
+            Color.parseColor("#6D030F"), Color.YELLOW};
 
     public static final float DEFAULT_ABS_VALUE = 3.0f;
     public static final float DEFAULT_TRANS_VALUE = 100.0f;

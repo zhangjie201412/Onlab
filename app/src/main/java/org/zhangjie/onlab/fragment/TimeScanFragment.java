@@ -654,7 +654,10 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                     }
                 }
                 if(availables > 0) {
-                    Utils.showAlertDialog(getActivity(), getString(R.string.notice), getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.notice);
+                    builder.setMessage(R.string.sure_to_delete);
+                    builder.setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             selectIndex = 0;
@@ -666,12 +669,15 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                                 makeNormal(i);
                             }
                         }
-                    }, new DialogInterface.OnCancelListener() {
+                    });
+                    builder.setNegativeButton(R.string.cancel_string, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onCancel(DialogInterface dialog) {
+                        public void onClick(DialogInterface dialog, int which) {
 
                         }
                     });
+                    builder.setCancelable(false);
+                    builder.create().show();
                 }
 
                 break;

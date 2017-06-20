@@ -52,6 +52,7 @@ import org.zhangjie.onlab.fragment.TimeScanFragment;
 import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.AboutExitEvent;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.CancelEvent;
 import org.zhangjie.onlab.otto.DnaCallbackEvent;
 import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
@@ -64,6 +65,7 @@ import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
+import org.zhangjie.onlab.otto.WavelengthScanCancelEvent;
 import org.zhangjie.onlab.utils.MD5;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 import org.zhangjie.onlab.utils.Utils;
@@ -119,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private final int WAVELENGTH_TIMEOUT = 120000;
     private final int PROCESS_TIMEOUT = 5000;
     private Handler mHandler = new Handler();
+
+    private boolean mWavelengthScanRezero = false;
 
     private BaselineDialog mBaselineDialog;
     private LightMgrDialog mLightMgrDialog;
@@ -705,6 +709,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             Log.d(TAG, "rezero wl = " + wl);
             mDorezeroWavelength = Float.parseFloat(wl);
+            mWaitDialog.setMessage(getString(R.string.rezero_message)
+                    + "(" + mDorezeroWavelength + getString(R.string.nm) + ")");
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
         } else if (tag.startsWith("ge 1")) {
@@ -1542,27 +1548,45 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mTopToolbar.setTitleTextColor(getResources().getColor(R.color.colorTitle));
         mTopToolbar.setTitle(getResources().getString(R.string.bluetooth_disconnected));
         mTopToolbar.setNavigationIcon(R.mipmap.bluetooth_disabled);
-        /*
+
         mTopToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "on Navigation Click!");
                 if (!mIsBluetoothConnected) {
-                    mDeviceManager.scan();
-                    mDeviceSelectDialog.show(getFragmentManager(), getString(R.string.select_devices));
+                    //check license
+                    String address = DeviceApplication.getInstance().getSpUtils().getMacAddress();
+                    Log.d(TAG, "##Check License: " + address);
+                    if (address.length() == 17) {
+                        mWaitDialog.setMessage(getString(R.string.attempt_connecting_device));
+                        mWaitDialog.show();
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Thread.sleep(1000);
+                                    mDeviceManager.scan();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+                    } else {
+                        addRegistCode();
+                    }
                 } else {
                     //alert dialog to disconnect current connection
-                    Utils.showAlertDialog(MainActivity.this, getString(R.string.notice), getString(R.string.sure_to_disconnect),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    BtleManager.getInstance().disconnect();
-                                }
-                            });
+//                    Utils.showAlertDialog(MainActivity.this, getString(R.string.notice), getString(R.string.sure_to_disconnect),
+//                            new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    BtleManager.getInstance().disconnect();
+//                                }
+//                            });
                 }
             }
         });
-        */
+
     }
 
     private void setOperateMode(boolean enable) {
@@ -1603,6 +1627,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         mWaitDialog = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
         mWaitDialog.setCancelable(false);
+        mWaitDialog.setButton(getString(R.string.cancel_string), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d(TAG, "CANCEL DIALOG!!");
+                BusProvider.getInstance().post(new CancelEvent());
+            }
+        });
 
         if (getFragmentManager().getBackStackEntryCount() == 0) {
             addContentFragment(mMain);
@@ -1852,8 +1883,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     @Subscribe
+    public void onWavelengthScanCancelEvent(WavelengthScanCancelEvent event) {
+        mWavelengthScanRezero = false;
+        mDeviceManager.stopWork();
+    }
+
+    @Subscribe
     public void onDozeroEvent(RezeroEvent event) {
         doRezeroDialog();
+        mWavelengthScanRezero = true;
         mDeviceManager.dorezeroWork(event.start, event.end, event.interval);
     }
 
@@ -1991,12 +2029,18 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int id) {
-                                                for (int i = 0; i < saveFileList0.size(); i++) {
-                                                    if (selected0[i]) {
-                                                        Log.d(TAG, "delete -> " + saveFileList0.get(i));
-                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList0.get(i));
-                                                    }
-                                                }
+                                                Utils.showAlertDialog(MainActivity.this, getString(R.string.notice),
+                                                        getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                for (int i = 0; i < saveFileList0.size(); i++) {
+                                                                    if (selected0[i]) {
+                                                                        Log.d(TAG, "delete -> " + saveFileList0.get(i));
+                                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList0.get(i));
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
                                             }
                                         });
                                 break;
@@ -2017,12 +2061,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int id) {
-                                                for (int i = 0; i < saveFileList1.size(); i++) {
-                                                    if (selected1[i]) {
-                                                        Log.d(TAG, "delete -> " + saveFileList1.get(i));
-                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList1.get(i));
-                                                    }
-                                                }
+                                                Utils.showAlertDialog(MainActivity.this, getString(R.string.notice),
+                                                        getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                for (int i = 0; i < saveFileList1.size(); i++) {
+                                                                    if (selected1[i]) {
+                                                                        Log.d(TAG, "delete -> " + saveFileList1.get(i));
+                                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList1.get(i));
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+
                                             }
                                         });
                                 break;
@@ -2043,12 +2094,18 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int id) {
-                                                for (int i = 0; i < saveFileList2.size(); i++) {
-                                                    if (selected2[i]) {
-                                                        Log.d(TAG, "delete -> " + saveFileList2.get(i));
-                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList2.get(i));
-                                                    }
-                                                }
+                                                Utils.showAlertDialog(MainActivity.this, getString(R.string.notice),
+                                                        getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                for (int i = 0; i < saveFileList2.size(); i++) {
+                                                                    if (selected2[i]) {
+                                                                        Log.d(TAG, "delete -> " + saveFileList2.get(i));
+                                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList2.get(i));
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
                                             }
                                         });
                                 break;
@@ -2069,12 +2126,18 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int id) {
-                                                for (int i = 0; i < saveFileList3.size(); i++) {
-                                                    if (selected3[i]) {
-                                                        Log.d(TAG, "delete -> " + saveFileList3.get(i));
-                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList3.get(i));
-                                                    }
-                                                }
+                                                Utils.showAlertDialog(MainActivity.this, getString(R.string.notice),
+                                                        getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                for (int i = 0; i < saveFileList3.size(); i++) {
+                                                                    if (selected3[i]) {
+                                                                        Log.d(TAG, "delete -> " + saveFileList3.get(i));
+                                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList3.get(i));
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
                                             }
                                         });
                                 break;

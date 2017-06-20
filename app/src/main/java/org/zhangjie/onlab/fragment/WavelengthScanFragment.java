@@ -32,10 +32,12 @@ import org.zhangjie.onlab.dialog.FileExportDialog;
 import org.zhangjie.onlab.dialog.SaveNameDialog;
 import org.zhangjie.onlab.dialog.SettingEditDialog;
 import org.zhangjie.onlab.otto.BusProvider;
+import org.zhangjie.onlab.otto.CancelEvent;
 import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.RezeroEvent;
 import org.zhangjie.onlab.otto.SettingEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
+import org.zhangjie.onlab.otto.WavelengthScanCancelEvent;
 import org.zhangjie.onlab.record.PhotoMeasureRecord;
 import org.zhangjie.onlab.record.TimeScanRecord;
 import org.zhangjie.onlab.record.WavelengthScanRecord;
@@ -721,7 +723,11 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             updateChart(mCurDataIndex, lists.get(i));
         }
         Utils.needToSave = false;
+    }
 
+    @Subscribe
+    public void OnCancelEvent(CancelEvent event) {
+        BusProvider.getInstance().post(new WavelengthScanCancelEvent());
     }
 
     @Subscribe
@@ -825,7 +831,10 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     }
                 }
                 if(availables > 0) {
-                    Utils.showAlertDialog(getActivity(), getString(R.string.notice), getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.notice);
+                    builder.setMessage(R.string.sure_to_delete);
+                    builder.setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             selectIndex = 0;
@@ -837,12 +846,15 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                                 makeNormal(i);
                             }
                         }
-                    }, new DialogInterface.OnCancelListener() {
+                    });
+                    builder.setNegativeButton(R.string.cancel_string, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onCancel(DialogInterface dialog) {
+                        public void onClick(DialogInterface dialog, int which) {
 
                         }
                     });
+                    builder.setCancelable(false);
+                    builder.create().show();
                 }
                 break;
             case R.id.bt_wavelength_scan_rezero:

@@ -57,7 +57,7 @@ public class DnaDB {
             list.add(record);
         }
         c.close();
-        Collections.reverse(list);
+//        Collections.reverse(list);
         return list;
     }
 

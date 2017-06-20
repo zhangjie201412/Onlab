@@ -56,7 +56,7 @@ public class MultipleWavelengthDB {
             list.add(record);
         }
         c.close();
-        Collections.reverse(list);
+//        Collections.reverse(list);
         return list;
     }
 
