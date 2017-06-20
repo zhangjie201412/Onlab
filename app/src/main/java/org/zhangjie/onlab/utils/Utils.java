@@ -240,4 +240,8 @@ public class Utils {
         }
         return new String(e);
     }
+
+    public static String secondToMinute(int sec) {
+        return String.format(" %02d:%02d ", (sec / 60), (sec % 60));
+    }
 }

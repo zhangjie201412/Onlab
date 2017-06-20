@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -53,6 +54,7 @@ import org.zhangjie.onlab.fragment.WavelengthScanFragment;
 import org.zhangjie.onlab.otto.AboutExitEvent;
 import org.zhangjie.onlab.otto.BusProvider;
 import org.zhangjie.onlab.otto.CancelEvent;
+import org.zhangjie.onlab.otto.DismissWarmDialog;
 import org.zhangjie.onlab.otto.DnaCallbackEvent;
 import org.zhangjie.onlab.otto.FileOperateEvent;
 import org.zhangjie.onlab.otto.MultipleWavelengthCallbackEvent;
@@ -300,6 +302,35 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    private boolean mSkipWarm = false;
+    private AlertDialog mWarmAlertDialog;
+
+    final Handler mWarmHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            int left = msg.what;
+            Log.d(TAG, "left = " + left);
+            if(!mWarmAlertDialog.isShowing() && !mSkipWarm) {
+                mWarmAlertDialog.show();
+            }
+            if(left > 0) {
+                TextView tv = (TextView)mWarmAlertDialog.findViewById(R.id.tv_dialog_content);
+                tv.setText(getString(R.string.skip_warm) + Utils.secondToMinute(left));
+            } else {
+                if(mWarmAlertDialog.isShowing()) {
+                    mWarmAlertDialog.dismiss();
+                }
+                mDeviceManager.skip();
+                if (!mIsInitialized) {
+                    initDialog();
+                    mDeviceManager.initializeWork();
+                }
+                mSkipWarm = true;
+            }
+        }
+    };
+
     private void work_entry_getstatus(String[] msg) {
         String tag = msg[0];
         Log.d(TAG, "getstatustag = " + tag);
@@ -375,26 +406,27 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         if (tag.startsWith(DeviceManager.TAG_WARM)) {
             mDeviceCheckDialog.addItem(getString(R.string.warm));
 //            mDeviceCheckDialog.warm();
-            Utils.showAlertDialog(this, getString(R.string.warm), getString(R.string.skip_warm), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    mDeviceManager.skip();
-                    if (!mIsInitialized) {
-                        initDialog();
-                        mDeviceManager.initializeWork();
-                    }
-                }
-            }, new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    mDeviceManager.skip();
-                    if (!mIsInitialized) {
-                        initDialog();
-                        mDeviceManager.initializeWork();
-                    }
 
+            msg[1] = msg[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            final int leftTime = Integer.parseInt(msg[1]);
+            //start thread to count seconds
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        for (int i = 0; i < leftTime; i++) {
+                            if(mSkipWarm) {
+                                return;
+                            }
+                            mWarmHandler.sendEmptyMessage(leftTime - i);
+                            Thread.sleep(1000);
+                        }
+                        mWarmHandler.sendEmptyMessage(0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
+            }).start();
         }
     }
 
@@ -1272,6 +1304,22 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         } else {
             addRegistCode();
         }
+        View view = View.inflate(getApplicationContext(), R.layout.dialog_text, null);
+        mWarmAlertDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.warm)
+                .setView(view)
+                .setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mDeviceManager.skip();
+                        if (!mIsInitialized) {
+                            initDialog();
+                            mDeviceManager.initializeWork();
+                        }
+                        mSkipWarm = true;
+                    }
+                })
+                .setCancelable(false).create();
     }
 
     private static final int RC_ROOT = 102;
@@ -1336,7 +1384,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if(mDeviceManager != null) {
+        if (mDeviceManager != null) {
             mDeviceManager.release();
         }
         mDeviceManager = null;
@@ -1389,7 +1437,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if(mDeviceManager != null) {
+            if (mDeviceManager != null) {
                 mDeviceManager.release();
             }
             mDeviceManager = null;
@@ -1784,6 +1832,20 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         }
     }
 
+    private Handler mInitDialogHandle = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 0) {
+                initDialog();
+            } else {
+
+                mWaitDialog.setMessage(getString(R.string.attempt_connecting_device));
+                mWaitDialog.show();
+            }
+        }
+    };
+
     private void initDialog() {
         final Runnable mCallback = new Runnable() {
             @Override
@@ -1795,14 +1857,14 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 //                    BtleManager.getInstance().disconnect();
 //                    Toast.makeText(MainActivity.this, getString(R.string.connect_timeout), Toast.LENGTH_SHORT).show();
                         mDeviceManager.initializeWork();
-                        initDialog();
+//                        initDialog();
+                        mInitDialogHandle.sendEmptyMessage(0);
                     }
                 }
             }
         };
         if (mWaitDialog != null && (!mWaitDialog.isShowing())) {
-            mWaitDialog.setMessage(getString(R.string.attempt_connecting_device));
-            mWaitDialog.show();
+            mInitDialogHandle.sendEmptyMessage(1);
             mHandler.postDelayed(mCallback, 10000);
             mWaitDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
