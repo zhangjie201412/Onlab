@@ -12,15 +12,15 @@
     <string name="action_baseline">Baseline</string>
     <string name="action_peak_distance">Peak Height</string>
     <string name="action_dark_current">Dark Current</string>
-    <string name="wavelength">Wavelength</string>
+    <string name="wavelength">WL</string>
     <string name="abs">Abs</string>
-    <string name="trans">%T</string>
+    <string formatted="false" name="trans">%T(%R)</string>
     <string name="action_settings">Setting</string>
     <string name="photometric_measurement">Photometric</string>
     <string name="quantitative_analysis">Quantitative</string>
-    <string name="wavelength_scan">Wavelength Scan</string>
+    <string name="wavelength_scan">WL Scan</string>
     <string name="time_scan">Time Scan</string>
-    <string name="multi_wavelength">Multi Wavelength</string>
+    <string name="multi_wavelength">Multi WL</string>
     <string name="hesuan">DNA/Protein</string>
     <string name="about">About us</string>
     <string name="ok_string">OK</string>
@@ -30,10 +30,10 @@
     <string name="rezero">Blank</string>
     <string name="set_wavelength">Set WL</string>
     <string name="retry_to_exit">Press RETURN again to exit</string>
-    <string name="index">ID.</string>
+    <string name="index">No.</string>
     <string name="wavelength_with_unit">WL.(nm)</string>
     <string name="abs_with_unit">Abs</string>
-    <string name="trans_with_unit">%T</string>
+    <string formatted="false" name="trans_with_unit">%T(%R)</string>
     <string name="energy">Energy</string>
     <string name="action_delete">Delete</string>
     <string name="action_selectall">Select all</string>
@@ -59,8 +59,8 @@
     <string name="notice_rezero">Blank first!</string>
     <string name="do_fitting">Fitting</string>
     <string name="title_timescan_setting_work_wavelength">Set WL</string>
-    <string name="title_timescan_work_wavelength">Wavelength</string>
-    <string name="summary_timescan_work_wavelength">Input wavelength</string>
+    <string name="title_timescan_work_wavelength">WL</string>
+    <string name="summary_timescan_work_wavelength">Input WL</string>
     <string name="title_timescan_setting_x">Set time(X axis)</string>
     <string name="title_timescan_start">Start time</string>
     <string name="summary_timescan_start">Start time</string>
@@ -86,7 +86,7 @@
     <string name="summary_limit_up">Upper limit</string>
     <string name="summary_limit_down">Lower limit</string>
     <string name="abs_unit">Abs</string>
-    <string name="trans_unit">%T</string>
+    <string formatted="false" name="trans_unit">%T(%R)</string>
     <string name="setting_wavelengthscan_title">WL scan set</string>
     <string name="title_wavelength_test_mode_y">Test mode(Y axis)</string>
     <string name="summary_wavelength_test_mode">Test mode</string>
@@ -138,7 +138,7 @@
     <string name="gain">Gain</string>
     <string name="not_save">Exit without saving</string>
     <string name="notice_name_invalid">Invalid name</string>
-    <string name="regist_code">Regist code</string>
+    <string name="regist_code"> </string>
     <string name="license">License</string>
     <string name="regist_code_title">License</string>
     <string name="sure_to_disconnect">Sure to disconnection?</string>
@@ -176,7 +176,7 @@
     <string name="tungsten_switch">Switch W lamp</string>
     <string name="tungsten_clear_time">Clear W lamp time</string>
     <string name="set_switch_wavelength">Set WL of switch lamp</string>
-    <string name="reset_dark">Resetting dark current</string>
+    <string name="reset_dark">Refresh dark current</string>
     <string name="analysis_method">Method</string>
     <string name="method_one">Method 1</string>
     <string name="method_two">Method 2</string>
@@ -209,7 +209,7 @@
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
-    <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
+    <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_WL</string>
 
     <string-array name="operations">
         <item>Add</item>
@@ -239,13 +239,13 @@
     </string-array>
 
     <string-array name="system_settings">
-        <item>Reset WL</item>
+        <item>Calibrate WL</item>
         <item>Dark current</item>
         <item>Set lamp</item>
         <item>System baseline</item>
         <item>Peak height</item>
         <item>Set precision</item>
-        <item>Regist/License</item>
+        <item>License</item>
         <item>File management</item>
         <item>Restore factory settings</item>
         <item>Version</item>

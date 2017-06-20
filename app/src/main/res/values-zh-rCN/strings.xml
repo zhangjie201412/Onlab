@@ -33,11 +33,11 @@
     <string name="index">序号</string>
     <string name="wavelength_with_unit">波长(nm)</string>
     <string name="abs_with_unit">吸光度(Abs)</string>
-    <string name="trans_with_unit">透过率(%T)</string>
+    <string formatted="false" name="trans_with_unit">%T(%R)</string>
     <string name="energy">能量</string>
     <string name="action_delete">删除</string>
     <string name="action_selectall">全选</string>
-    <string name="ble_not_support">手机不支持BLE功能</string>
+    <string name="ble_not_support">设备不支持BLE功能</string>
     <string name="select_devices">选择连接的设备</string>
     <string name="attempt_connecting_device">正在连接设备</string>
     <string name="interval">间隔</string>
@@ -55,7 +55,7 @@
     <string name="sure_to_delete">确定要删除选择项?</string>
     <string name="set_wavelength_message">等待设置波长完成...</string>
     <string name="data_processing_message">数据处理中...</string>
-    <string name="connect_done">成功连接昂拉设备!</string>
+    <string name="connect_done">成功连接设备!</string>
     <string name="notice_rezero">请先校正空白!</string>
     <string name="do_fitting">拟合</string>
     <string name="title_timescan_setting_work_wavelength">设定工作波长</string>
@@ -77,7 +77,7 @@
     <string name="connect_timeout">连接超时</string>
     <string name="timeout_set_wavelength">设置波长超时</string>
     <string name="timeout_process">处理数据超时</string>
-    <string name="notice_not_init">请先成功连接昂拉设备</string>
+    <string name="notice_not_init">请先成功连接设备</string>
     <string name="title_test_mode">测试模式</string>
     <string name="summary_timescan_test_mode">点击选择测试模式</string>
     <string name="title_timescan_setting_y">坐标设定(Y轴)</string>
@@ -86,7 +86,7 @@
     <string name="summary_limit_up">点击输入坐标上限</string>
     <string name="summary_limit_down">点击输入坐标下限</string>
     <string name="abs_unit">Abs</string>
-    <string name="trans_unit">%T</string>
+    <string formatted="false" name="trans_unit">%T(%R)</string>
     <string name="setting_wavelengthscan_title">波长扫描设置</string>
     <string name="title_wavelength_test_mode_y">测试模式(Y轴)</string>
     <string name="summary_wavelength_test_mode">点击选择测试模式</string>
@@ -138,7 +138,7 @@
     <string name="gain">放大倍数</string>
     <string name="not_save">直接退出</string>
     <string name="notice_name_invalid">名称无效字符</string>
-    <string name="regist_code">注册码</string>
+    <string name="regist_code"> </string>
     <string name="license">授权码</string>
     <string name="regist_code_title">授权码</string>
     <string name="sure_to_disconnect">确定断开当前连接?</string>
@@ -194,7 +194,7 @@
     <string name="sample_name_setting">设置样品名称</string>
     <string name="txt">txt</string>
     <string name="cvs">cvs</string>
-    <string name="notice_invalid_license">输入注册码无效！</string>
+    <string name="notice_invalid_license">输入授权码无效！</string>
     <string name="notice_baseline_null">请先做系统基线</string>
     <string name="notice_null_baseline_available">当前没有保存的系统基线</string>
     <string name="apply_baseline">使用当前基线</string>
@@ -245,7 +245,7 @@
         <item>系统基线</item>
         <item>峰高设置</item>
         <item>精度设置</item>
-        <item>注册授权码</item>
+        <item>授权码</item>
         <item>文件管理</item>
         <item>恢复出厂设置</item>
         <item>系统版本</item>
