@@ -182,6 +182,14 @@ public class MultipleWavelengthFragment extends Fragment implements View.OnClick
             for (int i = 0; i < mOrderWavelengths.length; i++) {
                 Log.d(TAG, String.format("[%d] -> %f\n", i, mOrderWavelengths[i]));
             }
+        } else {
+            mWavelengths = new float[2];
+            mWavelengths[0] = 546.0f;
+            mWavelengths[1] = 500.0f;
+
+            mOrderWavelengths = new float[2];
+            mOrderWavelengths[0] = 546.0f;
+            mOrderWavelengths[1] = 500.0f;
         }
         mSaveDialog = new SaveNameDialog();
         mFileExportDialog = new FileExportDialog();
