@@ -498,6 +498,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             I1 /= 10;
 
             if (mA > 0) {
+                Log.d(TAG, "$$$$ wavelength = xxxx" + ", I1 = " + I1 + ", gain = " + mA + ", I0 = " + mI0);
                 trans = (float) (I1 - mDark[mA - 1]) / (float) (mI0 - mDark[mA - 1]);
                 abs = (float) -Math.log10(trans);
                 //get valid trans and abs
@@ -850,6 +851,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mDeviceManager.setDark(mMultipleWavelength, I0);
             int gain = Integer.parseInt(msgs[2]);
             mDeviceManager.setGain((int) mMultipleWavelength, gain);
+
+            Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + "gain = " + mA + "I0 = " + mI0);
+
             if (mMultipleWavelength ==
                     MultipleWavelengthFragment.mOrderWavelengths[MultipleWavelengthFragment.mOrderWavelengths.length - 1]) {
                 Log.d(TAG, "do multiple wavelength rezero done!");
@@ -858,6 +862,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_REZERO_DONE));
                 mDeviceManager.setLoopThreadRestart();
                 loadWavelengthDialog(MultipleWavelengthFragment.mOrderWavelengths[0]);
+                mI0 = mDeviceManager.getDarkFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
+                mA = mDeviceManager.getGainFromBaseline((int)MultipleWavelengthFragment.mOrderWavelengths[0]);
+                Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + ", gain = " + mA + ", I0 = " + mI0);
             }
         }
 
@@ -907,10 +914,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             energy = Integer.parseInt(msgs[1]);
             int gain = mDeviceManager.getGainFromBaseline((int) mMultipleWavelength);
-
+            int i0 = mDeviceManager.getDarkFromWavelength(mMultipleWavelength);
+            Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + ", energy = " + energy + ", gain = " + gain + ", I0 = " + i0);
             int I1 = energy;
             float trans = (float) (I1 - mDark[gain - 1]) /
-                    (float) (mDeviceManager.getDarkFromWavelength(mMultipleWavelength) - mDark[gain - 1]);
+                    (float) (i0 - mDark[gain - 1]);
             float abs = (float) -Math.log10(trans);
             trans = Utils.getValidTrans(trans);
             abs = Utils.getValidAbs(abs);
@@ -928,8 +936,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 BusProvider.getInstance().post(new MultipleWavelengthCallbackEvent(MultipleWavelengthCallbackEvent.EVENT_TYPE_TEST_DONE));
                 mDeviceManager.setLoopThreadRestart();
                 loadWavelengthDialog(MultipleWavelengthFragment.mOrderWavelengths[0]);
-//                mI0 = mDeviceManager.getDarkFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
-//                mA = mDeviceManager.getGainFromBaseline((int)MultipleWavelengthFragment.mOrderWavelengths[0]);
+                mI0 = mDeviceManager.getDarkFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
+                mA = mDeviceManager.getGainFromBaseline((int)MultipleWavelengthFragment.mOrderWavelengths[0]);
             }
         }
     }
@@ -1160,6 +1168,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
                 mDark[i] = Integer.parseInt(msg[i + 1]);
             }
+        } else if(tag.startsWith(DeviceManager.TAG_SET_A)) {
+            dismissDialog();
         }
     }
 
@@ -1170,6 +1180,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 //            float w = Float.parseFloat(wl);
             dismissDialog();
             mDeviceManager.setLoopThreadRestart();
+            mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_A, mA);
         }
     }
 

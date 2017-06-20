@@ -725,6 +725,17 @@ public class DeviceManager implements BtleListener {
         doWork(cmdList);
     }
 
+    public synchronized void doSingleCommand(int cmdType, int val) {
+        setLoopThreadPause();
+        mEntryFlag = 0x00000000;
+        mEntryFlag |= WORK_ENTRY_FLAG_SINGLE_COMMAND;
+        List<HashMap<String, Cmd>> cmdList = new ArrayList<HashMap<String, Cmd>>();
+        clearCmd(cmdList);
+
+        addCmd(cmdList, cmdType, val);
+        doWork(cmdList);
+    }
+
     /*send ge and update bottom status bar
      */
     private synchronized void updateStatus() {
