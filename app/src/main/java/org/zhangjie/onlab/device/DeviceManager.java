@@ -623,7 +623,7 @@ public class DeviceManager implements BtleListener {
         for (int i = 0; i < wavelengths.length; i++) {
             addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wavelengths[i]);
             addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wavelengths[i]));
-            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 20);
         }
         doWork(cmdList);
     }

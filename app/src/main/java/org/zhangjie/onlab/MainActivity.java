@@ -906,13 +906,22 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mMultipleWavelength = Float.parseFloat(wl);
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
-        } else if (tag.startsWith("ge 1")) {
+        } else if (tag.startsWith("ge 20")) {
             if (mMultipleWavelength == 0) {
                 return;
             }
+
+            int[] energies = new int[20];
+
             //get energy
-            msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
-            energy = Integer.parseInt(msgs[1]);
+            energy = 0;
+            for (int i = 0; i < 20; i++) {
+                msgs[i + 1] = msgs[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energies[i] = Integer.parseInt(msgs[i + 1], 10);
+                energy += energies[i];
+            }
+            energy /= 20;
+
             int gain = mDeviceManager.getGainFromBaseline((int) mMultipleWavelength);
             int i0 = mDeviceManager.getDarkFromWavelength(mMultipleWavelength);
             Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + ", energy = " + energy + ", gain = " + gain + ", I0 = " + i0);
