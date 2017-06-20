@@ -1325,6 +1325,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         super.onDestroy();
         Log.d(TAG, "Main onDestroy!");
         if (mDeviceManager != null) {
+            mDeviceManager.stopWork();
             Log.d(TAG, "send quit");
             mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
         }
@@ -1335,7 +1336,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        mDeviceManager.release();
+        if(mDeviceManager != null) {
+            mDeviceManager.release();
+        }
         mDeviceManager = null;
     }
 
@@ -1374,7 +1377,21 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 }
             }.sendEmptyMessageDelayed(0, 2000);
         } else {
-            mDeviceManager.release();
+            if (mDeviceManager != null) {
+                mDeviceManager.stopWork();
+                Log.d(TAG, "send quit");
+                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_QUIT);
+            }
+            try {
+                //delay some time for quit cmd done~
+                //TODO: ???
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if(mDeviceManager != null) {
+                mDeviceManager.release();
+            }
             mDeviceManager = null;
             finish();
             System.exit(0);
@@ -2029,6 +2046,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                         new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int id) {
+
                                                 Utils.showAlertDialog(MainActivity.this, getString(R.string.notice),
                                                         getString(R.string.sure_to_delete), new DialogInterface.OnClickListener() {
                                                             @Override
@@ -2106,6 +2124,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                                                 }
                                                             }
                                                         });
+
                                             }
                                         });
                                 break;
@@ -2138,6 +2157,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                                                 }
                                                             }
                                                         });
+
                                             }
                                         });
                                 break;
