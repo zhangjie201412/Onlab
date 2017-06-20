@@ -34,7 +34,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:src="@mipmap/ic_reset" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -42,7 +41,6 @@
                     android:layout_gravity="center"
                     android:text="@string/reset"
                     android:textColor="@color/colorTitle" />
-
             </LinearLayout>
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
@@ -81,7 +79,6 @@
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
                     android:clickable="false"
-
                     android:text="@string/title_timescan_work_wavelength"
                     android:textSize="@dimen/setting_content" />
 
@@ -209,6 +206,41 @@
                     android:layout_centerVertical="true"
                     android:clickable="false"
                     android:text="@string/summary_timescan_interval"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/color_divide_line" />
+
+            <LinearLayout
+                android:id="@+id/layout_time_delay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginLeft="@dimen/setting_margin_left"
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/title_timescan_delay"
+                    android:textSize="@dimen/setting_content" />
+
+                <TextView
+                    android:id="@+id/time_delay_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/summary_timescan_delay"
                     android:textColor="@color/color_setting_value"
                     android:textSize="@dimen/setting_value" />
             </LinearLayout>

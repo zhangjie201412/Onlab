@@ -39,6 +39,7 @@ public class SharedPreferenceUtils {
     public static final String KEY_TIMESCAN_START_TIME = "key_timescan_start_time";
     public static final String KEY_TIMESCAN_END_TIME = "key_timescan_end_time";
     public static final String KEY_TIMESCAN_TIME_INTERVAL = "key_timescan_time_interval";
+    public static final String KEY_TIMESCAN_TIME_DELAY = "key_timescan_time_delay";
     public static final String KEY_TIMESCAN_TEST_MODE = "key_timescan_test_mode";
     public static final String KEY_TIMESCAN_LIMIT_UP = "key_timescan_limit_up";
     public static final String KEY_TIMESCAN_LIMIT_DOWN = "key_timescan_limit_down";
@@ -143,6 +144,10 @@ public class SharedPreferenceUtils {
 
     public int getTimescanTimeInterval() {
         return mSp.getInt(KEY_TIMESCAN_TIME_INTERVAL, 1);
+    }
+
+    public int getTimescanTimeDelay() {
+        return mSp.getInt(KEY_TIMESCAN_TIME_DELAY, 0);
     }
 
     public int getTimescanTestMode() {
@@ -315,6 +320,11 @@ public class SharedPreferenceUtils {
 
     public void setKeyTimescanTimeInterval(int interval) {
         mEditor.putInt(KEY_TIMESCAN_TIME_INTERVAL, interval);
+        mEditor.commit();
+    }
+
+    public void setKeyTimescanTimeDelay(int interval) {
+        mEditor.putInt(KEY_TIMESCAN_TIME_DELAY, interval);
         mEditor.commit();
     }
 

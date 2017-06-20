@@ -69,6 +69,8 @@
     <string name="setting_timescan_title">Time scan</string>
     <string name="title_timescan_interval">Time interval</string>
     <string name="summary_timescan_interval">Time interval</string>
+    <string name="title_timescan_delay">Delay time</string>
+    <string name="summary_timescan_delay">Delay time</string>
     <string name="reset">Reset</string>
     <string name="nm">nm</string>
     <string name="s">s</string>
@@ -202,6 +204,8 @@
     <string name="title_conc_start">Conc. lower limit</string>
     <string name="title_conc_end">Conc. upper limit</string>
     <string name="conc_unit">ug/ml</string>
+    <string name="clear_chart">clear</string>
+    <string name="wait_time">Wait time:</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

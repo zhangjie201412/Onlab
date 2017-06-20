@@ -69,6 +69,8 @@
     <string name="setting_timescan_title">时间扫描设置</string>
     <string name="title_timescan_interval">时间间隔</string>
     <string name="summary_timescan_interval">点击输入时间间隔</string>
+    <string name="title_timescan_delay">延迟时间</string>
+    <string name="summary_timescan_delay">点击输入延迟时间</string>
     <string name="reset">重置</string>
     <string name="nm">nm</string>
     <string name="s">s</string>
@@ -203,6 +205,7 @@
     <string name="title_conc_end">最大浓度</string>
     <string name="conc_unit">ug/ml</string>
     <string name="clear_chart">清除</string>
+    <string name="wait_time">等待时间:</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

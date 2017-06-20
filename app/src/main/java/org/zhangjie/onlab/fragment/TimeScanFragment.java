@@ -1,6 +1,7 @@
 package org.zhangjie.onlab.fragment;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -117,6 +118,8 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     private int mLstDataIndex = 0;
     private int mFileType = FileExportDialog.FILE_TYPE_TXT;
     private FileExportDialog mFileExportDialog;
+
+    private AlertDialog mDelayDialog;
 
     @Nullable
     @Override
@@ -330,6 +333,10 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         setCurrentButton();
         mCalcSpeedDialog = new CalcSpeedDialog();
         mCalcSpeedDialog.init(this);
+
+        mDelayDialog = new AlertDialog.Builder(getActivity())
+                .setView(View.inflate(getActivity(), R.layout.dialog_text, null))
+                .setCancelable(false).create();
     }
 
     public void prepareLoadFile(int id) {
@@ -1310,6 +1317,26 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
 
     }
 
+    public static final int DELAY_DIALOG_SHOW = 0;
+    public static final int DELAY_DIALOG_UPDATE = 1;
+    public static final int DELAY_DIALOG_DISMISS = 2;
+
+    private Handler mDelayHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == DELAY_DIALOG_SHOW) {
+                mDelayDialog.show();
+            } else if(msg.what == DELAY_DIALOG_UPDATE) {
+                TextView tv = (TextView)mDelayDialog.findViewById(R.id.tv_dialog_content);
+                tv.setText(getString(R.string.wait_time) +
+                        " " + msg.arg1 + getString(R.string.s));
+            } else if(msg.what == DELAY_DIALOG_DISMISS) {
+                mDelayDialog.dismiss();
+            }
+        }
+    };
+
     class TimescanThread extends Thread {
 
         private boolean start = false;
@@ -1340,6 +1367,23 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         @Override
         public void run() {
             super.run();
+            int delayTime = DeviceApplication.getInstance().getSpUtils().getTimescanTimeDelay();
+            if(delayTime > 0) {
+                mDelayHandler.obtainMessage(DELAY_DIALOG_SHOW).sendToTarget();
+                mDelayHandler.obtainMessage(DELAY_DIALOG_UPDATE, delayTime, -1);
+            }
+            for(int i = 0; i < delayTime; i++) {
+                try {
+                    Thread.sleep(1000);
+                    //send left time
+                    mDelayHandler.obtainMessage(DELAY_DIALOG_UPDATE, (delayTime - i), -1).sendToTarget();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(delayTime > 0) {
+                mDelayHandler.obtainMessage(DELAY_DIALOG_DISMISS).sendToTarget();
+            }
 
             for (int i = 0; i <= duration; i += interval) {
                 mX = i;
