@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
@@ -75,6 +76,18 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
     private int loadFileIndex = -1;
 
     private int mFileType = FileExportDialog.FILE_TYPE_TXT;
+
+    private TextView mAbs1TextView;
+    private TextView mAbs2TextView;
+    private TextView mRefTextView;
+    private TextView mRatioTextView;
+    private static final float METHOD1_WAVELENGTH1 = 260.0f;
+    private static final float METHOD1_WAVELENGTH2 = 280.0f;
+    private static final float METHOD1_WAVELENGTH_REF = 320.0f;
+
+    private static final float METHOD2_WAVELENGTH1 = 260.0f;
+    private static final float METHOD2_WAVELENGTH2 = 230.0f;
+    private static final float METHOD2_WAVELENGTH_REF = 320.0f;
 
     @Nullable
     @Override
@@ -166,6 +179,16 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
     }
 
     void initView(View view) {
+        mAbs1TextView = (TextView)view.findViewById(R.id.tv_title_abs1);
+        mAbs2TextView = (TextView)view.findViewById(R.id.tv_title_abs2);
+        mRefTextView = (TextView)view.findViewById(R.id.tv_title_abs_ref);
+        mRatioTextView = (TextView)view.findViewById(R.id.tv_title_ratio);
+
+        mAbs1TextView.setText(String.format("Abs[%d]", (int)METHOD1_WAVELENGTH1));
+        mAbs2TextView.setText(String.format("Abs[%d]", (int)METHOD1_WAVELENGTH2));
+        mRefTextView.setText(String.format("Abs[%d]", (int)METHOD1_WAVELENGTH_REF));
+        mRatioTextView.setText(String.format("Abs[%d]/Abs[%d]", (int)METHOD1_WAVELENGTH1, (int)METHOD1_WAVELENGTH2));
+
         mStartTestButton = (Button) view.findViewById(R.id.bt_dna_start);
         mRezeroButton = (Button) view.findViewById(R.id.bt_dna_rezero);
         mListView = (ListView) view.findViewById(R.id.lv_dna);
@@ -449,6 +472,10 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
             mF2 = param.f2;
             mF3 = param.f3;
             mF4 = param.f4;
+            mAbs1TextView.setText(String.format("Abs[%d]", (int)param.wavelength1));
+            mAbs2TextView.setText(String.format("Abs[%d]", (int)param.wavelength2));
+            mRefTextView.setText(String.format("Abs[%d]", (int)param.wavelengthRef));
+            mRatioTextView.setText(String.format("Abs[%d]/Abs[%d]", (int)param.wavelength1, (int)param.wavelength2));
         }
     }
 
