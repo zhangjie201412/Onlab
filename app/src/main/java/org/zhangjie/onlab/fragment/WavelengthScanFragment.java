@@ -8,6 +8,8 @@ import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -119,6 +121,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     private int mCurDataIndex = 0;
     private int mFileType = FileExportDialog.FILE_TYPE_TXT;
     private FileExportDialog mFileExportDialog;
+    private int mSaveCount;
 
     @Nullable
     @Override
@@ -129,6 +132,15 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         initUi(view);
         return view;
     }
+
+    private Handler mNextSaveDialog = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            mSaveDialog.setTitile(getString(R.string.action_save ) + " " + getString(R.string.line) + (mSaveCount + 1));
+            mSaveDialog.show(getFragmentManager(), "save");
+        }
+    };
 
     private void initUi(View view) {
         mCurrentButton = (Button) view.findViewById(R.id.bt_wavelength_scan_current);
@@ -204,27 +216,13 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
                 }
                 String fileName = name;
-//                for (int i = 0; i < mData[mCurDataIndex].size(); i++) {
-//                    int index = 0;
-//                    float wavelength = 0;
-//                    float abs = 0.0f;
-//                    float trans = 0.0f;
-//                    int energy = 0;
-//                    long date = 0;
-//
-//                    HashMap<String, String> map = mData[mCurDataIndex].get(i);
-//                    index = Integer.parseInt(map.get("id"));
-//                    wavelength = Float.parseFloat(map.get("wavelength"));
-//                    abs = Float.parseFloat(map.get("abs"));
-//                    trans = Float.parseFloat(map.get("trans"));
-//                    energy = Integer.parseInt(map.get("energy"));
-//                    date = Long.parseLong(map.get("date"));
-//
-//                    WavelengthScanRecord record = new WavelengthScanRecord(index, wavelength, abs, trans, energy, date);
-//                    DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, record);
-//                }
-                DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, mData[mCurDataIndex]);
                 Log.d(TAG, "save to -> " + fileName);
+
+                DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, mData[mSaveCount++]);
+                if(mData[mSaveCount].size() > 0) {
+                    //show next save dialog later
+                    mNextSaveDialog.sendEmptyMessageDelayed(0, 300);
+                }
                 Utils.needToSave = false;
             }
 
@@ -620,6 +618,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
                 return;
             }
+            mSaveDialog.setTitile(getString(R.string.action_save ) + " " + getString(R.string.line) + "1");
+            mSaveCount = 0;
             mSaveDialog.show(getFragmentManager(), "save");
         } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
 
