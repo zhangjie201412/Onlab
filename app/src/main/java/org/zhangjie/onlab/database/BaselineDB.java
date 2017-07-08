@@ -8,6 +8,7 @@ import android.util.Log;
 import org.zhangjie.onlab.record.BaselineRecord;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,33 @@ public class BaselineDB {
                 new Object[]{record.getIndex(), record.getWavelength(),
                         record.getGain(), record.getEnergy(),
                         record.getDate()});
+    }
+
+    public void saveRecord(String recordName, List<HashMap<String, String>> data) {
+        mDb.beginTransaction();
+        for(int i = 0; i < data.size(); i++) {
+            int index = 0;
+            float wavelength = 0.0f;
+            int gain = 0;
+            int energy = 0;
+            long date = 0;
+
+            HashMap<String, String> map = data.get(i);
+            index = Integer.parseInt(map.get("id"));
+            wavelength = Float.parseFloat(map.get("wavelength"));
+            gain = Integer.parseInt(map.get("gain"));
+            energy = Integer.parseInt(map.get("energy"));
+            mDb.execSQL("CREATE table IF NOT EXISTS _"
+                    + recordName
+                    + " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,gain INTEGER,energy INTEGER,date TEXT)");
+            mDb.execSQL(
+                    "insert into _"
+                            + recordName
+                            + " (iindex,wavelength,gain,energy,date) values(?,?,?,?,?)",
+                    new Object[]{index, wavelength, gain, energy, date});
+        }
+        mDb.setTransactionSuccessful();
+        mDb.endTransaction();
     }
 
     public List<BaselineRecord> getRecords(String recordName) {

@@ -204,25 +204,26 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                     Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
                 }
                 String fileName = name;
-                for (int i = 0; i < mData[mCurDataIndex].size(); i++) {
-                    int index = 0;
-                    float wavelength = 0;
-                    float abs = 0.0f;
-                    float trans = 0.0f;
-                    int energy = 0;
-                    long date = 0;
-
-                    HashMap<String, String> map = mData[mCurDataIndex].get(i);
-                    index = Integer.parseInt(map.get("id"));
-                    wavelength = Float.parseFloat(map.get("wavelength"));
-                    abs = Float.parseFloat(map.get("abs"));
-                    trans = Float.parseFloat(map.get("trans"));
-                    energy = Integer.parseInt(map.get("energy"));
-                    date = Long.parseLong(map.get("date"));
-
-                    WavelengthScanRecord record = new WavelengthScanRecord(index, wavelength, abs, trans, energy, date);
-                    DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, record);
-                }
+//                for (int i = 0; i < mData[mCurDataIndex].size(); i++) {
+//                    int index = 0;
+//                    float wavelength = 0;
+//                    float abs = 0.0f;
+//                    float trans = 0.0f;
+//                    int energy = 0;
+//                    long date = 0;
+//
+//                    HashMap<String, String> map = mData[mCurDataIndex].get(i);
+//                    index = Integer.parseInt(map.get("id"));
+//                    wavelength = Float.parseFloat(map.get("wavelength"));
+//                    abs = Float.parseFloat(map.get("abs"));
+//                    trans = Float.parseFloat(map.get("trans"));
+//                    energy = Integer.parseInt(map.get("energy"));
+//                    date = Long.parseLong(map.get("date"));
+//
+//                    WavelengthScanRecord record = new WavelengthScanRecord(index, wavelength, abs, trans, energy, date);
+//                    DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, record);
+//                }
+                DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, mData[mCurDataIndex]);
                 Log.d(TAG, "save to -> " + fileName);
                 Utils.needToSave = false;
             }

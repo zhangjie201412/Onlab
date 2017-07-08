@@ -1,6 +1,7 @@
 package org.zhangjie.onlab.database;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,6 +33,35 @@ public class WavelengthScanDB {
 				new Object[] { record.getIndex(), record.getWavelength(),
 						record.getAbs(), record.getTrans(), record.getEnergy(),
 						record.getDate() });
+	}
+
+	public void saveRecord(String recordName, List<HashMap<String, String>> data) {
+		db.beginTransaction();
+		for (int i = 0; i < data.size(); i++) {
+			int index = 0;
+			float wavelength = 0;
+			float abs = 0.0f;
+			float trans = 0.0f;
+			int energy = 0;
+			long date = 0;
+
+			HashMap<String, String> map = data.get(i);
+			index = Integer.parseInt(map.get("id"));
+			wavelength = Float.parseFloat(map.get("wavelength"));
+			abs = Float.parseFloat(map.get("abs"));
+			trans = Float.parseFloat(map.get("trans"));
+			energy = Integer.parseInt(map.get("energy"));
+			date = Long.parseLong(map.get("date"));
+
+			db.execSQL("CREATE table IF NOT EXISTS _"
+					+ recordName
+					+ " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,date TEXT)");
+			db.execSQL("insert into _" + recordName
+							+ " (iindex,wavelength,abs,trans,energy,date) values(?,?,?,?,?,?)",
+					new Object[] { index, wavelength, abs, trans, energy, date });
+		}
+		db.setTransactionSuccessful();
+		db.endTransaction();
 	}
 
 	public List<WavelengthScanRecord> getRecords(String recordName) {

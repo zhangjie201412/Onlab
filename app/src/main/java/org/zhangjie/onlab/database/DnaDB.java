@@ -8,6 +8,7 @@ import android.util.Log;
 import org.zhangjie.onlab.record.DnaRecord;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,43 @@ public class DnaDB {
                 new Object[]{record.getIndex(), record.getName(),record.getAbs1(), record.getAbs2(),
                         record.getAbsRef(), record.getDna(), record.getProtein(), record.getRatio(),
                         record.getDate()});
+    }
+
+    public void saveRecord(String recordName, List<HashMap<String, String>> data) {
+        mDb.beginTransaction();
+        for (int i = 0; i < data.size(); i++) {
+            int index = 0;
+            String sample_name = "";
+            float abs1 = 0.0f;
+            float abs2 = 0.0f;
+            float absRef = 0.0f;
+            float dna = 0.0f;;
+            float protein = 0.0f;
+            float ratio = 0;
+            long date = 0;
+
+            HashMap<String, String> map = data.get(i);
+            index = Integer.parseInt(map.get("id"));
+            sample_name = (String)map.get("name");
+            abs1 = Float.parseFloat(map.get("abs1"));
+            abs2 = Float.parseFloat(map.get("abs2"));
+            absRef = Float.parseFloat(map.get("absRef"));
+            dna = Float.parseFloat(map.get("dna"));
+            protein = Float.parseFloat(map.get("protein"));
+            ratio = Float.parseFloat(map.get("ratio"));
+            date = Long.parseLong(map.get("date"));
+
+            mDb.execSQL("CREATE table IF NOT EXISTS _"
+                    + recordName
+                    + " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,name TEXT,abs1 FLOAT,abs2 FLOAT,absRef FLOAT,dna FLOAT,protein FLOAT,ratio FLOAT,date TEXT)");
+            mDb.execSQL(
+                    "insert into _"
+                            + recordName
+                            + " (iindex,name,abs1,abs2,absRef,dna,protein,ratio,date) values(?,?,?,?,?,?,?,?,?)",
+                    new Object[]{index, sample_name, abs1, abs2, absRef, dna, protein, ratio, date});
+        }
+        mDb.setTransactionSuccessful();
+        mDb.endTransaction();
     }
 
     public List<DnaRecord> getRecords(String recordName) {
