@@ -718,7 +718,10 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         List<String> fileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
         String fileName = fileList.get(id);
         List<WavelengthScanRecord> lists = DeviceApplication.getInstance().getWavelengthScanDb().getRecords(fileName);
-        clearData(mCurDataIndex);
+        if(mData[mCurDataIndex].size() > 0) {
+            mCurDataIndex ++;
+        }
+        setCurrentButton();
         for (int i = 0; i < lists.size(); i++) {
             addItem(mCurDataIndex, lists.get(i));
             updateChart(mCurDataIndex, lists.get(i));

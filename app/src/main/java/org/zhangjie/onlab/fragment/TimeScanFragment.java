@@ -1254,7 +1254,10 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         List<String> fileList = DeviceApplication.getInstance().getTimeScanDb().getTables();
         String fileName = fileList.get(id);
         List<TimeScanRecord> lists = DeviceApplication.getInstance().getTimeScanDb().getRecords(fileName);
-        clearData(mCurDataIndex);
+        if(mData[mCurDataIndex].size() > 0) {
+            mCurDataIndex ++;
+        }
+        setCurrentButton();
         for (int i = 0; i < lists.size(); i++) {
             addItem(mCurDataIndex, lists.get(i));
             if (mTestMode == TimescanSettingActivity.TEST_MODE_ABS) {
