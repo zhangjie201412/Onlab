@@ -206,6 +206,7 @@
     <string name="conc_unit">ug/ml</string>
     <string name="clear_chart">清除</string>
     <string name="wait_time">等待时间:</string>
+    <string name="please_wait">请等待...</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>

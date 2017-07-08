@@ -40,6 +40,10 @@ public class SaveNameDialog extends DialogFragment {
         mAbort = true;
     }
 
+    public void setTitile(String title) {
+        mTitle = title;
+    }
+
     public void setAbort(boolean enable) {
         mAbort = enable;
     }

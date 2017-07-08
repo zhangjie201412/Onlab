@@ -163,25 +163,7 @@ public class PhotometricMeasureFragment extends Fragment implements View.OnClick
                     Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
                 }
                 String fileName = name;
-                for (int i = 0; i < mData.size(); i++) {
-                    int index = 0;
-                    float wavelength = 0.0f;
-                    float abs = 0.0f;
-                    float trans = 0.0f;
-                    int energy = 0;
-                    long date = 0;
-
-                    HashMap<String, String> map = mData.get(i);
-                    index = Integer.parseInt(map.get("id"));
-                    wavelength = Float.parseFloat(map.get("wavelength"));
-                    abs = Float.parseFloat(map.get("abs"));
-                    trans = Float.parseFloat(map.get("trans"));
-                    energy = Integer.parseInt(map.get("energy"));
-                    date = Long.parseLong(map.get("date"));
-
-                    PhotoMeasureRecord record = new PhotoMeasureRecord(index, wavelength, abs, trans, energy, date);
-                    DeviceApplication.getInstance().getPhotometricMeasureDb().saveRecord(fileName, record);
-                }
+                DeviceApplication.getInstance().getPhotometricMeasureDb().saveRecord(fileName, mData);
                 Log.d(TAG, "save to -> " + fileName);
                 Utils.needToSave = false;
             }

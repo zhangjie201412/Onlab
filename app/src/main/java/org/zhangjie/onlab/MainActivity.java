@@ -2168,7 +2168,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                                                 for (int i = 0; i < saveFileList1.size(); i++) {
                                                                     if (selected1[i]) {
                                                                         Log.d(TAG, "delete -> " + saveFileList1.get(i));
-                                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList1.get(i));
+                                                                        DeviceApplication.getInstance().getQuantitativeAnalysisDb().delRecord(saveFileList1.get(i));
                                                                     }
                                                                 }
                                                             }
@@ -2201,7 +2201,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                                                 for (int i = 0; i < saveFileList2.size(); i++) {
                                                                     if (selected2[i]) {
                                                                         Log.d(TAG, "delete -> " + saveFileList2.get(i));
-                                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList2.get(i));
+                                                                        DeviceApplication.getInstance().getWavelengthScanDb().delRecord(saveFileList2.get(i));
                                                                     }
                                                                 }
                                                             }
@@ -2234,7 +2234,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                                                                 for (int i = 0; i < saveFileList3.size(); i++) {
                                                                     if (selected3[i]) {
                                                                         Log.d(TAG, "delete -> " + saveFileList3.get(i));
-                                                                        DeviceApplication.getInstance().getPhotometricMeasureDb().delRecord(saveFileList3.get(i));
+                                                                        DeviceApplication.getInstance().getTimeScanDb().delRecord(saveFileList3.get(i));
                                                                     }
                                                                 }
                                                             }

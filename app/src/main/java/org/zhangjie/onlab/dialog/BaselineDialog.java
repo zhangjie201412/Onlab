@@ -172,22 +172,7 @@ public class BaselineDialog extends DialogFragment {
     }
 
     public void saveFile(String name) {
-        for (int i = 0; i < mData.size(); i++) {
-            int index = 0;
-            float wavelength = 0.0f;
-            int gain = 0;
-            int energy = 0;
-            long date = 0;
-
-            HashMap<String, String> map = mData.get(i);
-            index = Integer.parseInt(map.get("id"));
-            wavelength = Float.parseFloat(map.get("wavelength"));
-            gain = Integer.parseInt(map.get("gain"));
-            energy = Integer.parseInt(map.get("energy"));
-
-            BaselineRecord record = new BaselineRecord(index, wavelength, gain, energy, date);
-            DeviceApplication.getInstance().getBaselineDb().saveRecord(name, record);
-        }
+        DeviceApplication.getInstance().getBaselineDb().saveRecord(name, mData);
     }
 
     public void loadFileById(int id) {

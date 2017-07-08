@@ -120,6 +120,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
     private FileExportDialog mFileExportDialog;
 
     private AlertDialog mDelayDialog;
+    private int mSaveCount;
 
     @Nullable
     @Override
@@ -158,6 +159,15 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         Log.d(TAG, "onDestroy");
         loadFile = false;
     }
+
+    private Handler mNextSaveDialog = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            mSaveDialog.setTitile(getString(R.string.action_save ) + " " + getString(R.string.line) + (mSaveCount + 1));
+            mSaveDialog.show(getFragmentManager(), "save");
+        }
+    };
 
     private void initUi(View view) {
         mWavelengthTextView = (TextView) view.findViewById(R.id.tv_wavelength);
@@ -231,28 +241,11 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                     Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
                 }
                 String fileName = name;
-                for(int index = 0; index < LINE_MAX; index ++) {
-                    if(mData[index].size() <= 0)
-                        continue;
-                    for (int i = 0; i < mData[index].size(); i++) {
-                        int idx = 0;
-                        int second = 0;
-                        float abs = 0.0f;
-                        float trans = 0.0f;
-                        int energy = 0;
-                        long date = 0;
 
-                        HashMap<String, String> map = mData[mCurDataIndex].get(i);
-                        idx = Integer.parseInt(map.get("id"));
-                        second = Integer.parseInt(map.get("second"));
-                        abs = Float.parseFloat(map.get("abs"));
-                        trans = Float.parseFloat(map.get("trans"));
-                        energy = Integer.parseInt(map.get("energy"));
-                        date = Long.parseLong(map.get("date"));
-
-                        TimeScanRecord record = new TimeScanRecord(idx, second, abs, trans, energy, date);
-                        DeviceApplication.getInstance().getTimeScanDb().saveRecord(fileName + "_" + index, record);
-                    }
+                DeviceApplication.getInstance().getTimeScanDb().saveRecord(fileName, mData[mSaveCount++]);
+                if(mData[mSaveCount].size() > 0) {
+                    //show next save dialog later
+                    mNextSaveDialog.sendEmptyMessageDelayed(0, 300);
                 }
                 Utils.needToSave = false;
             }
@@ -1193,6 +1186,8 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
                 return;
             }
+            mSaveDialog.setTitile(getString(R.string.action_save ) + " " + getString(R.string.line) + "1");
+            mSaveCount = 0;
             mSaveDialog.show(getFragmentManager(), "save");
         } else if (event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
             int available = 0;
@@ -1327,10 +1322,12 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
             super.handleMessage(msg);
             if(msg.what == DELAY_DIALOG_SHOW) {
                 mDelayDialog.show();
+                TextView tv = (TextView)mDelayDialog.findViewById(R.id.tv_dialog_content);
+                tv.setText(R.string.please_wait);
             } else if(msg.what == DELAY_DIALOG_UPDATE) {
                 TextView tv = (TextView)mDelayDialog.findViewById(R.id.tv_dialog_content);
                 tv.setText(getString(R.string.wait_time) +
-                        " " + msg.arg1 + getString(R.string.s));
+                        " " + msg.arg1 + " " + getString(R.string.s));
             } else if(msg.what == DELAY_DIALOG_DISMISS) {
                 mDelayDialog.dismiss();
             }
@@ -1372,7 +1369,7 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 mDelayHandler.obtainMessage(DELAY_DIALOG_SHOW).sendToTarget();
                 mDelayHandler.obtainMessage(DELAY_DIALOG_UPDATE, delayTime, -1);
             }
-            for(int i = 0; i < delayTime; i++) {
+            for(int i = 0; i < delayTime + 1; i++) {
                 try {
                     Thread.sleep(1000);
                     //send left time
