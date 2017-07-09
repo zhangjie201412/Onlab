@@ -1038,15 +1038,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
             msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[3] = msgs[3].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[4] = msgs[4].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mI0 = Integer.parseInt(msgs[1]);
             mA = Integer.parseInt(msgs[2]);
+            mI0Ref = Integer.parseInt(msgs[3]);
+            mARef = Integer.parseInt(msgs[4]);
 
             int I0 = Integer.parseInt(msgs[1]);
             mDeviceManager.setDark(mMultipleWavelength, I0);
             int gain = Integer.parseInt(msgs[2]);
             mDeviceManager.setGain((int) mMultipleWavelength, gain);
-
-            Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + "gain = " + mA + "I0 = " + mI0);
+            mDeviceManager.setDarkRef(mMultipleWavelength, mI0Ref);
+            mDeviceManager.setGainRef((int)mMultipleWavelength, mARef);
 
             if (mMultipleWavelength ==
                     MultipleWavelengthFragment.mOrderWavelengths[MultipleWavelengthFragment.mOrderWavelengths.length - 1]) {
@@ -1058,7 +1062,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 loadWavelengthDialog(MultipleWavelengthFragment.mOrderWavelengths[0]);
                 mI0 = mDeviceManager.getDarkFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
                 mA = mDeviceManager.getGainFromBaseline((int) MultipleWavelengthFragment.mOrderWavelengths[0]);
-                Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + ", gain = " + mA + ", I0 = " + mI0);
+                mI0Ref = mDeviceManager.getDarkRefFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
+                mARef = mDeviceManager.getGainFromBaselineRef((int) MultipleWavelengthFragment.mOrderWavelengths[0]);
             }
         }
 
@@ -1067,6 +1072,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private void work_entry_multiple_wavelength_test(String[] msgs) {
         String tag = msgs[0];
         int energy;
+        int energyRef;
 
         Log.d(TAG, "msgs[0] = " + msgs[0]);
 
@@ -1076,28 +1082,39 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mMultipleWavelength = Float.parseFloat(wl);
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
-        } else if (tag.startsWith("ge 20")) {
+        } else if (tag.startsWith("ge2 6")) {
             if (mMultipleWavelength == 0) {
                 return;
             }
-
-            int[] energies = new int[20];
-
+            int[] energies = new int[6];
+            int[] energiesRef = new int[6];
             //get energy
             energy = 0;
-            for (int i = 0; i < 20; i++) {
+            energyRef = 0;
+            for (int i = 0; i < 6; i++) {
                 msgs[i + 1] = msgs[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
                 energies[i] = Integer.parseInt(msgs[i + 1], 10);
                 energy += energies[i];
             }
-            energy /= 20;
+            for (int i = 6; i < 12; i++) {
+                msgs[i + 1] = msgs[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energiesRef[i - 6] = Integer.parseInt(msgs[i + 1], 10);
+                energyRef += energiesRef[i - 6];
+            }
+            energy /= 6;
+            energyRef /= 6;
 
             int gain = mDeviceManager.getGainFromBaseline((int) mMultipleWavelength);
             int i0 = mDeviceManager.getDarkFromWavelength(mMultipleWavelength);
+            int gainRef = mDeviceManager.getGainFromBaselineRef((int) mMultipleWavelength);
+            int i0Ref = mDeviceManager.getDarkRefFromWavelength(mMultipleWavelength);
             Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + ", energy = " + energy + ", gain = " + gain + ", I0 = " + i0);
             int I1 = energy;
-            float trans = (float) (I1 - mDark[gain - 1]) /
-                    (float) (i0 - mDark[gain - 1]);
+            int I1Ref = energyRef;
+
+            int I0 = (I1Ref - mDarkRef[gainRef - 1]) * (i0 - mDark[gain - 1]) / (i0Ref - mDarkRef[gainRef - 1]);
+            float trans = (float) (I1 - mDark[gain - 1]) / (float) I0;
+
             float abs = (float) -Math.log10(trans);
             trans = Utils.getValidTrans(trans);
             abs = Utils.getValidAbs(abs);
@@ -1117,6 +1134,8 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 loadWavelengthDialog(MultipleWavelengthFragment.mOrderWavelengths[0]);
                 mI0 = mDeviceManager.getDarkFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
                 mA = mDeviceManager.getGainFromBaseline((int) MultipleWavelengthFragment.mOrderWavelengths[0]);
+                mI0Ref = mDeviceManager.getDarkRefFromWavelength(MultipleWavelengthFragment.mOrderWavelengths[0]);
+                mARef = mDeviceManager.getGainFromBaselineRef((int) MultipleWavelengthFragment.mOrderWavelengths[0]);
             }
         }
     }
@@ -1139,13 +1158,21 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
             msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[3] = msgs[3].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[4] = msgs[4].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mI0 = Integer.parseInt(msgs[1]);
             mA = Integer.parseInt(msgs[2]);
+            mI0Ref = Integer.parseInt(msgs[3]);
+            mARef = Integer.parseInt(msgs[4]);
 
             int I0 = Integer.parseInt(msgs[1]);
             mDeviceManager.setDark(mDnaWavelength, I0);
             int gain = Integer.parseInt(msgs[2]);
             mDeviceManager.setGain((int) mDnaWavelength, gain);
+            int I0Ref = Integer.parseInt(msgs[3]);
+            mDeviceManager.setDarkRef(mDnaWavelength, I0Ref);
+            int gainRef = Integer.parseInt(msgs[4]);
+            mDeviceManager.setGainRef((int) mDnaWavelength, gainRef);
             if (mDnaWavelength == DnaFragment.refWavelength) {
                 Log.d(TAG, "do dna wavelength rezero done!");
                 mDnaWavelength = 0;
@@ -1159,6 +1186,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private void work_entry_dna_test(String[] msgs) {
         String tag = msgs[0];
         int energy;
+        int energyRef;
 
         Log.d(TAG, "msgs[0] = " + msgs[0]);
 
@@ -1168,18 +1196,25 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mDnaWavelength = Float.parseFloat(wl);
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
-        } else if (tag.startsWith("ge 1")) {
+        } else if (tag.startsWith("ge2 1")) {
             if (mDnaWavelength == 0) {
                 return;
             }
             //get energy
             msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[2] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             energy = Integer.parseInt(msgs[1]);
+            energyRef = Integer.parseInt(msgs[2]);
             int gain = mDeviceManager.getGainFromBaseline((int) mDnaWavelength);
+            int i0 = mDeviceManager.getDarkFromWavelength(mDnaWavelength);
+            int gainRef = mDeviceManager.getGainFromBaselineRef((int) mDnaWavelength);
+            int i0Ref = mDeviceManager.getDarkRefFromWavelength(mDnaWavelength);
 
             int I1 = energy;
-            float trans = (float) (I1 - mDark[gain - 1]) /
-                    (float) (mDeviceManager.getDarkFromWavelength(mDnaWavelength) - mDark[gain - 1]);
+            int I1Ref = energyRef;
+
+            int I0 = (I1Ref - mDarkRef[gainRef - 1]) * (i0 - mDark[gain - 1]) / (i0Ref - mDarkRef[gainRef - 1]);
+            float trans = (float) (I1 - mDark[gain - 1]) / (float) I0;
             float abs = (float) -Math.log10(trans);
             abs = Utils.getValidAbs(abs);
 

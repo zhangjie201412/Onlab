@@ -654,7 +654,8 @@ public class DeviceManager implements BtleListener {
         for (int i = 0; i < wavelengths.length; i++) {
             addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, (int) wavelengths[i]);
             addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int) wavelengths[i]));
-            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 20);
+            addCmd(cmdList, DEVICE_CMD_LIST_SET_R, getGainFromBaselineRef((int) wavelengths[i]));
+            addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 6);
         }
         doWork(cmdList);
     }
@@ -684,12 +685,15 @@ public class DeviceManager implements BtleListener {
 
         addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl1);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl1));
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_R, getGainFromBaselineRef((int)wl1));
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl2);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl2));
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_R, getGainFromBaselineRef((int)wl2));
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wlRef);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wlRef));
+        addCmd(cmdList, DEVICE_CMD_LIST_SET_R, getGainFromBaselineRef((int)wlRef));
         addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
         doWork(cmdList);
     }
