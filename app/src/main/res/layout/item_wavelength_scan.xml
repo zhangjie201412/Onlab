@@ -60,7 +60,6 @@
         android:textColor="@color/color_content_text"
         android:textSize="@dimen/list_text_size" />
 
-
     <CheckBox
         android:id="@+id/item_checkbox"
         android:layout_width="0dp"

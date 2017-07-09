@@ -45,6 +45,7 @@ public class BaselineDialog extends DialogFragment {
 
     public interface BaselineOperateListener {
         void onStart();
+
         void onStop();
     }
 
@@ -65,22 +66,22 @@ public class BaselineDialog extends DialogFragment {
 
     private void initUi(View view) {
         mData = new ArrayList<HashMap<String, String>>();
-        mListView = (ListView)view.findViewById(R.id.lv_baseline);
+        mListView = (ListView) view.findViewById(R.id.lv_baseline);
         mAdapter = new MultiSelectionAdapter(getActivity(), mData, R.layout.item_baseline,
-                new String[] {"id", "wavelength", "gain", "energy"},
-                new int[] {R.id.item_index, R.id.item_wavelength, R.id.item_gain,
-                R.id.item_energy});
+                new String[]{"id", "wavelength", "gain", "energy", "gainRef", "energyRef"},
+                new int[]{R.id.item_index, R.id.item_wavelength, R.id.item_gain,
+                        R.id.item_energy, R.id.item_gain_ref, R.id.item_energy_ref});
         mListView.setAdapter(mAdapter);
 
-        mStart = (Button)view.findViewById(R.id.bt_baseline_start);
-        mSave = (Button)view.findViewById(R.id.bt_baseline_save);
-        mApply = (Button)view.findViewById(R.id.bt_baseline_apply);
+        mStart = (Button) view.findViewById(R.id.bt_baseline_start);
+        mSave = (Button) view.findViewById(R.id.bt_baseline_save);
+        mApply = (Button) view.findViewById(R.id.bt_baseline_apply);
 
         mStart.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                if(mListener != null) {
+                if (mListener != null) {
                     mListener.onStart();
                     stop = false;
                     mStart.setEnabled(false);
@@ -91,16 +92,11 @@ public class BaselineDialog extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-                if(mData.size() == 0) {
+                if (mData.size() == 0) {
                     Toast.makeText(getActivity(), R.string.notice_save_null, Toast.LENGTH_SHORT).show();
                 } else {
                     mSaveBaselineDialog.show(getFragmentManager(), "save_baseline");
                 }
-//                if(mListener != null) {
-//                    mListener.onStop();
-//                    stop = true;
-//                    mStart.setEnabled(true);
-//                }
             }
         });
         mApply.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +107,7 @@ public class BaselineDialog extends DialogFragment {
                     int index = 0;
                     float wavelength = 0.0f;
                     int gain = 0;
+                    int gainRef = 0;
                     int energy = 0;
                     long date = 0;
 
@@ -118,8 +115,10 @@ public class BaselineDialog extends DialogFragment {
                     index = Integer.parseInt(map.get("id"));
                     wavelength = Float.parseFloat(map.get("wavelength"));
                     gain = Integer.parseInt(map.get("gain"));
+                    gainRef = Integer.parseInt(map.get("gainRef"));
                     energy = Integer.parseInt(map.get("energy"));
-                    DeviceManager.getInstance().setGain((int)wavelength, gain);
+                    DeviceManager.getInstance().setGain((int) wavelength, gain);
+                    DeviceManager.getInstance().setGainRef((int) wavelength, gainRef);
                 }
                 DeviceManager.getInstance().saveBaseline();
                 Toast.makeText(getActivity(), R.string.apply_done, Toast.LENGTH_SHORT).show();
@@ -129,7 +128,7 @@ public class BaselineDialog extends DialogFragment {
         mSaveBaselineDialog.init(-1, getString(R.string.action_save), getString(R.string.name), new SaveNameDialog.SettingInputListern() {
             @Override
             public void onSettingInputComplete(int id, String name) {
-                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                if (name.length() < 1 || (!Utils.isValidName(name))) {
                     Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -142,7 +141,7 @@ public class BaselineDialog extends DialogFragment {
             }
         });
         mSaveBaselineDialog.setAbort(false);
-        if(mLoadFileId >= 0) {
+        if (mLoadFileId >= 0) {
             loadFileById(mLoadFileId);
         }
     }
@@ -155,7 +154,7 @@ public class BaselineDialog extends DialogFragment {
         mListener = listener;
     }
 
-    public void addItem(float wavelength, int gain, int energy) {
+    public void addItem(float wavelength, int gain, int energy, int gainRef, int energyRef) {
         HashMap<String, String> item = new HashMap<String, String>();
         int no = mData.size() + 1;
 
@@ -163,6 +162,8 @@ public class BaselineDialog extends DialogFragment {
         item.put("wavelength", "" + wavelength);
         item.put("gain", "" + gain);
         item.put("energy", "" + energy);
+        item.put("gainRef", "" + gainRef);
+        item.put("energyRef", "" + energyRef);
         mData.add(item);
         mAdapter.add();
         mAdapter.notifyDataSetChanged();
@@ -181,8 +182,9 @@ public class BaselineDialog extends DialogFragment {
         String fileName = fileList.get(id);
         List<BaselineRecord> lists = DeviceApplication.getInstance().getBaselineDb().getRecords(fileName);
         mData.clear();
-        for(int i = 0; i < lists.size(); i++) {
-            addItem(lists.get(i).getWavelength(), lists.get(i).getGain(), lists.get(i).getEnergy());
+        for (int i = 0; i < lists.size(); i++) {
+            addItem(lists.get(i).getWavelength(), lists.get(i).getGain(),
+                    lists.get(i).getEnergy(), lists.get(i).getGainRef(), lists.get(i).getEnergyRef());
         }
     }
 

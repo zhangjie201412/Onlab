@@ -133,6 +133,10 @@ public class MultiSelectionAdapter extends BaseAdapter {
             } else if (mKeys[i].equals("ratio")) {
                 fval = Float.parseFloat(mData.get(position).get("ratio"));
                 holder.ratio.setText(Utils.formatAbs(fval));
+            } else if (mKeys[i].equals("gainRef")) {
+                holder.gainRef.setText(mData.get(position).get("gainRef"));
+            } else if (mKeys[i].equals("energyRef")) {
+                holder.energyRef.setText(mData.get(position).get("energyRef"));
             }
         }
         holder.cb.setTag("" + position);
@@ -201,6 +205,8 @@ public class MultiSelectionAdapter extends BaseAdapter {
         public TextView dna;
         public TextView protein;
         public TextView ratio;
+        public TextView gainRef;
+        public TextView energyRef;
         public CheckBox cb;
 
         public void setTextViewByKey(String key, TextView tv) {
@@ -232,6 +238,10 @@ public class MultiSelectionAdapter extends BaseAdapter {
                 protein = tv;
             } else if(key.equals("ratio")) {
                 ratio = tv;
+            } else if (key.equals("gainRef")) {
+                gainRef = tv;
+            } else if(key.equals("energyRef")) {
+                energyRef = tv;
             }
         }
     }

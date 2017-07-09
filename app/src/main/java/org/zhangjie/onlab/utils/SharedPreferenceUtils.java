@@ -442,6 +442,30 @@ public class SharedPreferenceUtils {
         return base;
     }
 
+    public void saveBaselineRef(int[] base) {
+        JSONArray jsonArray = new JSONArray();
+        for(int i : base) {
+            jsonArray.put(i);
+        }
+        mEditor.putString("key_baseline_ref", jsonArray.toString());
+        mEditor.commit();
+    }
+
+    public int[] getBaselineRef(int length) {
+        int[] base = new int[length];
+        Arrays.fill(base, 8);
+        try {
+            JSONArray jsonArray = new JSONArray(mSp.getString("key_baseline_ref", "[]"));
+            for(int i= 0; i < jsonArray.length(); i++) {
+                base[i] = jsonArray.getInt(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return base;
+    }
+
     public void saveMultipleWavelength(float[] wavelengths) {
         JSONArray jsonArray = new JSONArray();
         for(float i : wavelengths) {

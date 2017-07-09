@@ -6,18 +6,20 @@ public class WavelengthScanRecord extends BaseData {
     private float abs;
     private float trans;
     private int energy;
+    private int energyRef;
     private long time;
 
     public WavelengthScanRecord() {
     }
 
     public WavelengthScanRecord(int index, float wavelength, float abs,
-                                float trans, int energy, long date) {
+                                float trans, int energy, int energyRef, long date) {
         this.index = index;
         this.wavelength = wavelength;
         this.abs = abs;
         this.trans = trans;
         this.energy = energy;
+        this.energyRef = energyRef;
         this.time = date;
     }
 
@@ -55,6 +57,10 @@ public class WavelengthScanRecord extends BaseData {
 
     public int getEnergy() {
         return energy;
+    }
+
+    public int getEnergyRef() {
+        return energyRef;
     }
 
     public void setEnergy(int energy) {

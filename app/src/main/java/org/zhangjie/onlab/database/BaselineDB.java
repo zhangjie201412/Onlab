@@ -26,19 +26,6 @@ public class BaselineDB {
                 Context.MODE_PRIVATE, null);
     }
 
-    public void saveRecord(String recordName, BaselineRecord record) {
-        mDb.execSQL("CREATE table IF NOT EXISTS _"
-                + recordName
-                + " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,gain INTEGER,energy INTEGER,date TEXT)");
-        mDb.execSQL(
-                "insert into _"
-                        + recordName
-                        + " (iindex,wavelength,gain,energy,date) values(?,?,?,?,?)",
-                new Object[]{record.getIndex(), record.getWavelength(),
-                        record.getGain(), record.getEnergy(),
-                        record.getDate()});
-    }
-
     public void saveRecord(String recordName, List<HashMap<String, String>> data) {
         mDb.beginTransaction();
         for(int i = 0; i < data.size(); i++) {
@@ -46,6 +33,8 @@ public class BaselineDB {
             float wavelength = 0.0f;
             int gain = 0;
             int energy = 0;
+            int gainRef = 0;
+            int energyRef = 0;
             long date = 0;
 
             HashMap<String, String> map = data.get(i);
@@ -53,14 +42,16 @@ public class BaselineDB {
             wavelength = Float.parseFloat(map.get("wavelength"));
             gain = Integer.parseInt(map.get("gain"));
             energy = Integer.parseInt(map.get("energy"));
+            gainRef = Integer.parseInt(map.get("gainRef"));
+            energyRef = Integer.parseInt(map.get("energyRef"));
             mDb.execSQL("CREATE table IF NOT EXISTS _"
                     + recordName
-                    + " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,gain INTEGER,energy INTEGER,date TEXT)");
+                    + " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,gain INTEGER,energy INTEGER,gainRef INTEGER,energyRef INTEGER,date TEXT)");
             mDb.execSQL(
                     "insert into _"
                             + recordName
-                            + " (iindex,wavelength,gain,energy,date) values(?,?,?,?,?)",
-                    new Object[]{index, wavelength, gain, energy, date});
+                            + " (iindex,wavelength,gain,energy,gainRef,energyRef,date) values(?,?,?,?,?,?,?)",
+                    new Object[]{index, wavelength, gain, energy, gainRef, energyRef, date});
         }
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
@@ -76,9 +67,11 @@ public class BaselineDB {
             float wavelength = c.getFloat(c.getColumnIndex("wavelength"));
             int gain = c.getInt(c.getColumnIndex("gain"));
             int energy = c.getInt(c.getColumnIndex("energy"));
+            int gainRef = c.getInt(c.getColumnIndex("gainRef"));
+            int energyRef = c.getInt(c.getColumnIndex("energyRef"));
             long date = c.getLong(c.getColumnIndex("date"));
             BaselineRecord record = new BaselineRecord(index,
-                    wavelength, gain, energy, date);
+                    wavelength, gain, energy, gainRef, energyRef, date);
             list.add(record);
         }
         c.close();

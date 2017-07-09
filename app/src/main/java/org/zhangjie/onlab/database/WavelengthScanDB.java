@@ -27,12 +27,12 @@ public class WavelengthScanDB {
 	public void saveRecord(String recordName, WavelengthScanRecord record) {
 		db.execSQL("CREATE table IF NOT EXISTS _"
 				+ recordName
-				+ " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,date TEXT)");
+				+ " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,energyRef INTEGER,date TEXT)");
 		db.execSQL("insert into _" + recordName
-						+ " (iindex,wavelength,abs,trans,energy,date) values(?,?,?,?,?,?)",
+						+ " (iindex,wavelength,abs,trans,energy,energyRef,date) values(?,?,?,?,?,?,?)",
 				new Object[] { record.getIndex(), record.getWavelength(),
 						record.getAbs(), record.getTrans(), record.getEnergy(),
-						record.getDate() });
+						record.getEnergyRef(), record.getDate() });
 	}
 
 	public void saveRecord(String recordName, List<HashMap<String, String>> data) {
@@ -43,6 +43,7 @@ public class WavelengthScanDB {
 			float abs = 0.0f;
 			float trans = 0.0f;
 			int energy = 0;
+			int energyRef = 0;
 			long date = 0;
 
 			HashMap<String, String> map = data.get(i);
@@ -51,14 +52,15 @@ public class WavelengthScanDB {
 			abs = Float.parseFloat(map.get("abs"));
 			trans = Float.parseFloat(map.get("trans"));
 			energy = Integer.parseInt(map.get("energy"));
+			energyRef = Integer.parseInt(map.get("energyRef"));
 			date = Long.parseLong(map.get("date"));
 
 			db.execSQL("CREATE table IF NOT EXISTS _"
 					+ recordName
-					+ " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,date TEXT)");
+					+ " (_id INTEGER PRIMARY KEY AUTOINCREMENT,iindex INTEGER,wavelength FLOAT,abs FLOAT,trans FLOAT,energy INTEGER,energyRef INTEGER,date TEXT)");
 			db.execSQL("insert into _" + recordName
-							+ " (iindex,wavelength,abs,trans,energy,date) values(?,?,?,?,?,?)",
-					new Object[] { index, wavelength, abs, trans, energy, date });
+							+ " (iindex,wavelength,abs,trans,energy,energyRef,date) values(?,?,?,?,?,?,?)",
+					new Object[] { index, wavelength, abs, trans, energy, energyRef, date });
 		}
 		db.setTransactionSuccessful();
 		db.endTransaction();
@@ -75,9 +77,10 @@ public class WavelengthScanDB {
 			float abs = c.getFloat(c.getColumnIndex("abs"));
 			float trans = c.getFloat(c.getColumnIndex("trans"));
 			int energy = c.getInt(c.getColumnIndex("energy"));
+			int energyRef = c.getInt(c.getColumnIndex("energyRef"));
 			long date = c.getLong(c.getColumnIndex("date"));
 			WavelengthScanRecord record = new WavelengthScanRecord(
-					index, wavelength, abs, trans, energy, date);
+					index, wavelength, abs, trans, energy, energyRef, date);
 			list.add(record);
 		}
 		c.close();

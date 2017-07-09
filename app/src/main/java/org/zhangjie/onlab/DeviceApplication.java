@@ -75,21 +75,21 @@ public class DeviceApplication extends Application {
     }
 
     public synchronized DnaDB getDnaDb() {
-        if(mDnaDb == null)
+        if (mDnaDb == null)
             mDnaDb = new DnaDB(this);
 
         return mDnaDb;
     }
 
     public synchronized MultipleWavelengthDB getMultipleWavelengthDb() {
-        if(mMultipleWavelengthDb == null)
+        if (mMultipleWavelengthDb == null)
             mMultipleWavelengthDb = new MultipleWavelengthDB(this);
 
         return mMultipleWavelengthDb;
     }
 
     public synchronized BaselineDB getBaselineDb() {
-        if(mBaselineDb == null)
+        if (mBaselineDb == null)
             mBaselineDb = new BaselineDB(this);
 
         return mBaselineDb;

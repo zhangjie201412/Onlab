@@ -47,6 +47,23 @@
             android:gravity="center"
             android:text="@string/energy"
             android:textColor="@color/color_baseline_text" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="@string/gain"
+            android:textSize="@dimen/baseline_title_size"
+            android:textColor="@color/color_baseline_text" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:textSize="@dimen/baseline_title_size"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="@string/energy"
+            android:textColor="@color/color_baseline_text" />
         <!-- Fake view -->
         <TextView
             android:layout_width="0dp"

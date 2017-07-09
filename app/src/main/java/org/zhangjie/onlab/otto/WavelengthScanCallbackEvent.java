@@ -13,17 +13,20 @@ public class WavelengthScanCallbackEvent {
     public float abs;
     public float trans;
     public int energy;
+    public int energyRef;
 
     public WavelengthScanCallbackEvent(int event) {
         event_type = event;
     }
 
-    public WavelengthScanCallbackEvent(int event, float wavelength, float abs, float trans, int energy) {
+    public WavelengthScanCallbackEvent(int event, float wavelength, float abs,
+                                       float trans, int energy, int energyRef) {
         this.event_type = event;
         this.wavelength = wavelength;
         this.abs = abs;
         this.trans = trans;
         this.energy = energy;
+        this.energyRef = energyRef;
     }
 
 }

@@ -133,11 +133,11 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         return view;
     }
 
-    private Handler mNextSaveDialog = new Handler(){
+    private Handler mNextSaveDialog = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            mSaveDialog.setTitile(getString(R.string.action_save ) + " " + getString(R.string.line) + (mSaveCount + 1));
+            mSaveDialog.setTitile(getString(R.string.action_save) + " " + getString(R.string.line) + (mSaveCount + 1));
             mSaveDialog.show(getFragmentManager(), "save");
         }
     };
@@ -219,7 +219,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 Log.d(TAG, "save to -> " + fileName);
 
                 DeviceApplication.getInstance().getWavelengthScanDb().saveRecord(fileName, mData[mSaveCount++]);
-                if(mData[mSaveCount].size() > 0) {
+                if (mData[mSaveCount].size() > 0) {
                     //show next save dialog later
                     mNextSaveDialog.sendEmptyMessageDelayed(0, 300);
                 }
@@ -235,26 +235,26 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         mFileExportDialog.init(getString(R.string.action_file_export), getString(R.string.name), new FileExportDialog.SettingInputListern() {
             @Override
             public void onSettingInputComplete(String name) {
-                if(name.length() < 1 || (!Utils.isValidName(name))) {
+                if (name.length() < 1 || (!Utils.isValidName(name))) {
                     Toast.makeText(getActivity(), getString(R.string.notice_name_invalid), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 String typeString = "unknow";
                 String titleFormatString = "";
                 String contentFormatString = "";
-                if(mFileType == FileExportDialog.FILE_TYPE_TXT) {
+                if (mFileType == FileExportDialog.FILE_TYPE_TXT) {
                     typeString = "txt";
-                    titleFormatString = "%s\t%s\t%s\t%s\n";
-                    contentFormatString = "%d\t%f\t%f\t%d\n";
-                } else if(mFileType ==FileExportDialog.FILE_TYPE_CVS) {
+                    titleFormatString = "%s\t%s\t%s\t%s\t%s\n";
+                    contentFormatString = "%d\t%f\t%f\t%d\t%d\n";
+                } else if (mFileType == FileExportDialog.FILE_TYPE_CVS) {
                     typeString = "cvs";
-                    titleFormatString = "%s,%s,%s,%s\n";
-                    contentFormatString = "%d,%f,%f,%d\n";
+                    titleFormatString = "%s,%s,%s,%s,%s\n";
+                    contentFormatString = "%d,%f,%f,%d,%d\n";
                 }
-                for(int index = 0; index < LINE_MAX; index++) {
-                    if(mData[index].size() == 0)
+                for (int index = 0; index < LINE_MAX; index++) {
+                    if (mData[index].size() == 0)
                         continue;
-                    File file = Utils.getWavelengthScanFile(name + "__" + (index + 1) + "." + typeString );
+                    File file = Utils.getWavelengthScanFile(name + "__" + (index + 1) + "." + typeString);
                     try {
                         FileWriter out = new FileWriter(file, false);
                         BufferedWriter writer = new BufferedWriter(out);
@@ -262,6 +262,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                                 getString(R.string.index),
                                 getString(R.string.abs),
                                 getString(R.string.trans),
+                                getString(R.string.energy),
                                 getString(R.string.energy));
                         writer.write(line);
                         for (int i = 0; i < mData[index].size(); i++) {
@@ -269,14 +270,16 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                             float abs = 0.0f;
                             float trans = 0.0f;
                             int energy = 0;
+                            int energyRef = 0;
 
                             HashMap<String, String> map = mData[index].get(i);
                             id = Integer.parseInt(map.get("id"));
                             abs = Float.parseFloat(map.get("abs"));
                             trans = Float.parseFloat(map.get("trans"));
                             energy = Integer.parseInt(map.get("energy"));
+                            energyRef = Integer.parseInt(map.get("energyRef"));
                             line = String.format(contentFormatString,
-                                    id, abs, trans, energy);
+                                    id, abs, trans, energy, energyRef);
                             writer.write(line);
                         }
                         writer.flush();
@@ -402,7 +405,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         int s1, s2, s3, s4, s5;
 
         List<AxisValue> axisXValues = new ArrayList<>();
-        if(right - left > 1) {
+        if (right - left > 1) {
             s1 = (int) left;
             s2 = (int) ((left + right) / 4);
             s3 = (int) ((left + right) / 2);
@@ -415,7 +418,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             axisXValues.add(new AxisValue(s5));
         }
         List<AxisValue> axisYValues = new ArrayList<>();
-        if(top - bottom > 1) {
+        if (top - bottom > 1) {
             s1 = (int) bottom;
             s2 = (int) ((top + bottom) / 4);
             s3 = (int) ((top + bottom) / 2);
@@ -428,14 +431,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             axisYValues.add(new AxisValue(s5));
         }
         Axis axisX;
-        if(axisXValues.size() > 0) {
+        if (axisXValues.size() > 0) {
             axisX = new Axis(axisXValues);
         } else {
             axisX = new Axis();
         }
         Axis axisY;
-        if(axisYValues.size() > 0) {
-            axisY =new Axis(axisYValues);
+        if (axisYValues.size() > 0) {
+            axisY = new Axis(axisYValues);
         } else {
             axisY = new Axis();
         }
@@ -465,6 +468,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         item.put("abs", "" + record.getAbs());
         item.put("trans", "" + record.getTrans());
         item.put("energy", "" + record.getEnergy());
+        item.put("energyRef", "" + record.getEnergyRef());
         item.put("date", "" + record.getDate());
         mData[index].add(item);
         mAdapter.add();
@@ -618,23 +622,23 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 Toast.makeText(getActivity(), getString(R.string.notice_save_null), Toast.LENGTH_SHORT).show();
                 return;
             }
-            mSaveDialog.setTitile(getString(R.string.action_save ) + " " + getString(R.string.line) + "1");
+            mSaveDialog.setTitile(getString(R.string.action_save) + " " + getString(R.string.line) + "1");
             mSaveCount = 0;
             mSaveDialog.show(getFragmentManager(), "save");
         } else if (event.op_type == FileOperateEvent.OP_EVENT_PRINT) {
 
-        } else if(event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_FILE_EXPORT) {
 
-        } else if(event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_REZERO) {
             //check baseline is existed
-            if(!DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
+            if (!DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
                 Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
                 return;
             }
-            int [] baseline = DeviceApplication.getInstance().getSpUtils()
+            int[] baseline = DeviceApplication.getInstance().getSpUtils()
                     .getBaseline((int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1));
-            for(int i = 0; i < (int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1); i++) {
-                if(baseline[i] <= 0) {
+            for (int i = 0; i < (int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1); i++) {
+                if (baseline[i] <= 0) {
                     Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -647,7 +651,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             float interval = sp.getWavelengthscanInterval();
             BusProvider.getInstance().post(new RezeroEvent(start, end, speed, interval));
 
-        } else if(event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
+        } else if (event.op_type == FileOperateEvent.OP_EVENT_START_TEST) {
             if (isFake) {
                 for (int i = LINE_MAX - 1; i >= 0; i--) {
                     if (mData[i].size() == 0) {
@@ -669,12 +673,13 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                         int count = (int) ((end - start) / interval);
                         while (count > mData[mCurDataIndex].size()) {
                             int energy = (int) (Math.random() * 1000.0f);
+                            int energyRef = (int) (Math.random() * 1000.0f);
                             float wavelength = end - mData[mCurDataIndex].size() * interval;
                             float abs = (float) (Math.random() * 2);
                             float trans = (float) (Math.random() * 100);
 
                             WavelengthScanRecord record = new WavelengthScanRecord(-1,
-                                    wavelength, abs, trans, energy,
+                                    wavelength, abs, trans, energy, energyRef,
                                     System.currentTimeMillis());
                             addItem(mCurDataIndex, record);
                             updateChart(mCurDataIndex, record);
@@ -718,8 +723,8 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         List<String> fileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
         String fileName = fileList.get(id);
         List<WavelengthScanRecord> lists = DeviceApplication.getInstance().getWavelengthScanDb().getRecords(fileName);
-        if(mData[mCurDataIndex].size() > 0) {
-            mCurDataIndex ++;
+        if (mData[mCurDataIndex].size() > 0) {
+            mCurDataIndex++;
         }
         setCurrentButton();
         for (int i = 0; i < lists.size(); i++) {
@@ -740,7 +745,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             mStartButton.setEnabled(true);
         } else if (event.event_type == WavelengthScanCallbackEvent.EVENT_TYPE_WORKING) {
             WavelengthScanRecord record = new WavelengthScanRecord(-1,
-                    event.wavelength, event.abs, event.trans, event.energy,
+                    event.wavelength, event.abs, event.trans, event.energy, event.energyRef,
                     System.currentTimeMillis());
             addItem(mCurDataIndex, record);
             updateChart(mCurDataIndex, record);
@@ -779,12 +784,13 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                             int count = (int) ((end - start) / interval);
                             while (count > mData[mCurDataIndex].size()) {
                                 int energy = (int) (Math.random() * 1000.0f);
+                                int energyRef = (int) (Math.random() * 1000.0f);
                                 float wavelength = end - mData[mCurDataIndex].size() * interval;
                                 float abs = (float) (Math.random() * 2);
                                 float trans = (float) (Math.random() * 100);
 
                                 WavelengthScanRecord record = new WavelengthScanRecord(-1,
-                                        wavelength, abs, trans, energy,
+                                        wavelength, abs, trans, energy, energyRef,
                                         System.currentTimeMillis());
                                 addItem(mCurDataIndex, record);
                                 updateChart(mCurDataIndex, record);
@@ -834,7 +840,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                         availables++;
                     }
                 }
-                if(availables > 0) {
+                if (availables > 0) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(R.string.notice);
                     builder.setMessage(R.string.sure_to_delete);
@@ -863,14 +869,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 break;
             case R.id.bt_wavelength_scan_rezero:
                 //check baseline is existed
-                if(!DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
+                if (!DeviceApplication.getInstance().getSpUtils().getBaselineAvailable()) {
                     Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                int [] baseline = DeviceApplication.getInstance().getSpUtils()
+                int[] baseline = DeviceApplication.getInstance().getSpUtils()
                         .getBaseline((int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1));
-                for(int i = 0; i < (int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1); i++) {
-                    if(baseline[i] <= 0) {
+                for (int i = 0; i < (int) (DeviceManager.BASELINE_END - DeviceManager.BASELINE_START + 1); i++) {
+                    if (baseline[i] <= 0) {
                         Toast.makeText(getActivity(), R.string.notice_baseline_null, Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -892,6 +898,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
     }
 
     private int selectIndex;
+
     private void showCurrentLines() {
         int avaliables = 0;
         List<String> lineItems = new ArrayList<String>();
@@ -927,11 +934,11 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getActivity(), "delete " + mCurDataIndex, Toast.LENGTH_SHORT).show();
                 mData[selectIndex].clear();
-                if(mCurDataIndex == selectIndex)
+                if (mCurDataIndex == selectIndex)
                     mCurDataIndex = 0;
                 showCurrentLines();
                 setCurrentButton();
-                for(int i = 0; i < LINE_MAX; i++) {
+                for (int i = 0; i < LINE_MAX; i++) {
                     makeNormal(i);
                 }
             }
@@ -1101,12 +1108,14 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
 
         for (int i = 0; i < total; i++) {
             int energy = 0;
+            int energyRef = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
 
             HashMap<String, String> map = mData[id].get(i);
             energy = Integer.parseInt(map.get("energy"));
+            energyRef = Integer.parseInt(map.get("energyRef"));
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             wavelength = Float.parseFloat(map.get("wavelength"));
@@ -1163,24 +1172,29 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             int no = mOperateData.size() + 1;
 
             int energy = 0;
+            int energyRef = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
 
             if (operateType == Utils.OPERATE_TYPE_ADD) {
                 energy = Integer.parseInt(map1.get("energy")) + Integer.parseInt(map1.get("energy"));
+                energyRef = Integer.parseInt(map1.get("energyRef")) + Integer.parseInt(map1.get("energyRef"));
                 abs = Float.parseFloat(map1.get("abs")) + Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) + Float.parseFloat(map2.get("trans"));
             } else if (operateType == Utils.OPERATE_TYPE_SUB) {
                 energy = Integer.parseInt(map1.get("energy")) - Integer.parseInt(map1.get("energy"));
+                energyRef = Integer.parseInt(map1.get("energyRef")) - Integer.parseInt(map1.get("energyRef"));
                 abs = Float.parseFloat(map1.get("abs")) - Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) - Float.parseFloat(map2.get("trans"));
             } else if (operateType == Utils.OPERATE_TYPE_MUL) {
                 energy = Integer.parseInt(map1.get("energy")) * Integer.parseInt(map1.get("energy"));
+                energyRef = Integer.parseInt(map1.get("energyRef")) * Integer.parseInt(map1.get("energyRef"));
                 abs = Float.parseFloat(map1.get("abs")) * Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) * Float.parseFloat(map2.get("trans"));
             } else if (operateType == Utils.OPERATE_TYPE_DIV) {
                 energy = Integer.parseInt(map1.get("energy")) / Integer.parseInt(map1.get("energy"));
+                energyRef = Integer.parseInt(map1.get("energyRef")) / Integer.parseInt(map1.get("energyRef"));
                 abs = Float.parseFloat(map1.get("abs")) / Float.parseFloat(map2.get("abs"));
                 trans = Float.parseFloat(map1.get("trans")) / Float.parseFloat(map2.get("trans"));
             }
@@ -1192,6 +1206,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             item.put("abs", Utils.formatAbs(abs));
             item.put("trans", Utils.formatTrans(trans));
             item.put("energy", "" + energy);
+            item.put("energyRef", "" + energyRef);
             mOperateData.add(item);
         }
         mAdapter.setData(mOperateData);
@@ -1199,6 +1214,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         for (int i = 0; i < mOperateData.size(); i++) {
             int index = 0;
             int energy = 0;
+            int energyRef = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
@@ -1206,11 +1222,12 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             HashMap<String, String> map = mOperateData.get(i);
             index = Integer.parseInt(map.get("id"));
             energy = Integer.parseInt(map.get("energy"));
+            energyRef = Integer.parseInt(map.get("energyRef"));
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             wavelength = Float.parseFloat(map.get("wavelength"));
             updateOperateChart(new WavelengthScanRecord(index, wavelength, abs, trans,
-                    energy, System.currentTimeMillis()));
+                    energy, energyRef, System.currentTimeMillis()));
         }
     }
 
@@ -1229,6 +1246,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         for (int i = 0; i < mData[id].size(); i++) {
             int index = 0;
             int energy = 0;
+            int energyRef = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
@@ -1236,6 +1254,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             HashMap<String, String> map = mData[id].get(i);
             index = Integer.parseInt(map.get("id"));
             energy = Integer.parseInt(map.get("energy"));
+            energyRef = Integer.parseInt(map.get("energyRef"));
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             wavelength = Float.parseFloat(map.get("wavelength"));
@@ -1264,10 +1283,10 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             }
         }
 */
-        for(int i = 1; i < totalSize - 1; i++) {
-            if((data[i + 1] - data[i]) * (data[i] - data[i - 1]) < 0) {
+        for (int i = 1; i < totalSize - 1; i++) {
+            if ((data[i + 1] - data[i]) * (data[i] - data[i - 1]) < 0) {
                 ind2[ind_count2] = i;
-                ind_count2 ++;
+                ind_count2++;
             }
         }
         for (int i = 0; i < ind_count2 - 1; i++) {
@@ -1294,6 +1313,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         for (int i = 0; i < mPeakData.size(); i++) {
             int index = 0;
             int energy = 0;
+            int energyRef = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
@@ -1301,11 +1321,12 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             HashMap<String, String> map = mPeakData.get(i);
             index = Integer.parseInt(map.get("id"));
             energy = Integer.parseInt(map.get("energy"));
+            energyRef = Integer.parseInt(map.get("energyRef"));
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             wavelength = Float.parseFloat(map.get("wavelength"));
             updatePeakChart(new WavelengthScanRecord(index, wavelength, abs, trans,
-                    energy, System.currentTimeMillis()));
+                    energy, energyRef, System.currentTimeMillis()));
         }
     }
 
@@ -1321,6 +1342,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
         for (int i = 0; i < mData[id].size(); i++) {
             int index = 0;
             int energy = 0;
+            int energyRef = 0;
             float abs = 0.0f;
             float trans = 0.0f;
             float wavelength = 0.0f;
@@ -1328,11 +1350,12 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
             HashMap<String, String> map = mData[id].get(i);
             index = Integer.parseInt(map.get("id"));
             energy = Integer.parseInt(map.get("energy"));
+            energyRef = Integer.parseInt(map.get("energyRef"));
             abs = Float.parseFloat(map.get("abs"));
             trans = Float.parseFloat(map.get("trans"));
             wavelength = Float.parseFloat(map.get("wavelength"));
             updateChart(id, new WavelengthScanRecord(index, wavelength, abs, trans,
-                    energy, System.currentTimeMillis()));
+                    energy, energyRef, System.currentTimeMillis()));
         }
     }
 }
