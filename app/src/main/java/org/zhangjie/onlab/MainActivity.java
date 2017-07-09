@@ -2341,7 +2341,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     private void fileManagerment() {
         String[] items = getResources().getStringArray(R.array.open_titles);
-        Utils.showItemSelectDialog(this, getString(R.string.action_delete)
+        Utils.showItemSelectDialog(this, getString(R.string.file_manager)
                 , items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, final int which) {
