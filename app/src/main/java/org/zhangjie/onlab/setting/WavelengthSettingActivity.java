@@ -80,6 +80,28 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
         mDialog = new SettingEditDialog();
     }
 
+    private void checkBeforeExit() {
+        Log.d(TAG, "check before exit!!");
+
+        float tmp;
+        float start = DeviceApplication.getInstance().getSpUtils().getWavelengthscanStart();
+        float end = DeviceApplication.getInstance().getSpUtils().getWavelengthscanEnd();
+
+        if(start > end) {
+            tmp = end;
+            end = start;
+            start = tmp;
+            DeviceApplication.getInstance().getSpUtils().setKeyWavelengthscanStart(start);
+            DeviceApplication.getInstance().getSpUtils().setKeyWavelengthscanEnd(end);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        checkBeforeExit();
+        super.onBackPressed();
+    }
+
     private void initView() {
         mToolbar = (Toolbar) findViewById(R.id.tb_wavelengthscan_setting);
         setSupportActionBar(mToolbar);
@@ -88,6 +110,7 @@ public class WavelengthSettingActivity extends AppCompatActivity implements View
             @Override
             public void onClick(View v) {
                 WavelengthSettingActivity.this.setResult(RESULT_OK);
+                checkBeforeExit();
                 finish();
             }
         });

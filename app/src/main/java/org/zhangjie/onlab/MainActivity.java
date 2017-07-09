@@ -1296,9 +1296,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             } else if (mSampleWavelength == wavelength3) {
                 mSampleAbs3 = 0;
             }
-        } else if (tag.startsWith("ge 5")) {
+        } else if (tag.startsWith("ge2 5")) {
             int[] energies = new int[5];
             int I1 = 0;
+            int[] energiesRef = new int[5];
+            int I1Ref = 0;
             float abs = 0;
 
             for (int i = 0; i < 5; i++) {
@@ -1306,11 +1308,22 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 energies[i] = Integer.parseInt(msg[i + 1], 10);
                 I1 += energies[i];
             }
+            for (int i = 5; i < 10; i++) {
+                msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energiesRef[i - 5] = Integer.parseInt(msg[i + 1], 10);
+                I1Ref += energiesRef[i - 5];
+            }
             I1 /= 5;
+            I1Ref /= 5;
 
             int gain = mDeviceManager.getGainFromBaseline((int) mSampleWavelength);
-            float trans = (float) (I1 - mDark[gain - 1]) /
-                    (float) (mDeviceManager.getDarkFromWavelength(mSampleWavelength) - mDark[gain - 1]);
+            int i0 = mDeviceManager.getDarkFromWavelength(mSampleWavelength);
+            int gainRef = mDeviceManager.getGainFromBaselineRef((int) mSampleWavelength);
+            int i0Ref = mDeviceManager.getDarkRefFromWavelength(mSampleWavelength);
+
+            int I0 = (I1Ref - mDarkRef[gainRef - 1]) * (i0 - mDark[gain - 1]) / (i0Ref - mDarkRef[gainRef - 1]);
+            float trans = (float) (I1 - mDark[gain - 1]) / (float) I0;
+
             abs = (float) -Math.log10(trans);
             abs = Utils.getValidAbs(abs);
             if (mSampleWavelength == wavelength1) {
@@ -1350,13 +1363,21 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
             msgs[1] = msgs[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             msgs[2] = msgs[2].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[3] = msgs[3].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            msgs[4] = msgs[4].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             mI0 = Integer.parseInt(msgs[1]);
             mA = Integer.parseInt(msgs[2]);
+            mI0Ref = Integer.parseInt(msgs[3]);
+            mARef = Integer.parseInt(msgs[4]);
 
             int I0 = Integer.parseInt(msgs[1]);
             mDeviceManager.setDark(mQaWavelength, I0);
             int gain = Integer.parseInt(msgs[2]);
             mDeviceManager.setGain((int) mQaWavelength, gain);
+            int I0Ref = Integer.parseInt(msgs[3]);
+            mDeviceManager.setDarkRef(mQaWavelength, I0Ref);
+            int gainRef = Integer.parseInt(msgs[4]);
+            mDeviceManager.setGainRef((int) mQaWavelength, gainRef);
 
             if (mQuantitativeAnalysisFragment.isLastWavelength(mQaWavelength)) {
                 Log.d(TAG, "do qa rezero done!");
