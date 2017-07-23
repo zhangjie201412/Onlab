@@ -99,7 +99,7 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_ONLINE = "online";
     public static final String TAG_GET_LAMP_WAVELENGTH = "getlampwl";
     public static final String TAG_SET_LAMP_WAVELENGTH = "setlampwl";
-    public static final String TAG_RESET_DARK = "resetdar2";
+    public static final String TAG_RESET_DARK = "resetdark2";
 
     public static final float BASELINE_END = 1100;//1100;
     public static final float BASELINE_START = 190;//190;

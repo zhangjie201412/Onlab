@@ -942,8 +942,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             wl = wl.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             Log.d(TAG, "rezero wl = " + wl);
             mDorezeroWavelength = Float.parseFloat(wl);
+            String wavelengthString = String.format("%.1f", mDorezeroWavelength);
             mWaitDialog.setMessage(getString(R.string.rezero_message)
-                    + "(" + mDorezeroWavelength + getString(R.string.nm) + ")");
+                    + "(" + wavelengthString + getString(R.string.nm) + ")");
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
             mRezeroStep = REZERO_STEP_SAMPLE;
         } else if (tag.startsWith(DeviceManager.TAG_SET_R)) {
