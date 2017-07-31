@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
             if (left > 0) {
                 TextView tv = (TextView) mWarmAlertDialog.findViewById(R.id.tv_dialog_content);
-                tv.setText(getString(R.string.skip_warm) + Utils.secondToMinute(left));
+                tv.setText(Utils.secondToMinute(left));
             } else {
                 if (mWarmAlertDialog.isShowing()) {
                     mWarmAlertDialog.dismiss();
@@ -1564,7 +1564,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         mWarmAlertDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.warm)
                 .setView(view)
-                .setPositiveButton(R.string.ok_string, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.skip, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mDeviceManager.skip();

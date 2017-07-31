@@ -14,6 +14,7 @@
     <string name="action_dark_current">Dark Current</string>
     <string name="wavelength">WL</string>
     <string name="abs">Abs</string>
+    <string name="time">Time</string>
     <string formatted="false" name="trans">%T(%R)</string>
     <string name="action_settings">Setting</string>
     <string name="photometric_measurement">Photometric</string>
@@ -162,6 +163,7 @@
     <string name="para">System parameter ------ </string>
     <string name="dark">Dark current ------ </string>
     <string name="warm">warm up</string>
+    <string name="skip">skip</string>
     <string name="ing">...</string>
     <string name="done">OK</string>
     <string name="skip_warm">Skip warm up</string>

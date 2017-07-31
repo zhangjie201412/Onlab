@@ -115,6 +115,8 @@ public class MultiSelectionAdapter extends BaseAdapter {
             } else if (mKeys[i].equals("conc")) {
                 fval = Float.parseFloat(mData.get(position).get("conc"));
                 holder.conc.setText(Utils.formatConc(fval));
+            } else if (mKeys[i].equals("second")) {
+                holder.id.setText(mData.get(position).get("second"));
             } else if (mKeys[i].equals("abs1")) {
                 fval = Float.parseFloat(mData.get(position).get("abs1"));
                 holder.abs1.setText(Utils.formatAbs(fval));
@@ -199,6 +201,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
         public TextView trans;
         public TextView energy;
         public TextView conc;
+        public TextView second;
         public TextView abs1;
         public TextView abs2;
         public TextView absRef;
@@ -224,6 +227,8 @@ public class MultiSelectionAdapter extends BaseAdapter {
                 trans = tv;
             } else if (key.equals("energy")) {
                 energy = tv;
+            } else if(key.equals("second")) {
+                second = tv;
             } else if (key.equals("conc")) {
                 conc = tv;
             } else if (key.equals("abs1")) {

@@ -14,6 +14,7 @@
     <string name="action_dark_current">暗电流测试</string>
     <string name="wavelength">波长</string>
     <string name="abs">吸光度</string>
+    <string name="time">时间</string>
     <string name="trans">透过率</string>
     <string name="action_settings">设置</string>
     <string name="photometric_measurement">光度测量</string>
@@ -162,6 +163,7 @@
     <string name="para">系统参数</string>
     <string name="dark">暗电流</string>
     <string name="warm">系统预热</string>
+    <string name="skip">跳过</string>
     <string name="ing">...</string>
     <string name="done">完成</string>
     <string name="skip_warm">跳过系统预热</string>

@@ -16,6 +16,17 @@
         android:textSize="@dimen/list_text_size" />
 
     <TextView
+        android:id="@+id/item_second"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/list_margin_top_bottom"
+        android:layout_marginTop="@dimen/list_margin_top_bottom"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:textColor="@color/color_content_text"
+        android:textSize="@dimen/list_text_size" />
+
+    <TextView
         android:id="@+id/item_abs"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

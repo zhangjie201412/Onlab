@@ -203,13 +203,13 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mAdapter = new MultiSelectionAdapter(getContext(), mData[mCurDataIndex],
                     R.layout.item_time_scan,
-                    new String[]{"id", "abs", "trans", "energy"},
-                    new int[]{R.id.item_index, R.id.item_abs, R.id.item_trans, R.id.item_energy});
+                    new String[]{"id", "second", "abs", "trans", "energy"},
+                    new int[]{R.id.item_index, R.id.item_second, R.id.item_abs, R.id.item_trans, R.id.item_energy});
         } else {
             mAdapter = new MultiSelectionAdapter(getActivity(), mData[mCurDataIndex],
                     R.layout.item_time_scan,
-                    new String[]{"id", "abs", "trans", "energy"},
-                    new int[]{R.id.item_index, R.id.item_abs, R.id.item_trans, R.id.item_energy});
+                    new String[]{"id", "second", "abs", "trans", "energy"},
+                    new int[]{R.id.item_index, R.id.item_second, R.id.item_abs, R.id.item_trans, R.id.item_energy});
         }
         mListView.setAdapter(mAdapter);
         mAdapter.registerDataSetObserver(new DataSetObserver() {
