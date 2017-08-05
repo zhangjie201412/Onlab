@@ -68,6 +68,7 @@ import org.zhangjie.onlab.otto.UpdateFragmentEvent;
 import org.zhangjie.onlab.otto.WaitProgressEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCallbackEvent;
 import org.zhangjie.onlab.otto.WavelengthScanCancelEvent;
+import org.zhangjie.onlab.utils.Base32;
 import org.zhangjie.onlab.utils.MD5;
 import org.zhangjie.onlab.utils.SharedPreferenceUtils;
 import org.zhangjie.onlab.utils.Utils;
@@ -1051,7 +1052,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             int gain = Integer.parseInt(msgs[2]);
             mDeviceManager.setGain((int) mMultipleWavelength, gain);
             mDeviceManager.setDarkRef(mMultipleWavelength, mI0Ref);
-            mDeviceManager.setGainRef((int)mMultipleWavelength, mARef);
+            mDeviceManager.setGainRef((int) mMultipleWavelength, mARef);
 
             if (mMultipleWavelength ==
                     MultipleWavelengthFragment.mOrderWavelengths[MultipleWavelengthFragment.mOrderWavelengths.length - 1]) {
@@ -1463,12 +1464,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        String input = "74ODANEALACA85B5AE";
-//
-//        String enc = Utils.encode(KEY, input);
-//        String dec = Utils.encode(KEY, enc);
-//        Log.d(TAG, "##enc = " + enc);
-//        Log.d(TAG, "##dec = " + dec);
+        String input = "884AEA69DC36";
+
+        String encode = Base32.encode(input);
+        Log.d(TAG, "####encode = " + encode);
+        String decode = Base32.decode(encode);
+        Log.d(TAG, "####decode = " + decode);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -2485,21 +2486,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     }
 
     private void checkLicense(String inputLicense) {
-        if (inputLicense.charAt(2) == 'O' ||
-                inputLicense.charAt(5) == 'N' ||
-                inputLicense.charAt(8) == 'L' ||
-                inputLicense.charAt(11) == 'A' ||
-                inputLicense.charAt(14) == 'B' ||
-                inputLicense.charAt(17) == 'E') {
-            String macAddress = inputLicense.substring(0, 2) + ":" +
-                    inputLicense.substring(3, 5) + ":" +
-                    inputLicense.substring(6, 8) + ":" +
-                    inputLicense.substring(9, 11) + ":" +
-                    inputLicense.substring(12, 14) + ":" +
-                    inputLicense.substring(15, 17);
-            Log.d(TAG, "MAC ADDRESS: " + macAddress);
-            DeviceApplication.getInstance().getSpUtils().setKeyMacAddress(macAddress);
-        }
+        Log.d(TAG, "####input license = " + inputLicense);
+        String macAddress = inputLicense.substring(0, 2) + ":" +
+                inputLicense.substring(2, 4) + ":" +
+                inputLicense.substring(4, 6) + ":" +
+                inputLicense.substring(6, 8) + ":" +
+                inputLicense.substring(8, 10) + ":" +
+                inputLicense.substring(10, 12);
+        Log.d(TAG, "####MAC ADDRESS: " + macAddress);
+        DeviceApplication.getInstance().getSpUtils().setKeyMacAddress(macAddress);
     }
 
     public String KEY = "0123456789ABCDEFGH";
@@ -2517,12 +2512,12 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String inputLicense = license.getEditableText().toString();
-                        if (inputLicense.length() != 18) {
+                        if (inputLicense.length() != 20) {
                             toastShow(getString(R.string.notice_invalid_license));
                             return;
                         }
                         //parse password
-                        inputLicense = Utils.decode(KEY, inputLicense);
+                        inputLicense = Base32.decode(inputLicense);
                         checkLicense(inputLicense);
                     }
                 }).setNegativeButton(getString(R.string.cancel_string), null)
