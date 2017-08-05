@@ -223,7 +223,7 @@ public class Utils {
         byte[] b = enc.getBytes(charset);
         for(int i = 0, size = b.length; i < size; i++) {
             for(byte keyBytes0: keyBytes) {
-                b[i] = (byte)(b[i]^keyBytes0);
+               // b[i] = (byte)(b[i]^keyBytes0);
             }
         }
         return new String(b);
@@ -235,7 +235,7 @@ public class Utils {
         byte[] dee = e;
         for(int i = 0, size = e.length; i < size; i++) {
             for(byte keyBytes0: keyBytes) {
-                e[i] = (byte)(dee[i]^keyBytes0);
+               // e[i] = (byte)(dee[i]^keyBytes0);
             }
         }
         return new String(e);
