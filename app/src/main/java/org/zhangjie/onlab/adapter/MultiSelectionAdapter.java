@@ -116,7 +116,7 @@ public class MultiSelectionAdapter extends BaseAdapter {
                 fval = Float.parseFloat(mData.get(position).get("conc"));
                 holder.conc.setText(Utils.formatConc(fval));
             } else if (mKeys[i].equals("second")) {
-                holder.id.setText(mData.get(position).get("second"));
+                holder.second.setText(mData.get(position).get("second"));
             } else if (mKeys[i].equals("abs1")) {
                 fval = Float.parseFloat(mData.get(position).get("abs1"));
                 holder.abs1.setText(Utils.formatAbs(fval));

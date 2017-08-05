@@ -113,7 +113,7 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
         mStartValue = (TextView) findViewById(R.id.start_time_value);
         mEndValue = (TextView) findViewById(R.id.end_time_value);
         mIntervalValue = (TextView) findViewById(R.id.time_interval_value);
-        mDelayValue = (TextView)findViewById(R.id.time_delay_value) ;
+        mDelayValue = (TextView) findViewById(R.id.time_delay_value);
         mTestModeValue = (TextView) findViewById(R.id.test_mode_value);
         mLimitUpValue = (TextView) findViewById(R.id.limit_up_value);
         mLimitDownValue = (TextView) findViewById(R.id.limit_down_value);
@@ -173,12 +173,11 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
             mDialog.init(v.getId(), getString(R.string.title_timescan_setting_x),
                     getString(R.string.title_timescan_interval), this);
             mDialog.show(getFragmentManager(), "interval");
-        } else if(v.getId() == R.id.layout_time_delay) {
+        } else if (v.getId() == R.id.layout_time_delay) {
             mDialog.init(v.getId(), getString(R.string.title_timescan_setting_x),
                     getString(R.string.title_timescan_delay), this);
             mDialog.show(getFragmentManager(), "delay");
-        }
-        else if (v.getId() == R.id.layout_test_mode) {
+        } else if (v.getId() == R.id.layout_test_mode) {
             final String[] items = new String[2];
             items[0] = getString(R.string.abs_with_unit);
             items[1] = getString(R.string.trans_with_unit);
@@ -190,10 +189,10 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
                             mTestModeValue.setText(items[which]);
                             DeviceApplication.getInstance().getSpUtils().setKeyTimescanTestMode(which);
                             //update limit up and down
-                            if(which == TEST_MODE_ABS) {
+                            if (which == TEST_MODE_ABS) {
                                 DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitUp(Utils.DEFAULT_ABS_VALUE);
                                 DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitDown(0.0f);
-                            } else if(which == TEST_MODE_TRANS) {
+                            } else if (which == TEST_MODE_TRANS) {
                                 DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitUp(Utils.DEFAULT_TRANS_VALUE);
                                 DeviceApplication.getInstance().getSpUtils().setKeyTimescanLimitDown(0.0f);
                             }
@@ -231,8 +230,18 @@ public class TimescanSettingActivity extends AppCompatActivity implements View.O
         switch (index) {
             case R.id.layout_work_wavelength:
                 Log.d(TAG, "wavelength = " + setting);
-                mWavelengthValue.setText(setting + " " + getString(R.string.nm));
-                DeviceApplication.getInstance().getSpUtils().setKeyTimescanWorkWavelength(Float.parseFloat(setting));
+                float wl = Float.parseFloat(setting);
+                if (Utils.checkWavelengthInvalid(this, wl)) {
+                    mWavelengthValue.setText(setting + " " + getString(R.string.nm));
+                    DeviceApplication.getInstance().getSpUtils().setKeyTimescanWorkWavelength(Float.parseFloat(setting));
+                } else {
+                    mWavelengthValue.setText(""
+                            + DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength()
+                            + " " + getString(R.string.nm));
+                    DeviceApplication.getInstance().getSpUtils().setKeyTimescanWorkWavelength(
+                            DeviceApplication.getInstance().getSpUtils().getTimescanWorkWavelength()
+                    );
+                }
                 break;
             case R.id.layout_start_time:
                 Log.d(TAG, "start time = " + setting);

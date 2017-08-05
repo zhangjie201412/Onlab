@@ -97,6 +97,26 @@
             android:text="@string/create_baseline"
             android:textColor="@color/color_button" />
         <Button
+            android:id="@+id/bt_baseline_open"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
+            android:text="@string/action_open"
+            android:textColor="@color/color_button" />
+        <Button
+            android:id="@+id/bt_baseline_delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/button_margin"
+            android:layout_weight="1"
+            android:background="@drawable/bg_button"
+            android:minHeight="@dimen/button_min_height"
+            android:text="@string/action_delete"
+            android:textColor="@color/color_button" />
+        <Button
             android:id="@+id/bt_baseline_save"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

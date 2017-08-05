@@ -32,6 +32,8 @@ public class BaselineDialog extends DialogFragment {
 
     private ListView mListView;
     private Button mStart;
+    private Button mOpen;
+    private Button mDelete;
     private Button mSave;
     private Button mApply;
     private boolean stop = true;
@@ -45,6 +47,8 @@ public class BaselineDialog extends DialogFragment {
 
     public interface BaselineOperateListener {
         void onStart();
+        void onOpen();
+        void onDelete();
 
         void onStop();
     }
@@ -74,6 +78,8 @@ public class BaselineDialog extends DialogFragment {
         mListView.setAdapter(mAdapter);
 
         mStart = (Button) view.findViewById(R.id.bt_baseline_start);
+        mOpen = (Button)view.findViewById(R.id.bt_baseline_open);
+        mDelete = (Button)view.findViewById(R.id.bt_baseline_delete);
         mSave = (Button) view.findViewById(R.id.bt_baseline_save);
         mApply = (Button) view.findViewById(R.id.bt_baseline_apply);
 
@@ -86,6 +92,21 @@ public class BaselineDialog extends DialogFragment {
                     stop = false;
                     mStart.setEnabled(false);
                 }
+            }
+        });
+        mOpen.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                mListener.onOpen();
+                dismiss();
+            }
+        });
+        mDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onDelete();
+//                dismiss();
             }
         });
         mSave.setOnClickListener(new View.OnClickListener() {

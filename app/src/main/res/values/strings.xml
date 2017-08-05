@@ -179,6 +179,7 @@
     <string name="tungsten_clear_time">Clear W lamp time</string>
     <string name="set_switch_wavelength">Set WL of switch lamp</string>
     <string name="reset_dark">Refresh dark current</string>
+    <string name="adjust_wl">Adjusting wavelength</string>
     <string name="analysis_method">Method</string>
     <string name="method_one">Method 1</string>
     <string name="method_two">Method 2</string>
@@ -214,6 +215,11 @@
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_WL</string>
+    <string name="sample_dark_current">Sample dark current</string>
+    <string name="reference_dark_current">Reference dark current</string>
+    <string name="app_company">Onlab Shanghai</string>
+    <string name="app_copy_right">Copyright © 2016 Onlab. All Rights Reserved.</string>
+    <string name="system_baseline">System Baseline</string>
 
     <string-array name="operations">
         <item>Add</item>

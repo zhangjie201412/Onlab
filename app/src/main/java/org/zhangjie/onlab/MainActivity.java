@@ -35,6 +35,7 @@ import org.zhangjie.onlab.ble.BtleManager;
 import org.zhangjie.onlab.device.DeviceManager;
 import org.zhangjie.onlab.dialog.BaselineDialog;
 import org.zhangjie.onlab.dialog.BaselineDialog.BaselineOperateListener;
+import org.zhangjie.onlab.dialog.DarkCurrentDialog;
 import org.zhangjie.onlab.dialog.DeviceCheckDialog;
 import org.zhangjie.onlab.dialog.DevicesSelectDialog;
 import org.zhangjie.onlab.dialog.LightMgrDialog;
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
     private BaselineDialog mBaselineDialog;
     private LightMgrDialog mLightMgrDialog;
+    private DarkCurrentDialog mDarkCurrentDialog;
 
     private Handler mUiHandler = new Handler() {
         @Override
@@ -506,8 +508,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             I1Ref /= 5;
 
             if (mA > 0) {
-                Log.d(TAG, "$$$$ wavelength = xxxx" + ", I1 = " + I1 + ", gain = " + mA + ", I0 = " + mI0);
-                int I0 = (I1Ref - mDarkRef[mA - 1]) * (mI0 - mDark[mA - 1]) / (mI0Ref - mDarkRef[mARef - 1]);
+                int I0 = (I1Ref - mDarkRef[mARef - 1]) * (mI0 - mDark[mA - 1]) / (mI0Ref - mDarkRef[mARef - 1]);
                 trans = (float) (I1 - mDark[mA - 1]) / (float) I0;
                 abs = (float) -Math.log10(trans);
                 //get valid trans and abs
@@ -546,13 +547,16 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 energiesRef[i - 6] = Integer.parseInt(msg[i + 1], 10);
                 I1Ref += energiesRef[i - 6];
             }
-            I1 /= 8;
-            I1Ref /= 8;
-            Log.d(TAG, "energy = " + I1);
-            Log.d(TAG, "energyRef = " + I1Ref);
-
+            I1 /= 6;
+            I1Ref /= 6;
+//            Log.d(TAG, "energy = " + I1);
+//            Log.d(TAG, "energyRef = " + I1Ref);
+//            Log.d(TAG, "mA = " + mA);
+//            Log.d(TAG, "mARef = " + mARef);
+//            Log.d(TAG, "mDark[mA - 1] = " + mDark[mA - 1]);
+//            Log.d(TAG, "mDarkRef[mA - 1] = " + mDarkRef[mA - 1]);
             if (mA > 0) {
-                int I0 = (I1Ref - mDarkRef[mA - 1]) * (mI0 - mDark[mA - 1]) / (mI0Ref - mDarkRef[mARef - 1]);
+                int I0 = (I1Ref - mDarkRef[mARef - 1]) * (mI0 - mDark[mA - 1]) / (mI0Ref - mDarkRef[mARef - 1]);
                 trans = (float) (I1 - mDark[mA - 1]) / (float) I0;
                 abs = (float) -Math.log10(trans);
                 trans = Utils.getValidTrans(trans);
@@ -600,7 +604,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             Log.d(TAG, "energyRef = " + I1Ref);
 
             if (mA > 0) {
-                int I0 = (I1Ref - mDarkRef[mA - 1]) * (mI0 - mDark[mA - 1]) / (mI0Ref - mDarkRef[mARef - 1]);
+                int I0 = (I1Ref - mDarkRef[mARef - 1]) * (mI0 - mDark[mA - 1]) / (mI0Ref - mDarkRef[mARef - 1]);
                 trans = (float) (I1 - mDark[mA - 1]) / (float) I0;
                 abs = (float) -Math.log10(trans);
                 trans = Utils.getValidTrans(trans);
@@ -1395,9 +1399,6 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         String tag = msg[0];
         Log.d(TAG, "single command -> " + tag);
 
-        //restart main loop
-        mDeviceManager.setLoopThreadRestart();
-
         if (tag.startsWith(DeviceManager.TAG_RESET_DARK)) {
             dismissDialog();
             //get dark
@@ -1409,8 +1410,17 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
                 mDarkRef[i - 8] = Integer.parseInt(msg[i + 1]);
             }
+            //show list dialog
+            mDarkCurrentDialog.setData(mDark, mDarkRef);
+            mDarkCurrentDialog.show(getFragmentManager(), "DarkCurrent");
+            //restart main loop
+            mDeviceManager.setLoopThreadRestart();
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
             dismissDialog();
+            mDeviceManager.setLoopThreadRestart();
+        } else if (tag.startsWith(DeviceManager.TAG_ADJUST_WL)) {
+            dismissDialog();
+            mDeviceManager.setLoopThreadRestart();
         }
     }
 
@@ -1511,12 +1521,63 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
 
         mDeviceCheckDialog = new DeviceCheckDialog();
 
+        mDarkCurrentDialog = new DarkCurrentDialog();
         mBaselineDialog = new BaselineDialog();
         mBaselineDialog.setListener(new BaselineOperateListener() {
             @Override
             public void onStart() {
                 baselineInit();
                 mDeviceManager.baselineWork((int) DeviceManager.BASELINE_END, DeviceManager.GAIN_MAX, DeviceManager.GAIN_MAX);
+            }
+
+            @Override
+            public void onDelete() {
+                final List<String> saveFileList = DeviceApplication.getInstance().getBaselineDb().getTables();
+
+                if (saveFileList.size() == 0) {
+                    toastShow(getString(R.string.notice_null_baseline_available));
+//                    mBaselineDialog.setLoadFileId(-1);
+//                    mBaselineDialog.show(getFragmentManager(), "baseline");
+                } else {
+                    Utils.showItemSelectDialog(MainActivity.this, getString(R.string.system_baseline)
+                            , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, final int which) {
+                                    Utils.showAlertDialog(MainActivity.this, getString(R.string.notice),
+                                            getString(R.string.sure_to_delete),
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int unused) {
+                                                    DeviceApplication.getInstance().getBaselineDb().delRecord(saveFileList.get(which));
+                                                }
+                                            });
+//                                    //load the baseline
+//                                    mBaselineDialog.setLoadFileId(which);
+//                                    mBaselineDialog.show(getFragmentManager(), "baseline");
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onOpen() {
+                List<String> saveFileList = DeviceApplication.getInstance().getBaselineDb().getTables();
+
+                if (saveFileList.size() == 0) {
+                    toastShow(getString(R.string.notice_null_baseline_available));
+                    mBaselineDialog.setLoadFileId(-1);
+                    mBaselineDialog.show(getFragmentManager(), "baseline");
+                } else {
+                    Utils.showItemSelectDialog(MainActivity.this, getString(R.string.system_baseline)
+                            , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //load the baseline
+                                    mBaselineDialog.setLoadFileId(which);
+                                    mBaselineDialog.show(getFragmentManager(), "baseline");
+                                }
+                            });
+                }
             }
 
             @Override
@@ -1552,7 +1613,10 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 public void run() {
                     try {
                         Thread.sleep(1000);
-                        mDeviceManager.scan();
+                        while (!mIsBluetoothConnected) {
+                            mDeviceManager.scan();
+                            Thread.sleep(10000);
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -1825,8 +1889,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                 BusProvider.getInstance().post(new FileOperateEvent(FileOperateEvent.OP_EVENT_START_TEST));
                 break;
             case R.id.action_dark_current:
-                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
+                mDeviceManager.setLoopThreadPause();
                 loadResetDarkDialog();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(500);
+                            mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
                 break;
             case R.id.action_peak_distance:
                 mPeakDialog.show(getFragmentManager(), "peak");
@@ -1843,7 +1918,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     mBaselineDialog.setLoadFileId(-1);
                     mBaselineDialog.show(getFragmentManager(), "baseline");
                 } else {
-                    Utils.showItemSelectDialog(this, getString(R.string.action_open)
+                    Utils.showItemSelectDialog(this, getString(R.string.system_baseline)
                             , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -2061,6 +2136,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     mHandler.removeCallbacks(callback);
                 }
             });
+        }
+    }
+
+    private void loadAdjustWlDialog() {
+        if (!mWaitDialog.isShowing()) {
+            mWaitDialog.setMessage(getString(R.string.adjust_wl));
+            mWaitDialog.show();
         }
     }
 
@@ -2285,12 +2367,34 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case SYSTEM_SETTING_ITEM_WAVELENGTH_ADJUST:
-//                mWavelengthDialog.show(getFragmentManager(), getString(R.string.wavelength));
-                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_ADJUST_WL);
+                mDeviceManager.setLoopThreadPause();
+                loadAdjustWlDialog();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(500);
+                            mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_ADJUST_WL);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
                 break;
             case SYSTEM_SETTING_ITEM_DARK_CURRENT_ADJUST:
-                mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
+                mDeviceManager.setLoopThreadPause();
                 loadResetDarkDialog();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(500);
+                            mDeviceManager.doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_DARK);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
                 break;
             case SYSTEM_SETTING_ITEM_LIGHT_MANAGERMENT:
                 mLightMgrDialog.show(getFragmentManager(), "light_mgr");
@@ -2307,7 +2411,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
                     mBaselineDialog.setLoadFileId(-1);
                     mBaselineDialog.show(getFragmentManager(), "baseline");
                 } else {
-                    Utils.showItemSelectDialog(this, getString(R.string.action_open)
+                    Utils.showItemSelectDialog(this, getString(R.string.system_baseline)
                             , saveFileList.toArray(new String[saveFileList.size()]), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {

@@ -179,6 +179,7 @@
     <string name="tungsten_clear_time">钨灯时间清零</string>
     <string name="set_switch_wavelength">设置切换波长</string>
     <string name="reset_dark">正在校正暗电流</string>
+    <string name="adjust_wl">正在校正波长</string>
     <string name="analysis_method">分析方法</string>
     <string name="method_one">方法一</string>
     <string name="method_two">方法二</string>
@@ -200,7 +201,7 @@
     <string name="notice_baseline_null">请先做系统基线</string>
     <string name="notice_null_baseline_available">当前没有保存的系统基线</string>
     <string name="apply_baseline">使用当前基线</string>
-    <string name="create_baseline">建立基线</string>
+    <string name="create_baseline">新建</string>
     <string name="apply_done">已使用当前基线</string>
     <string name="title_conc_setting">浓度设定(Y轴)</string>
     <string name="title_conc_start">最小浓度</string>
@@ -214,6 +215,11 @@
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
     <string name="key_timescan_setting_work_wavelength">key_setting_timescan_work_wavelength</string>
+    <string name="sample_dark_current">样品暗电流</string>
+    <string name="reference_dark_current">参照物暗电流</string>
+    <string name="app_company">上海昂拉仪器有限公司 版权所有</string>
+    <string name="app_copy_right">Copyright © 2016 Onlab. All Rights Reserved.</string>
+    <string name="system_baseline">系统基线</string>
 
     <string-array name="operations">
         <item>加法</item>
