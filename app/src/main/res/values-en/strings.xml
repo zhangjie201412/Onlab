@@ -3,7 +3,7 @@
 
     <string name="bluetooth_disconnected">Disconnected</string>
     <string name="bluetooth_connected">Connected</string>
-    <string name="main">Main</string>
+    <string name="main">Main  Menu</string>
     <string name="action_open">Open</string>
     <string name="action_save">Save</string>
     <string name="action_file_export">File Export</string>
@@ -53,7 +53,7 @@
     <string name="method_fitting_one">Linear fit</string>
     <string name="unit_ug_ml">ug/ml</string>
     <string name="notice_string">Notice</string>
-    <string name="sure_to_delete">Are you sure to delete?</string>
+    <string name="sure_to_delete">Please confirm.</string>
     <string name="set_wavelength_message">Set WL...</string>
     <string name="data_processing_message">Processing...</string>
     <string name="connect_done">Connect OK!</string>
@@ -173,11 +173,11 @@
     <string name="calc_ratio">Factor</string>
     <string name="calc_speed_title">Calculated the rate</string>
     <string name="calc_speed_result">Rate: </string>
-    <string name="deuterium_switch">Switch D2 lamp</string>
-    <string name="deuteruim_clear_time">Clear D2 lamp time</string>
-    <string name="tungsten_switch">Switch W lamp</string>
-    <string name="tungsten_clear_time">Clear W lamp time</string>
-    <string name="set_switch_wavelength">Set WL of switch lamp</string>
+    <string name="deuterium_switch">Turn on/off D2 lamp</string>
+    <string name="deuteruim_clear_time">Reset D2 lamp usage time</string>
+    <string name="tungsten_switch">Turn on/off W lamp</string>
+    <string name="tungsten_clear_time">Reset W lamp usage time</string>
+    <string name="set_switch_wavelength">Set WL of lamp change</string>
     <string name="reset_dark">Refresh dark current</string>
     <string name="adjust_wl">Adjusting wavelength</string>
     <string name="analysis_method">Method</string>
@@ -208,7 +208,7 @@
     <string name="title_conc_end">Conc. upper limit</string>
     <string name="conc_unit">ug/ml</string>
     <string name="clear_chart">clear</string>
-    <string name="wait_time">Wait time:</string>
+    <string name="wait_time">Delay time:</string>
     <string name="please_wait">Please wait...</string>
     <string name="file_manager">File Manager</string>
 
