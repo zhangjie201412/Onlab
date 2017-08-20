@@ -212,9 +212,19 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 List<String> saveFileList = DeviceApplication.getInstance().getWavelengthScanDb().getTables();
                 Log.d(TAG, "Alread saved -> " + saveFileList.size() + " files.");
 
+                boolean fileExisted = false;
                 for (int i = 0; i < saveFileList.size(); i++) {
                     Log.d(TAG, String.format("[%d] -> %s\n", i, saveFileList.get(i)));
+                    if(name.equals(saveFileList.get(i))) {
+                        fileExisted = true;
+                    }
                 }
+
+                if(fileExisted) {
+                    Toast.makeText(getActivity(), R.string.notice_file_existed, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 String fileName = name;
                 Log.d(TAG, "save to -> " + fileName);
 

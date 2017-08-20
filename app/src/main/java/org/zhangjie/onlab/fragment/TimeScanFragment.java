@@ -1329,8 +1329,10 @@ public class TimeScanFragment extends Fragment implements View.OnClickListener, 
                 tv.setText(R.string.please_wait);
             } else if(msg.what == DELAY_DIALOG_UPDATE) {
                 TextView tv = (TextView)mDelayDialog.findViewById(R.id.tv_dialog_content);
-                tv.setText(getString(R.string.wait_time) +
-                        " " + msg.arg1 + " " + getString(R.string.s));
+                if(tv != null) {
+                    tv.setText(getString(R.string.wait_time) +
+                            " " + msg.arg1 + " " + getString(R.string.s));
+                }
             } else if(msg.what == DELAY_DIALOG_DISMISS) {
                 mDelayDialog.dismiss();
             }

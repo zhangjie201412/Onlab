@@ -89,7 +89,7 @@ public class DnaSettingDialog extends DialogFragment {
         Log.d("###", "SIZE = " + getResources().getDimensionPixelSize(R.dimen.formalu_text_size));
 
         mFormaluTextView = (TextView) view.findViewById(R.id.tv_formalu_title);
-        mSp = new SpannableString("CDNA=(Abs波长1-Abs参考波长)xF1-(Abs波长2-Abs参考波长)xF2\nCProtein=(Abs波长2-Abs参考波长)xF3-(Abs波长1-Abs参考波长)xF4");
+        mSp = new SpannableString(getString(R.string.dna_formalu_title));
         mSp.setSpan(new StyleSpan(Typeface.BOLD), 0, mSp.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size), true), 0, mSp.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new TypefaceSpan("monospace"), 0, mSp.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -110,8 +110,8 @@ public class DnaSettingDialog extends DialogFragment {
         mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 58, 61, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 65, 69, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 65, 69, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new SubscriptSpan(), 76, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 76, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new SubscriptSpan(), 78, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 78, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new SubscriptSpan(), 85, 89, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mSp.setSpan(new AbsoluteSizeSpan((int)getResources().getDimension(R.dimen.formalu_text_size_down), true), 85, 89, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mFormaluTextView.setText(mSp);

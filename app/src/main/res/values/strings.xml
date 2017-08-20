@@ -8,7 +8,7 @@
     <string name="action_save">Save</string>
     <string name="action_file_export">File Export</string>
     <string name="action_print">Print</string>
-    <string name="action_set_wavelength">Set WL</string>
+    <string name="action_set_wavelength">Wavelength</string>
     <string name="action_baseline">Baseline</string>
     <string name="action_peak_distance">Peak Height</string>
     <string name="action_dark_current">Dark Current</string>
@@ -139,6 +139,7 @@
     <string name="gain">Gain</string>
     <string name="not_save">Exit without saving</string>
     <string name="notice_name_invalid">Invalid name</string>
+    <string name="notice_file_existed">File name already existed, save failed</string>
     <string name="regist_code"> </string>
     <string name="license">License</string>
     <string name="regist_code_title">License</string>
@@ -185,7 +186,7 @@
     <string name="method_two">Method 2</string>
     <string name="method_custom">Custom method</string>
     <string name="wavelength_ref">Ref. WL</string>
-    <string name="parameter_setting">Set parameter</string>
+    <string name="parameter_setting">Set WL</string>
     <string name="F1">F1=</string>
     <string name="F2">F2=</string>
     <string name="F3">F3=</string>
@@ -211,6 +212,7 @@
     <string name="wait_time">Delay time:</string>
     <string name="please_wait">Please wait...</string>
     <string name="file_manager">File Manager</string>
+    <string name="dna_formalu_title">CDNA=(Abswl1-Absref )xF1-(Abswl2-Absref )xF2\nCProtein=(Abswl2-Absref )xF3-(Abswl1-Absref )xF4</string>
 
     <string name="key_timescan_setting_start">key_setting_timescan_start</string>
     <string name="key_timescan_setting_end">key_setting_timescan_end</string>
