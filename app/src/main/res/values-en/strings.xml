@@ -49,8 +49,10 @@
     <string name="smooth">Smooth</string>
     <string name="name">Name</string>
     <string name="conc">Conc.</string>
-    <string name="sample_fitting">Fitting Method</string>
+    <string name="sample_fitting">Standard fitting</string>
+    <string name="ratio_fitting">Coefficient</string>
     <string name="method_fitting_one">Linear fit</string>
+    <string name="method_fitting_one_zero">Linear fit through zero</string>
     <string name="unit_ug_ml">ug/ml</string>
     <string name="notice_string">Notice</string>
     <string name="sure_to_delete">Please confirm.</string>
@@ -110,11 +112,11 @@
     <string name="formalu_detail1">C = K1 x A</string>
     <string name="formalu_detail2">C = K0 + K1 x A</string>
     <string name="wavelength_setting">Set WL</string>
-    <string name="nm_ratio1"> nm   factor1</string>
+    <string name="nm_ratio1"> nm&#160;&#160;&#160;&#160;factor1</string>
     <string name="wavelength1">WL1</string>
-    <string name="nm_ratio2"> nm   factor2</string>
+    <string name="nm_ratio2"> nm&#160;&#160;&#160;&#160;factor2</string>
     <string name="wavelength2">WL2</string>
-    <string name="nm_ratio3"> nm   factor3</string>
+    <string name="nm_ratio3"> nm&#160;&#160;&#160;&#160;factor3</string>
     <string name="wavelength3">WL3</string>
     <string name="system_setting">Utility</string>
     <string name="acurrency_setting">Set accuracy</string>
@@ -205,8 +207,8 @@
     <string name="create_baseline">Create</string>
     <string name="apply_done">Apply baseline done</string>
     <string name="title_conc_setting">Set conc.(Y axis)</string>
-    <string name="title_conc_start">Conc. lower limit</string>
-    <string name="title_conc_end">Conc. upper limit</string>
+    <string name="title_conc_start">Lower limit</string>
+    <string name="title_conc_end">Upper limit</string>
     <string name="conc_unit">ug/ml</string>
     <string name="clear_chart">clear</string>
     <string name="wait_time">Delay time:</string>
@@ -220,6 +222,8 @@
     <string name="app_company">Onlab Shanghai</string>
     <string name="app_copy_right">Copyright © 2016 Onlab. All Rights Reserved.</string>
     <string name="system_baseline">System Baseline</string>
+    <string name="qa_x_title">Set X axis(Abs)</string>
+    <string name="qa_y_title">Set Y axis(Conc)</string>
 
     <string-array name="operations">
         <item>Add</item>
@@ -262,7 +266,7 @@
     </string-array>
 
     <string-array name="fitting_methods">
-        <item>Linear fit zero crossing</item>
+        <item>Linear fit through zero</item>
         <item>Linear fit</item>
     </string-array>
 

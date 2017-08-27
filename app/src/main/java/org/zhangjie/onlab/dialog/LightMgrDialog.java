@@ -32,6 +32,8 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
     private TextView mLampWavelengthTextView;
     private WavelengthDialog mWavelengthDialog;
     private float mLampWavelength = 0.0f;
+    private boolean mD2Status;
+    private boolean mWuStatus;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -50,6 +52,9 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
         mTungstenClear.setOnClickListener(this);
         mSwitchWavelength.setOnClickListener(this);
 
+        mDeuteriumSwitcher.setChecked(mD2Status);
+        mTungstenSwitcher.setChecked(mWuStatus);
+
         mDeuteriumSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -61,6 +66,7 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
                     //off
                     DeviceManager.getInstance().doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_D2OFF);
                 }
+                mD2Status = isChecked;
                 DeviceApplication.getInstance().getSpUtils().setKeyD2Status(isChecked);
             }
         });
@@ -76,6 +82,7 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
                     //off
                     DeviceManager.getInstance().doSingleCommand(DeviceManager.DEVICE_CMD_LIST_SET_WUOFF);
                 }
+                mWuStatus = isChecked;
                 DeviceApplication.getInstance().getSpUtils().setKeyWuStatus(isChecked);
             }
         });
@@ -91,6 +98,14 @@ public class LightMgrDialog extends DialogFragment implements View.OnClickListen
 
         builder.setView(view);
         return builder.create();
+    }
+
+    public void setD2Status(boolean on) {
+        mD2Status = on;
+    }
+
+    public void setmWuStatus(boolean on) {
+        mWuStatus = on;
     }
 
     @Override

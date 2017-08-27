@@ -49,8 +49,10 @@
     <string name="smooth">曲线平滑</string>
     <string name="name">名称</string>
     <string name="conc">浓度</string>
-    <string name="sample_fitting">样品标定</string>
+    <string name="sample_fitting">标样法</string>
+    <string name="ratio_fitting">系数法</string>
     <string name="method_fitting_one">一阶拟合</string>
+    <string name="method_fitting_one_zero">一阶过零</string>
     <string name="unit_ug_ml">ug/ml</string>
     <string name="notice_string">提示</string>
     <string name="sure_to_delete">确定要删除选择项?</string>
@@ -110,11 +112,11 @@
     <string name="formalu_detail1">CONC = K1 x A</string>
     <string name="formalu_detail2">CONC = K0 + K1 x A</string>
     <string name="wavelength_setting">波长设置</string>
-    <string name="nm_ratio1"> nm   系数1</string>
+    <string name="nm_ratio1"> nm&#160;&#160;&#160;&#160;系数1</string>
     <string name="wavelength1">波长1</string>
-    <string name="nm_ratio2"> nm   系数2</string>
+    <string name="nm_ratio2"> nm&#160;&#160;&#160;&#160;系数2</string>
     <string name="wavelength2">波长2</string>
-    <string name="nm_ratio3"> nm   系数3</string>
+    <string name="nm_ratio3"> nm&#160;&#160;&#160;&#160;系数3</string>
     <string name="wavelength3">波长3</string>
     <string name="system_setting">系统应用</string>
     <string name="acurrency_setting">精度设置</string>
@@ -205,8 +207,8 @@
     <string name="create_baseline">新建</string>
     <string name="apply_done">已使用当前基线</string>
     <string name="title_conc_setting">浓度设定(Y轴)</string>
-    <string name="title_conc_start">最小浓度</string>
-    <string name="title_conc_end">最大浓度</string>
+    <string name="title_conc_start">坐标下限</string>
+    <string name="title_conc_end">坐标上限</string>
     <string name="conc_unit">ug/ml</string>
     <string name="clear_chart">清除</string>
     <string name="wait_time">等待时间:</string>
@@ -222,6 +224,8 @@
     <string name="app_company">上海昂拉仪器有限公司 版权所有</string>
     <string name="app_copy_right">Copyright © 2016 Onlab. All Rights Reserved.</string>
     <string name="system_baseline">系统基线</string>
+    <string name="qa_x_title">设定X轴(吸光度)</string>
+    <string name="qa_y_title">设定Y轴(浓度)</string>
 
     <string-array name="operations">
         <item>加法</item>

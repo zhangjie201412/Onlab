@@ -457,23 +457,33 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         float ratio3 = sp.getQARatio3();
         float xStart, xEnd, yStart, yEnd;
 
+        if(fitting_method == QuantitativeAnalysisSettingActivity.FITTING_METHOD_ONE) {
+            mFittingMethodTextView.setText(R.string.method_fitting_one);
+        } else if(fitting_method == QuantitativeAnalysisSettingActivity.FITTING_METHOD_ONE_ZERO) {
+            mFittingMethodTextView.setText(R.string.method_fitting_one_zero);
+        }
+
         xStart = DeviceApplication.getInstance().getSpUtils().getQALimitDown();
         xEnd = DeviceApplication.getInstance().getSpUtils().getQALimitUp();
         yStart = DeviceApplication.getInstance().getSpUtils().getQAStartConc();
         yEnd = DeviceApplication.getInstance().getSpUtils().getQAEndConc();
 
         if (calc_type == QuantitativeAnalysisSettingActivity.CALC_TYPE_FORMALU) {
+            mFittingTypeTextView.setText(R.string.ratio_fitting);
             mFormaluTextView.setVisibility(View.VISIBLE);
             //make the formalu
             String formalu = "CONC = ";
             if (k0 != 0) {
-                formalu += "" + k0;
+                formalu += String.format("%.4f", k0);
+//                formalu += "" + k0;
             }
             if (k1 != 0) {
                 if (k0 != 0) {
-                    formalu += " + " + k1 + " x A";
+                    formalu += String.format(" + %.4f x A", k1);
+//                    formalu += " + " + k1 + " x A";
                 } else {
-                    formalu += "" + k1 + " x A";
+                    formalu += String.format("%.4f x A", k1);
+//                    formalu += "" + k1 + " x A";
                 }
             }
             if (k0 == 0 && k1 == 0) {
@@ -488,6 +498,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
             //update hello chart with formalu
             updateChartWithFormalu(k0, k1);
         } else if (calc_type == QuantitativeAnalysisSettingActivity.CALC_TYPE_SAMPLE) {
+            mFittingTypeTextView.setText(R.string.sample_fitting);
 //            mFormaluTextView.setVisibility(View.GONE);
             mFormaluTextView.setVisibility(View.VISIBLE);
             //make the formalu
@@ -516,6 +527,7 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         String xTtitle = getString(R.string.abs_with_unit);
         String yTitle = getString(R.string.conc) + "(" + getResources().getStringArray(R.array.concs)[conc_unit] + ")";
         updateXYTitle(xTtitle, yTitle, xStart, xEnd, yEnd, yStart);
+        mConcUnitTextView.setText(getResources().getStringArray(R.array.concs)[conc_unit]);
     }
 
     void updateXYTitle(String xTitle, String yTitle, float left, float right, float top, float bottom) {
@@ -1057,13 +1069,16 @@ public class QuantitativeAnalysisFragment extends Fragment implements View.OnCli
         //make the formalu
         String formalu = "CONC = ";
         if (sampleA0 != 0) {
-            formalu += "" + sampleA0;
+            formalu += String.format("%.4f", sampleA0);
+//            formalu += "" + sampleA0;
         }
         if (sampleA1 != 0) {
             if (sampleA0 != 0) {
-                formalu += " + " + sampleA1 + " x A";
+                formalu += String.format(" + %.4f x A", sampleA1);
+//                formalu += " + " + sampleA1 + " x A";
             } else {
-                formalu += "" + sampleA1 + " x A";
+                formalu += String.format("%.4f x A", sampleA1);
+//                formalu += "" + sampleA1 + " x A";
             }
         }
         if (sampleA0 == 0 && sampleA1 == 0) {

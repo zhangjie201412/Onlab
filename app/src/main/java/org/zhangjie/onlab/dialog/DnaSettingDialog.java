@@ -3,6 +3,7 @@ package org.zhangjie.onlab.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import org.zhangjie.onlab.R;
 public class DnaSettingDialog extends DialogFragment {
     private TextView mFormaluTextView;
     private SpannableString mSp;
+    private int mDnaMethodIndex = 0;
 
     private static final float METHOD1_WAVELENGTH1 = 260.0f;
     private static final float METHOD1_WAVELENGTH2 = 280.0f;
@@ -61,6 +63,7 @@ public class DnaSettingDialog extends DialogFragment {
     private EditText mF4;
 
     private OnDnaSettingListener mListener;
+    private boolean mUiInited = false;
 
     public class DnaSettingParam {
         public float wavelength1;
@@ -175,6 +178,26 @@ public class DnaSettingDialog extends DialogFragment {
         return true;
     }
 
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        super.show(manager, tag);
+        if(!mUiInited)
+            return;
+//        if(mDnaMethodIndex == 0) {
+//            mMethod1.setChecked(true);
+//            mMethod2.setChecked(false);
+//            mMethodCustom.setChecked(false);
+//        } else if(mDnaMethodIndex == 1) {
+//            mMethod1.setChecked(false);
+//            mMethod2.setChecked(true);
+//            mMethodCustom.setChecked(false);
+//        } else if(mDnaMethodIndex == 2) {
+//            mMethod1.setChecked(false);
+//            mMethod2.setChecked(false);
+//            mMethodCustom.setChecked(true);
+//        }
+    }
+
     private void initView(View view) {
         mRgMethod = (RadioGroup)view.findViewById(R.id.rg_analysis_method);
         mMethod1 = (RadioButton)view.findViewById(R.id.rb_method_one);
@@ -187,6 +210,19 @@ public class DnaSettingDialog extends DialogFragment {
         mF2 = (EditText)view.findViewById(R.id.et_f2);
         mF3 = (EditText)view.findViewById(R.id.et_f3);
         mF4 = (EditText)view.findViewById(R.id.et_f4);
+//        if(mDnaMethodIndex == 0) {
+//            mMethod1.setChecked(true);
+//            mMethod2.setChecked(false);
+//            mMethodCustom.setChecked(false);
+//        } else if(mDnaMethodIndex == 1) {
+//            mMethod1.setChecked(false);
+//            mMethod2.setChecked(true);
+//            mMethodCustom.setChecked(false);
+//        } else if(mDnaMethodIndex == 2) {
+//            mMethod1.setChecked(false);
+//            mMethod2.setChecked(false);
+//            mMethodCustom.setChecked(true);
+//        }
 
         mRgMethod.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -207,6 +243,7 @@ public class DnaSettingDialog extends DialogFragment {
                         mF2.setEnabled(false);
                         mF3.setEnabled(false);
                         mF4.setEnabled(false);
+                        mDnaMethodIndex = 0;
                         break;
                     case R.id.rb_method_two:
                         mWavelength1.setText("" + METHOD2_WAVELENGTH1);
@@ -223,6 +260,7 @@ public class DnaSettingDialog extends DialogFragment {
                         mF2.setEnabled(false);
                         mF3.setEnabled(false);
                         mF4.setEnabled(false);
+                        mDnaMethodIndex = 1;
                         break;
                     case R.id.rb_method_custom:
                         mWavelength1.setEnabled(true);
@@ -239,6 +277,7 @@ public class DnaSettingDialog extends DialogFragment {
                         mF2.setText("");
                         mF3.setText("");
                         mF4.setText("");
+                        mDnaMethodIndex = 2;
                         break;
                     default:
                         break;
@@ -246,6 +285,7 @@ public class DnaSettingDialog extends DialogFragment {
             }
         });
         mMethod1.setChecked(true);
+        mUiInited = true;
 
     }
 }

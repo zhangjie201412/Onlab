@@ -135,6 +135,9 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
     private LightMgrDialog mLightMgrDialog;
     private DarkCurrentDialog mDarkCurrentDialog;
 
+    private boolean mLightD2;
+    private boolean mLightWu;
+
     private Handler mUiHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -475,6 +478,19 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             msg[1] = msg[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
             float wavelength = Float.parseFloat(msg[1]);
             DeviceApplication.getInstance().getSpUtils().setLampWavelength(wavelength);
+        } else if(tag.startsWith(DeviceManager.TAG_GET_D2)) {
+            msg[1] = msg[1].replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+            if(msg[1].equals("1")) {
+                mLightD2 = true;
+            } else if(msg[1].equals("0")) {
+                mLightD2 = false;
+            }
+        } else if(tag.startsWith(DeviceManager.TAG_GET_WU)) {
+            if(msg[1].equals("1")) {
+                mLightWu = true;
+            } else if(msg[1].equals("0")) {
+                mLightWu = false;
+            }
         }
     }
 
@@ -1050,6 +1066,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mA = Integer.parseInt(msgs[2]);
             mI0Ref = Integer.parseInt(msgs[3]);
             mARef = Integer.parseInt(msgs[4]);
+            Log.d(TAG, "multi: " + mI0 + ", " + mA + ", " + mI0Ref + ", " + mARef);
 
             int I0 = Integer.parseInt(msgs[1]);
             mDeviceManager.setDark(mMultipleWavelength, I0);
@@ -1109,12 +1126,13 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             }
             energy /= 6;
             energyRef /= 6;
+            Log.d(TAG, "multi: " + energy + ", " + energyRef);
 
             int gain = mDeviceManager.getGainFromBaseline((int) mMultipleWavelength);
             int i0 = mDeviceManager.getDarkFromWavelength(mMultipleWavelength);
             int gainRef = mDeviceManager.getGainFromBaselineRef((int) mMultipleWavelength);
             int i0Ref = mDeviceManager.getDarkRefFromWavelength(mMultipleWavelength);
-            Log.d(TAG, "$$$$ wavelength = " + mMultipleWavelength + ", energy = " + energy + ", gain = " + gain + ", I0 = " + i0);
+            Log.d(TAG, "multi: " + gain + ", " + i0 + ", " + gainRef + ", " + i0Ref);
             int I1 = energy;
             int I1Ref = energyRef;
 
@@ -1170,6 +1188,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mA = Integer.parseInt(msgs[2]);
             mI0Ref = Integer.parseInt(msgs[3]);
             mARef = Integer.parseInt(msgs[4]);
+            Log.d(TAG, "dna: " + mI0 + ", " + mA + ", " + mI0Ref + ", " + mARef);
 
             int I0 = Integer.parseInt(msgs[1]);
             mDeviceManager.setDark(mDnaWavelength, I0);
@@ -1202,19 +1221,38 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             mDnaWavelength = Float.parseFloat(wl);
         } else if (tag.startsWith(DeviceManager.TAG_SET_A)) {
 
-        } else if (tag.startsWith("ge2 1")) {
+        } else if (tag.startsWith("ge2 6")) {
             if (mDnaWavelength == 0) {
                 return;
             }
+            int[] energies = new int[6];
+            int[] energiesRef = new int[6];
             //get energy
-            msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
-            msgs[2] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
-            energy = Integer.parseInt(msgs[1]);
-            energyRef = Integer.parseInt(msgs[2]);
+            energy = 0;
+            energyRef = 0;
+            for (int i = 0; i < 6; i++) {
+                msgs[i + 1] = msgs[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energies[i] = Integer.parseInt(msgs[i + 1], 10);
+                energy += energies[i];
+            }
+            for (int i = 6; i < 12; i++) {
+                msgs[i + 1] = msgs[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+                energiesRef[i - 6] = Integer.parseInt(msgs[i + 1], 10);
+                energyRef += energiesRef[i - 6];
+            }
+            energy /= 6;
+            energyRef /= 6;
+            //get energy
+//            msgs[1] = msgs[1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+//            msgs[2] = msgs[2].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
+//            energy = Integer.parseInt(msgs[1]);
+//            energyRef = Integer.parseInt(msgs[2]);
+            Log.d(TAG, "dna: " + energy + ", " + energyRef);
             int gain = mDeviceManager.getGainFromBaseline((int) mDnaWavelength);
             int i0 = mDeviceManager.getDarkFromWavelength(mDnaWavelength);
             int gainRef = mDeviceManager.getGainFromBaselineRef((int) mDnaWavelength);
             int i0Ref = mDeviceManager.getDarkRefFromWavelength(mDnaWavelength);
+            Log.d(TAG, "dna: " + gain + ", " + i0 + ", " + gainRef + ", " + i0Ref);
 
             int I1 = energy;
             int I1Ref = energyRef;

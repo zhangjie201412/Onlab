@@ -49,440 +49,464 @@
     </android.support.v7.widget.Toolbar>
 
     <LinearLayout
-        android:id="@+id/layout_setting1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tb_qa_setting"
-        android:orientation="horizontal">
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/layout_fitting_method"
-            android:layout_width="0dp"
+            android:id="@+id/layout_setting1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/setting_margin_left"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:orientation="vertical">
+            android:layout_below="@id/tb_qa_setting"
+            android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/layout_fitting_method"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:clickable="false"
-                android:text="@string/title_fitting_method"
-                android:textSize="@dimen/setting_content" />
+                android:layout_weight="1"
+                android:clickable="true"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/fitting_method_value"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/title_fitting_method"
+                    android:textSize="@dimen/setting_title" />
+
+                <TextView
+                    android:id="@+id/fitting_method_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/setting_margin_left"
+                    android:clickable="false"
+                    android:text="@string/summary_fitting_method"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_conc_unit"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:clickable="false"
-                android:text="@string/summary_fitting_method"
-                android:textColor="@color/color_setting_value"
-                android:textSize="@dimen/setting_value" />
+                android:layout_weight="1"
+                android:clickable="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="false"
+                    android:text="@string/title_conc_unit"
+                    android:textSize="@dimen/setting_title" />
+
+                <TextView
+                    android:id="@+id/conc_unit_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/setting_margin_left"
+                    android:clickable="false"
+                    android:text="@string/summary_conc_unit"
+                    android:textColor="@color/color_setting_value"
+                    android:textSize="@dimen/setting_value" />
+            </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/layout_conc_unit"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/setting_margin_left"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:clickable="false"
-                android:text="@string/title_conc_unit"
-                android:textSize="@dimen/setting_content" />
-
-            <TextView
-                android:id="@+id/conc_unit_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:clickable="false"
-                android:text="@string/summary_conc_unit"
-                android:textColor="@color/color_setting_value"
-                android:textSize="@dimen/setting_value" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <View
-        android:id="@+id/first_line"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_below="@id/layout_setting1"
-        android:background="@color/color_divide_line" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/first_line"
-        android:orientation="horizontal">
+        <View
+            android:id="@+id/first_line"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@id/layout_setting1"
+            android:background="@color/color_divide_line" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:layout_below="@id/first_line"
+            android:orientation="horizontal">
 
-            <TextView
-                android:layout_marginTop="@dimen/setting_margin_top"
-                android:text="@string/title_wavelength_y"
-                android:textSize="@dimen/setting_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <RelativeLayout
-                android:id="@+id/layout_limit_up"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginLeft="@dimen/setting_margin_left"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:text="@string/title_limit_up"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/tv_limit_up_value"
-                    android:layout_width="wrap_content"
-                    android:layout_marginRight="@dimen/setting_margin_right"
-                    android:text="@string/abs_unit"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_height="wrap_content" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_marginTop="@dimen/setting_margin_item"
-                android:id="@+id/layout_limit_down"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginLeft="@dimen/setting_margin_left"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:text="@string/title_limit_down"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/tv_limit_down_value"
-                    android:layout_width="wrap_content"
-                    android:layout_marginRight="@dimen/setting_margin_right"
-                    android:text="@string/abs_unit"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_height="wrap_content" />
-            </RelativeLayout>
-            <View
-                android:layout_marginTop="@dimen/button_margin_top_bottom"
-                android:layout_marginBottom="@dimen/button_margin_top_bottom"
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:background="@color/color_divide_line" />
-            <RadioGroup
-                android:id="@+id/rg_qa_setting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-                <RadioButton
-                    android:id="@+id/rb_standard_sample_fitting"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/standard_sample_fitting" />
+                    android:layout_marginTop="@dimen/setting_margin_top"
+                    android:text="@string/qa_x_title"
+                    android:textSize="@dimen/setting_title" />
 
-                <RadioButton
-                    android:id="@+id/rb_formalu_ratio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/formalu_ratio" />
-
-                <TextView
-                    android:id="@+id/tv_formalu_detail"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:id="@+id/layout_limit_up"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/setting_margin_left"
-                    android:text="@string/formalu_detail2"
-                    android:textColor="@color/color_formalu_detail"
-                    android:textSize="@dimen/formalu_size" />
+                    android:layout_marginTop="@dimen/setting_margin_item"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/title_limit_up"
+                        android:textSize="@dimen/setting_content" />
+
+                    <TextView
+                        android:id="@+id/tv_limit_up_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="@dimen/setting_margin_right"
+                        android:text="@string/abs_unit"
+                        android:textSize="@dimen/setting_content" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/layout_limit_down"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/setting_margin_left"
+                    android:layout_marginTop="@dimen/setting_margin_item"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/title_limit_down"
+                        android:textSize="@dimen/setting_content" />
+
+                    <TextView
+                        android:id="@+id/tv_limit_down_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="@dimen/setting_margin_right"
+                        android:text="@string/abs_unit"
+                        android:textSize="@dimen/setting_content" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginBottom="@dimen/button_margin_top_bottom"
+                    android:layout_marginTop="@dimen/button_margin_top_bottom"
+                    android:background="@color/color_divide_line" />
+
+                <RadioGroup
+                    android:id="@+id/rg_qa_setting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <RadioButton
+                        android:id="@+id/rb_standard_sample_fitting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/standard_sample_fitting" />
+
+                    <RadioButton
+                        android:id="@+id/rb_formalu_ratio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/formalu_ratio" />
+
+                    <TextView
+                        android:id="@+id/tv_formalu_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/setting_margin_left"
+                        android:text="@string/formalu_detail2"
+                        android:textColor="@color/color_formalu_detail"
+                        android:textSize="@dimen/formalu_size" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_formalu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/setting_margin_left"
+                        android:gravity="center"
+
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_k0"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="K0 = "
+                                android:textSize="@dimen/setting_content" />
+
+                            <EditText
+                                android:id="@+id/et_k0"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/setting_margin_left"
+                                android:layout_marginRight="@dimen/setting_margin_right"
+                                android:digits="0123456789-."
+                                android:inputType="numberDecimal"
+                                android:paddingLeft="@dimen/setting_margin_left"
+                                android:text="1.0"
+                                android:textSize="@dimen/setting_content" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_k1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="K1 = "
+                                android:textSize="@dimen/setting_content" />
+
+                            <EditText
+                                android:id="@+id/et_k1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/setting_margin_left"
+                                android:layout_marginRight="@dimen/setting_margin_right"
+                                android:digits="0123456789-."
+                                android:inputType="numberDecimal"
+                                android:paddingLeft="@dimen/setting_margin_left"
+                                android:text="1.0"
+                                android:textSize="@dimen/setting_content" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </RadioGroup>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/setting_margin_top"
+                    android:text="@string/qa_y_title"
+                    android:textSize="@dimen/setting_title" />
+
+                <RelativeLayout
+                    android:id="@+id/layout_conc_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/setting_margin_left"
+                    android:layout_marginTop="@dimen/setting_margin_item"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/title_conc_end"
+                        android:textSize="@dimen/setting_content" />
+
+                    <TextView
+                        android:id="@+id/tv_conc_end_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="@dimen/setting_margin_right"
+                        android:text="@string/conc_unit"
+                        android:textSize="@dimen/setting_content" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/layout_conc_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/setting_margin_left"
+                    android:layout_marginTop="@dimen/setting_margin_item"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/title_conc_start"
+                        android:textSize="@dimen/setting_content" />
+
+                    <TextView
+                        android:id="@+id/tv_conc_start_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="@dimen/setting_margin_right"
+                        android:text="@string/conc_unit"
+                        android:textSize="@dimen/setting_content" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginBottom="@dimen/button_margin_top_bottom"
+                    android:layout_marginTop="@dimen/button_margin_top_bottom"
+                    android:background="@color/color_divide_line" />
 
                 <LinearLayout
-                    android:id="@+id/layout_formalu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/setting_margin_left"
                     android:gravity="center"
+                    android:orientation="horizontal">
 
-                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/wavelength_setting"
+                        android:textSize="@dimen/setting_title" />
 
-                    <LinearLayout
+                    <Spinner
+                        android:id="@+id/sp_wavelength_setting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/tv_k0"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="K0 = "
-                            android:textSize="@dimen/setting_content" />
-
-                        <EditText
-                            android:id="@+id/et_k0"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/setting_margin_left"
-                            android:layout_marginRight="@dimen/setting_margin_right"
-                            android:digits="0123456789-."
-                            android:inputType="numberDecimal"
-                            android:paddingLeft="@dimen/setting_margin_left"
-                            android:text="1.0"
-                            android:textSize="@dimen/setting_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/tv_k1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="K1 = "
-                            android:textSize="@dimen/setting_content" />
-
-                        <EditText
-                            android:id="@+id/et_k1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/setting_margin_left"
-                            android:layout_marginRight="@dimen/setting_margin_right"
-                            android:digits="0123456789-."
-                            android:inputType="numberDecimal"
-                            android:paddingLeft="@dimen/setting_margin_left"
-                            android:text="1.0"
-                            android:textSize="@dimen/setting_content" />
-                    </LinearLayout>
+                        android:entries="@array/wavelength_settings" />
                 </LinearLayout>
-            </RadioGroup>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-            <TextView
-                android:layout_marginTop="@dimen/setting_margin_top"
-                android:text="@string/title_conc_setting"
-                android:textSize="@dimen/setting_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <RelativeLayout
-                android:id="@+id/layout_conc_start"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginLeft="@dimen/setting_margin_left"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:text="@string/title_conc_start"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/tv_conc_start_value"
-                    android:layout_width="wrap_content"
-                    android:layout_marginRight="@dimen/setting_margin_right"
-                    android:text="@string/conc_unit"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_height="wrap_content" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:id="@+id/layout_conc_end"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginLeft="@dimen/setting_margin_left"
-                android:layout_marginTop="@dimen/setting_margin_item"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:text="@string/title_conc_end"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/tv_conc_end_value"
-                    android:layout_width="wrap_content"
-                    android:layout_marginRight="@dimen/setting_margin_right"
-                    android:text="@string/conc_unit"
-                    android:textSize="@dimen/setting_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_height="wrap_content" />
-            </RelativeLayout>
-            <View
-                android:layout_marginTop="@dimen/button_margin_top_bottom"
-                android:layout_marginBottom="@dimen/button_margin_top_bottom"
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:background="@color/color_divide_line" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/wavelength_setting"
-                    android:textSize="@dimen/setting_content" />
-
-                <Spinner
-                    android:id="@+id/sp_wavelength_setting"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:entries="@array/wavelength_settings" />
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="@dimen/setting_margin_left">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="@string/wavelength1"
+                        android:textSize="@dimen/setting_content" />
+
+                    <EditText
+                        android:id="@+id/ed_wavelength1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:inputType="numberDecimal"
+                        android:text="546.0"
+                        android:textSize="@dimen/setting_content" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="5"
+                        android:text="@string/nm_ratio1"
+                        android:textSize="@dimen/setting_content" />
+
+                    <EditText
+                        android:id="@+id/et_ratio1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:digits="0123456789-."
+                        android:inputType="numberDecimal"
+                        android:text="1.00"
+                        android:textSize="@dimen/setting_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="@dimen/setting_margin_left">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="@string/wavelength2"
+                        android:textSize="@dimen/setting_content" />
+
+                    <EditText
+                        android:id="@+id/ed_wavelength2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:inputType="numberDecimal"
+                        android:text="546.0"
+                        android:textSize="@dimen/setting_content" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="5"
+                        android:text="@string/nm_ratio2"
+                        android:textSize="@dimen/setting_content" />
+
+                    <EditText
+                        android:id="@+id/et_ratio2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:digits="0123456789-."
+                        android:inputType="numberDecimal"
+                        android:text="1.00"
+                        android:textSize="@dimen/setting_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="@dimen/setting_margin_left">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="@string/wavelength3"
+                        android:textSize="@dimen/setting_content" />
+
+                    <EditText
+                        android:id="@+id/ed_wavelength3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:inputType="numberDecimal"
+                        android:text="546.0"
+                        android:textSize="@dimen/setting_content" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="5"
+                        android:text="@string/nm_ratio3"
+                        android:textSize="@dimen/setting_content" />
+
+                    <EditText
+                        android:id="@+id/et_ratio3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:digits="0123456789-."
+                        android:inputType="numberDecimal"
+                        android:text="1.00"
+                        android:textSize="@dimen/setting_content" />
+                </LinearLayout>
+
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="@dimen/setting_margin_left">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@string/wavelength1"
-                    android:textSize="@dimen/setting_content" />
-
-                <EditText
-                    android:id="@+id/ed_wavelength1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:inputType="numberDecimal"
-                    android:text="546.0"
-                    android:textSize="@dimen/setting_content" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:text="@string/nm_ratio1"
-                    android:textSize="@dimen/setting_content" />
-
-                <EditText
-                    android:id="@+id/et_ratio1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:digits="0123456789-."
-                    android:inputType="numberDecimal"
-                    android:text="1.00"
-                    android:textSize="@dimen/setting_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="@dimen/setting_margin_left">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@string/wavelength2"
-                    android:textSize="@dimen/setting_content" />
-
-                <EditText
-                    android:id="@+id/ed_wavelength2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:inputType="numberDecimal"
-                    android:text="546.0"
-                    android:textSize="@dimen/setting_content" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:text="@string/nm_ratio2"
-                    android:textSize="@dimen/setting_content" />
-
-                <EditText
-                    android:id="@+id/et_ratio2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:digits="0123456789-."
-                    android:inputType="numberDecimal"
-                    android:text="1.00"
-                    android:textSize="@dimen/setting_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="@dimen/setting_margin_left">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@string/wavelength3"
-                    android:textSize="@dimen/setting_content" />
-
-                <EditText
-                    android:id="@+id/ed_wavelength3"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:inputType="numberDecimal"
-                    android:text="546.0"
-                    android:textSize="@dimen/setting_content" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:text="@string/nm_ratio3"
-                    android:textSize="@dimen/setting_content" />
-
-                <EditText
-                    android:id="@+id/et_ratio3"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:digits="0123456789-."
-                    android:inputType="numberDecimal"
-                    android:text="1.00"
-                    android:textSize="@dimen/setting_content" />
-            </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
+
 
 </RelativeLayout>

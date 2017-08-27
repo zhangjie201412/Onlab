@@ -121,10 +121,10 @@ public class SharedPreferenceUtils {
         return mSp.getFloat(KEY_QA_START_CONC, 0);
     }
     public float getQAEndConc() {
-        return mSp.getFloat(KEY_QA_END_CONC, 4.0f);
+        return mSp.getFloat(KEY_QA_END_CONC, 10.0f);
     }
     public float getQALimitUp() {
-        return mSp.getFloat(KEY_QA_LIMIT_UP, 10.0f);
+        return mSp.getFloat(KEY_QA_LIMIT_UP, 4.0f);
     }
     public float getQALimitDown() {
         return mSp.getFloat(KEY_QA_LIMIT_DOWN, 0.0f);

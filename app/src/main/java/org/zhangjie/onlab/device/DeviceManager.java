@@ -65,7 +65,9 @@ public class DeviceManager implements BtleListener {
     public static final int DEVICE_CMD_LIST_ADJUST_WL = 0x1014;
     public static final int DEVICE_CMD_LIST_GET_R = 0x1015;
     public static final int DEVICE_CMD_LIST_SET_R = 0x1016;
-    public static final int DEVICE_CMD_LIST_END = 0x1017;
+    public static final int DEVICE_CMD_LIST_GET_D2 = 0x1017;
+    public static final int DEVICE_CMD_LIST_GET_WU = 0x1018;
+    public static final int DEVICE_CMD_LIST_END = 0x1019;
     public static String[] CMD_LIST;
     //----cmd list
 
@@ -101,6 +103,8 @@ public class DeviceManager implements BtleListener {
     public static final String TAG_SET_LAMP_WAVELENGTH = "setlampwl";
     public static final String TAG_RESET_DARK = "resetdark2";
     public static final String TAG_ADJUST_WL = "adjustwl";
+    public static final String TAG_GET_D2 = "getd2";
+    public static final String TAG_GET_WU = "getwu";
 
     public static final float BASELINE_END = 1100;//1100;
     public static final float BASELINE_START = 190;//190;
@@ -148,6 +152,8 @@ public class DeviceManager implements BtleListener {
         CMD_LIST[DEVICE_CMD_LIST_SET_LAMP - DEVICE_CMD_LIST_START] = "setlamp";
         CMD_LIST[DEVICE_CMD_LIST_SET_FILTER - DEVICE_CMD_LIST_START] = "setfilter";
         CMD_LIST[DEVICE_CMD_LIST_ADJUST_WL - DEVICE_CMD_LIST_START] = "adjustwl";
+        CMD_LIST[DEVICE_CMD_LIST_GET_D2 - DEVICE_CMD_LIST_START] = "getd2";
+        CMD_LIST[DEVICE_CMD_LIST_GET_WU - DEVICE_CMD_LIST_START] = "getwu";
     }
 
     @Override
@@ -469,6 +475,8 @@ public class DeviceManager implements BtleListener {
         addCmd(cmdList, DEVICE_CMD_LIST_GET_WAVELENGTH, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_A, -1);
         addCmd(cmdList, DEVICE_CMD_LIST_GET_LAMP_WAVELENGTH, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_D2, -1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_WU, -1);
         doWork(cmdList);
     }
 
@@ -687,15 +695,15 @@ public class DeviceManager implements BtleListener {
         addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl1);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl1));
         addCmd(cmdList, DEVICE_CMD_LIST_SET_R, getGainFromBaselineRef((int)wl1));
-        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 6);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wl2);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wl2));
         addCmd(cmdList, DEVICE_CMD_LIST_SET_R, getGainFromBaselineRef((int)wl2));
-        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 6);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_WAVELENGTH, wlRef);
         addCmd(cmdList, DEVICE_CMD_LIST_SET_A, getGainFromBaseline((int)wlRef));
         addCmd(cmdList, DEVICE_CMD_LIST_SET_R, getGainFromBaselineRef((int)wlRef));
-        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 1);
+        addCmd(cmdList, DEVICE_CMD_LIST_GET_ENERGY, 6);
         doWork(cmdList);
     }
     public synchronized void doQuantitativeAnalysis() {

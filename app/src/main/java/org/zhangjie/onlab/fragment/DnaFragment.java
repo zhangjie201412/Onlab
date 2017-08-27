@@ -465,6 +465,7 @@ public class DnaFragment extends Fragment implements DnaSettingDialog.OnDnaSetti
             Log.d(TAG, "F3 = " + param.f3);
             Log.d(TAG, "F4 = " + param.f4);
             mRezeroButton.setEnabled(true);
+            mStartTestButton.setEnabled(false);
             refWavelength = param.wavelengthRef;
             wavelength1 = param.wavelength1;
             wavelength2 = param.wavelength2;
