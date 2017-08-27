@@ -1900,6 +1900,11 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.action_help:
+                Intent intent = new Intent(MainActivity.this,
+                        HelpActivity.class);
+                startActivity(intent);
+                break;
             case R.id.action_setting:
                 BusProvider.getInstance().post(new SettingEvent(0));
                 break;
