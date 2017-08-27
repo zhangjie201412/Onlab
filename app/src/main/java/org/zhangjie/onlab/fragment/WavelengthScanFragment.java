@@ -221,7 +221,7 @@ public class WavelengthScanFragment extends Fragment implements View.OnClickList
                 }
 
                 if(fileExisted) {
-                    Toast.makeText(getActivity(), R.string.notice_file_existed, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.notice_file_existed, Toast.LENGTH_LONG).show();
                     return;
                 }
 
