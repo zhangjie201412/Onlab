@@ -1346,6 +1346,7 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             int[] energiesRef = new int[5];
             int I1Ref = 0;
             float abs = 0;
+            float trans = 0;
 
             for (int i = 0; i < 5; i++) {
                 msg[i + 1] = msg[i + 1].replaceAll("\\D+", "").replaceAll("\r", "").replaceAll("\n", "").trim();
@@ -1360,16 +1361,15 @@ public class MainActivity extends AppCompatActivity implements WavelengthDialog.
             I1 /= 5;
             I1Ref /= 5;
 
-            int gain = mDeviceManager.getGainFromBaseline((int) mSampleWavelength);
-            int i0 = mDeviceManager.getDarkFromWavelength(mSampleWavelength);
-            int gainRef = mDeviceManager.getGainFromBaselineRef((int) mSampleWavelength);
-            int i0Ref = mDeviceManager.getDarkRefFromWavelength(mSampleWavelength);
+            if (mA > 0) {
+                int I0 = (I1Ref - mDarkRef[mARef - 1]) * (mI0 - mDark[mA - 1]) / (mI0Ref - mDarkRef[mARef - 1]);
+                trans = (float) (I1 - mDark[mA - 1]) / (float) I0;
+                abs = (float) -Math.log10(trans);
+                //get valid trans and abs
+                trans = Utils.getValidTrans(trans);
+                abs = Utils.getValidAbs(abs);
+            }
 
-            int I0 = (I1Ref - mDarkRef[gainRef - 1]) * (i0 - mDark[gain - 1]) / (i0Ref - mDarkRef[gainRef - 1]);
-            float trans = (float) (I1 - mDark[gain - 1]) / (float) I0;
-
-            abs = (float) -Math.log10(trans);
-            abs = Utils.getValidAbs(abs);
             if (mSampleWavelength == wavelength1) {
                 mSampleAbs1 = abs;
             } else if (mSampleWavelength == wavelength2) {
